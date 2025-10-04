@@ -381,6 +381,15 @@ Can be Pack.Icon, like Material.Folder.");
 			return;
 		}
 		
+		if (!query.NE() && png != null) {
+			switch (popupMenu.showSimple("1 Text|2 Image (clipboard)|3 Text and image||0 Cancel", owner: this)) {
+			case 1: png = null; break;
+			case 2: query = null; break;
+			case 3: break;
+			default: return;
+			}
+		}
+		
 		static byte[] _GetPngFromClipboard() {
 			byte[] png;
 			if (clipboardData.getBinary(ClipFormats.Png) is { } b) png = b;
@@ -402,7 +411,7 @@ Can be Pack.Icon, like Material.Folder.");
 		
 		AI.AiModel.ApiKeys = App.Settings.ai_ak;
 		
-		var emModel = new AI.ModelVoyageEmbedImage();
+		var emModel = new AI.ModelVoyageEmbedM();
 		//var emModel = AI.AiModel.Models.OfType<AI.AiEmbeddingModel>().First(o => o.isMultimodal /*&& o.DisplayName == App.Settings.ai_modelIconSearch*/);
 		//if (emModel == null) {
 		//	_AiSettingsError($"Please go to Options > AI and select models for icon search.");
@@ -435,6 +444,7 @@ Can be Pack.Icon, like Material.Folder.");
 		catch (Exception e1) { print.it(e1); }
 		finally {
 			this.IsEnabled = true;
+			_ = Task.Delay(500).ContinueWith(t => { GC.Collect(); 1.s(); GC.Collect(); });
 		}
 		
 		void _AiSettingsError(string text) {

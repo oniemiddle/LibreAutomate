@@ -420,8 +420,8 @@ record class ModelVoyageEmbed2 : ModelVoyageEmbed {
 }
 #endif
 
-record class ModelVoyageEmbedImage : AiEmbeddingModel {
-	public ModelVoyageEmbedImage() : base("Voyage", "https://api.voyageai.com/v1/multimodalembeddings", "voyage-multimodal-3", 1024, null, new(32000, 1000, requestPeriod: 1000)) { isMultimodal = isCompact = true; }
+record class ModelVoyageEmbedM : AiEmbeddingModel {
+	public ModelVoyageEmbedM() : base("Voyage", "https://api.voyageai.com/v1/multimodalembeddings", "voyage-multimodal-3", 1024, null, new(32000, 1000, requestPeriod: 1000)) { isMultimodal = isCompact = true; }
 	//With every 560 pixels of an image being counted as a token, each input in the list must not exceed 32,000 tokens, and the total number of tokens across all inputs must not exceed 320,000.
 	
 	public override object GetPostData(IList<EmInput> input, bool isQuery) {
@@ -486,7 +486,7 @@ record class ModelClaudeChat : AiChatModel {
 			system = systemInstruction,
 			messages = messages.Select(o => new { role = o.role.ToString(), content = o.text }),
 			max_tokens = 32000, //opus-4.1 32000, sonnet-4 64000
-			temperature = temperature ?? 1, //TODO: error if null. What is the default?
+			temperature = temperature ?? 1,
 		};
 	
 	public override AiChatMessage GetAnswer(JsonNode j)

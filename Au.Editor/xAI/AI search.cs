@@ -256,9 +256,6 @@ class Embeddings(AiEmbeddingModel model) {
 	
 	#region icons
 	
-	//TODO: upload icon vector files to libreautomate.com. With names = hash.
-	//	Or maybe to github. Probably not icons, but maybe docs. Convert to text: line = name + vector base64 + hash.
-	
 	static string s_dbFileIcons = folders.ThisAppBS + "icons.db";
 	
 	/// <summary>
@@ -350,29 +347,6 @@ class Embeddings(AiEmbeddingModel model) {
 		}
 	}
 	
-#if DEBUG
-	public List<string> GetIconNamesWithPack(IEnumerable<string> names) {
-		string[] an = names.ToArray();
-		var nameIn = string.Join(',', an.Select(_ => "?"));
-		var d = an.ToDictionary(o => o, o => new List<string>());
-		List<string> a = [];
-		using var db = new sqlite(s_dbFileIcons, SLFlags.SQLITE_OPEN_READONLY);
-		using var stTables = db.Statement("SELECT name FROM _tables");
-		while (stTables.Step()) {
-			var table = stTables.GetText(0);
-			using var stNames = db.Statement($"SELECT name FROM {table} WHERE name COLLATE BINARY IN ({nameIn})");
-			stNames.BindAll(an);
-			while (stNames.Step()) {
-				d[stNames.GetText(0)].Add(table);
-			}
-		}
-		foreach (var (k, v) in d) {
-			foreach (var t in v) a.Add($"{t}.{k}");
-		}
-		return a;
-	}
-#endif
-	
 	#endregion
 	
 	public List<(EmVector f, float score)> GetTopMatches(float[] queryVector, List<EmVector> ems, int take) {
@@ -384,25 +358,38 @@ class Embeddings(AiEmbeddingModel model) {
 		return a;
 	}
 	
-	public static float CosineSimilarity(float[] a, float[] b) {
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
+	public static float CosineSimilarity(float[] query, Array saved) {
 		float dot = 0, normA = 0, normB = 0;
-		for (int i = 0; i < a.Length; i++) {
-			dot += a[i] * b[i];
-			normA += a[i] * a[i];
-			normB += b[i] * b[i];
+		switch (saved) {
+		case float[] b:
+			for (int i = 0; i < query.Length; i++) {
+				dot += query[i] * b[i];
+				normA += query[i] * query[i];
+				normB += b[i] * b[i];
+			}
+			break;
+		case sbyte[] b:
+			for (int i = 0; i < query.Length; i++) {
+				float f = b[i] / 127f;
+				dot += query[i] * f;
+				normA += query[i] * query[i];
+				normB += f * f;
+			}
+			break;
 		}
 		return dot / (MathF.Sqrt(normA) * MathF.Sqrt(normB));
 	}
 }
 
-record struct EmVector(string name, float[] vec);
+record struct EmVector(string name, Array vec);
 
 file class _EmStorageFile(string file) {
 	public void Save(List<string> names, List<Array> ems, List<EmInput> datas, _EmHash hash) {
 		filesystem.createDirectoryFor(file);
 		using var w = new BinaryWriter(File.Create(file));
 		w.Write((byte)(ems[0] is float[]? 4 : 1));
-		w.Write((ems[0] as Array).Length);
+		w.Write(ems[0].Length);
 		w.Write(hash.hash);
 		w.Write(hash.modelParams);
 		for (int i = 0; i < names.Count; i++) {
@@ -431,24 +418,23 @@ file class _EmStorageFile(string file) {
 	
 	public List<EmVector> Load(out _EmHash hash) {
 		using var r = _Load(out int type, out int vectorLen, out hash);
-		byte[] b = type == 1 ? new byte[vectorLen] : null;
 		List<EmVector> a = new((int)(r.BaseStream.Length / vectorLen / type));
 		while (r.BaseStream.Position < r.BaseStream.Length) {
 			var name = r.ReadString();
-			//var vec = new float[vectorLen];
-			var vec = GC.AllocateUninitializedArray<float>(vectorLen, pinned: true); //faster. When pinned, less work for GC, which runs simultaneously because we allocate large amount of memory.
 			if (type == 4) {
+				var vec = GC.AllocateUninitializedArray<float>(vectorLen, pinned: true);
 				r.Read(MemoryMarshal.AsBytes(vec.AsSpan()));
+				a.Add(new(name, vec));
 			} else {
-				r.Read(b);
-				for (int i = 0; i < vectorLen; i++) {
-					vec[i] = (sbyte)b[i] / 127f;
-				}
+				var vec = GC.AllocateUninitializedArray<sbyte>(vectorLen, pinned: true);
+				r.Read(MemoryMarshal.AsBytes(vec.AsSpan()));
+				a.Add(new(name, vec));
 			}
 			r.ReadInt64(); r.ReadInt64(); //hash
-			a.Add(new(name, vec));
 		}
 		return a;
+		
+		//With AllocateUninitializedArray faster. When pinned, less work for GC, which runs simultaneously because we allocate large amount of memory.
 	}
 	
 	public Dictionary<string, (Array vec, Hash.MD5Result hash)> LoadForUpdate() {

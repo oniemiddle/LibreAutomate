@@ -313,7 +313,7 @@ record class SciTheme { //info: record class because need `with` and synthesized
 	}
 	
 	/// <param name="multiFont">Set font only for code styles, not for STYLE_DEFAULT.</param>
-	public void ToScintilla(KScintilla sci, bool multiFont = false, string fontName = null, double? fontSize = null, bool sciCode = false) {
+	public void ToScintilla(KScintilla sci, bool multiFont = false, string fontName = null, double? fontSize = null) {
 		//print.it(sci.GetType(), sci.Name);
 		
 		if (!multiFont) sci.aaaStyleFont(STYLE_DEFAULT, fontName ?? FontName, fontSize ?? FontSize);
@@ -366,7 +366,7 @@ record class SciTheme { //info: record class because need `with` and synthesized
 		
 		sci.aaaStyleForeColor(STYLE_INDENTGUIDE, 0xcccccc);
 		
-		if (sciCode || sci.Name == "styles") { //main code editor or Options > Font, colors
+		if (sci is SciCode || sci.Name == "styles") { //main code editor or Options > Font, colors
 			_Indic(Indic.Refs, IndicRefs.color, IndicRefs.alpha, INDIC_FULLBOX);
 			_Indic(Indic.Braces, IndicBraces.color, IndicBraces.alpha, INDIC_GRADIENT);
 			_Indic(Indic.Debug, IndicDebug.color, IndicDebug.alpha, INDIC_FULLBOX);
@@ -392,7 +392,7 @@ record class SciTheme { //info: record class because need `with` and synthesized
 		sci.aaaSetElementColor(SC_ELEMENT_SELECTION_INACTIVE_BACK, SelNofocusColor);
 		sci.aaaSetElementColor(SC_ELEMENT_CARET, Caret & 0xffffff);
 		sci.Call(SCI_SETCARETWIDTH, Math.Clamp(Caret >>> 24, 1, 4)); //not DPI-scaled
-		if (sciCode) {
+		if (sci is SciCode) {
 			sci.aaaSetElementColor(SC_ELEMENT_CARET_LINE_BACK, CaretLine & 0xffffff);
 			sci.Call(SCI_SETCARETLINEFRAME, Math.Clamp(CaretLine >>> 24, 1, 4)); //not DPI-scaled
 			sci.Call(SCI_SETCARETLINEVISIBLEALWAYS, 1);

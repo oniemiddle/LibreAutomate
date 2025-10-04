@@ -5,11 +5,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Extensions;
 using Microsoft.CodeAnalysis.Classification;
-using EStyle = CiStyling.EStyle;
+using EStyle = LA.SciTheme.EStyle;
 
 partial class AuDocs {
 	static void _CreateCodeCss(string siteDir) {
-		var s = CiStyling.TTheme.Default;
+		var s = LA.SciTheme.Default;
 		var b = new StringBuilder();
 		
 		_Style("c", s.Comment);
@@ -30,7 +30,7 @@ partial class AuDocs {
 		_Style("x1", s.XmlDocTag);
 		_Style("x2", s.XmlDocText);
 		
-		void _Style(string name, CiStyling.TStyle k) {
+		void _Style(string name, LA.SciTheme.TStyle k) {
 			b.AppendFormat("pre span.{0}{{color:#{1:X6};", name, k.color);
 			if (k.bold) b.Append("font-weight: bold;");
 			b.AppendLine("}");
@@ -58,7 +58,7 @@ partial class AuDocs {
 		}
 		
 		using var ws = new AdhocWorkspace();
-		var document = CiUtil.CreateDocumentFromCode(ws, s, needSemantic: true);
+		var document = LA.CiUtil.CreateDocumentFromCode(ws, s, needSemantic: true);
 		//var semo = document.GetSemanticModelAsync().Result;
 		
 		//at first set byte[] styles.
@@ -69,7 +69,7 @@ partial class AuDocs {
 		foreach (var v in Classifier.GetClassifiedSpansAsync(document, TextSpan.FromBounds(0, s.Length)).Result) {
 			var ct = v.ClassificationType;
 			if (ct == ClassificationTypeNames.StaticSymbol) continue;
-			EStyle style = CiStyling.StyleFromClassifiedSpan(v);
+			EStyle style = LA.CiStyling.StyleFromClassifiedSpan(v);
 			int start = v.TextSpan.Start, end = v.TextSpan.End;
 			//print.it(style, s[start..end]);
 			if (style == prevStyle && start > prevEnd && a[prevEnd] == 0) start = prevEnd; //join adjacent styles separated by whitespace

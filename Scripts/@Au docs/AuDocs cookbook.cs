@@ -3,7 +3,7 @@ using System.Xml.Linq;
 partial class AuDocs {
 	
 	public static void Cookbook(string docDir) {
-		App.Settings ??= new(); //need internetSearchUrl
+		LA.App.Settings ??= new(); //need internetSearchUrl
 		
 		var sbToc = new StringBuilder();
 		List<(string name, string nameMd, string path)> aFiles = new();
@@ -62,7 +62,7 @@ This is an online copy of the LibreAutomate cookbook.
 			var b = new StringBuilder();
 			b.Append("# ").AppendLine(name);
 			string usings;
-			foreach (var (isText, s) in PanelRecipe.ParseRecipe(code, out usings)) {
+			foreach (var (isText, s) in LA.PanelRecipe.ParseRecipe(code, out usings)) {
 				if (isText) {
 					//CONSIDER: markdown-escape (replace * with \* etc).
 					//	Now escapes only in several tags, where noticed bad Type<T> etc.
@@ -147,7 +147,7 @@ This is an online copy of the LibreAutomate cookbook.
 					if (_FindRecipe(attr) is string rec) return $"<a href=\"{rec}\">{s}</a>"; //DocFX replaces .md with .html
 					break;
 				case "+see": //was <see cref="attr"/>, now <+see 'attr'>attr<>
-					if (PanelRecipe.GetSeeUrl(attr, usings) is string url2) {
+					if (LA.PanelRecipe.GetSeeUrl(attr, usings) is string url2) {
 						if (url2.Starts(website)) url2 = url2[website.Length..];
 						if (!onlyRawText) s = _MarkdownEscape(s);
 						return $"<a href=\"{url2}\">{s}</a>";

@@ -96,8 +96,9 @@ partial class CiCompletion {
 			string s = doc.aaaRangeText(false, from, to);
 			
 			//cancel if typed nonalpha if auto-showed by typing nonalpha (eg space in parameters or '(' after method name)
-			if (!_data.forced && _data.filterText.NE() && s.Length == 1 && !SyntaxFacts.IsIdentifierStartCharacter(s[0])) {
-				Cancel(); return;
+			if (!_data.forced && _data.filterText.NE() && s.Length == 1 && !SyntaxFacts.IsIdentifierStartCharacter(s[0]) && !(SyntaxFacts.IsIdentifierPartCharacter(s[0]) && _data.isDot)) {
+				Cancel();
+				return;
 			}
 			
 			foreach (var v in s) if (!SyntaxFacts.IsIdentifierPartCharacter(v)) return; //mostly because now is before SciCharAddedCommit, which commits (or cancels) if added invalid char

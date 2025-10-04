@@ -80,7 +80,7 @@ partial class AuDocs {
 			}
 		}
 		
-		var refs = Au.Compiler.MetaReferences.DefaultReferences.Values;
+		var refs = LA.MetaReferences.DefaultReferences.Values;
 		var compOpt = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: true);
 		_compilation = CSharpCompilation.Create("doc", trees, refs, compOpt);
 		

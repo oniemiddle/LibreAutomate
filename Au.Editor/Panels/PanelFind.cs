@@ -68,8 +68,13 @@ class PanelFind {
 		b.R.StartStack();
 		b.Add(out _cCase, "Case").Tooltip("Match case").Margin(right: 0).Checked(App.Settings.find_case);
 		b.Add(out _cWord, "Word").Tooltip("Whole word").Margin(right: 0).Checked(App.Settings.find_word);
-		b.Add(out _cRegex, "Regex").Tooltip("Regular expression");
-		b.xAddButtonIcon(EdIcons.Regex, _ => { _cRegex.IsChecked = true; _ShowRegexInfo(_tReplace.IsFocused ? _tReplace : _tFind); }, "Regex tool");
+		
+		b.Add(out _cRegex).Tooltip("Regular expression");
+		b.StartGrid(true).Columns(0, 0);
+		b.Add<TextBlock>("Regex").Margin("0");
+		b.Add(out KButtonRoundNoBorder rxTool, ImageUtil.LoadWpfImageElement("*FileIcons.Regex @10" + EdIcons.blue)).Margin(2, 0, -3, -1).Tooltip("Regex tool");
+		rxTool.Click += (_, _) => { _cRegex.IsChecked = true; _ShowRegexInfo(_tReplace.IsFocused ? _tReplace : _tFind); };
+		b.End();
 		b.End().End().End();
 		
 		_cCase.CheckChanged += _CheckedChanged;

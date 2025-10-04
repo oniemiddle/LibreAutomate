@@ -422,7 +422,7 @@ public partial class dialog {
 	/// <param name="buttons">
 	/// List of button names or <c>"id name"</c>. Examples: <c>"OK|Cancel"</c>, <c>"1 Yes|2 No"</c>, <c><![CDATA["1 &Save|2 Do&n't Save|0 Cancel"]]></c>, <c>["1 One", "2 Two"]</c>.
 	/// Can contain common buttons (named <b>OK</b>, <b>Yes</b>, <b>No</b>, <b>Retry</b>, <b>Cancel</b>, <b>Close</b>) and/or custom buttons (any other names).
-	/// This first in the list button will be focused (aka *default button*).
+	/// This first in the list button will be focused (aka <i>default button</i>).
 	/// More info in Remarks.
 	/// </param>
 	/// <param name="asCommandLinks">The style of custom buttons. If <c>false</c> - row of classic buttons. If <c>true</c> - column of command-link buttons that can have multiline text.</param>

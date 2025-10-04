@@ -74,7 +74,7 @@ class KCheckNoBox : KCheckBox {
 			t1.Setters.Add(new Setter(ForegroundProperty, SystemColors.HighlightTextBrush));
 			template.Triggers.Add(t1);
 		} else {
-			var brushes = GetBrushes();
+			var brushes = GetBrushes_();
 			
 			var t1 = new Trigger { Property = IsCheckedProperty, Value = true };
 			t1.Setters.Add(new Setter(Border.BackgroundProperty, brushes.checkedCold, "border"));
@@ -98,7 +98,7 @@ class KCheckNoBox : KCheckBox {
 		StyleProperty.OverrideMetadata(typeof(KCheckNoBox), new FrameworkPropertyMetadata(style));
 	}
 	
-	static (Brush checkedCold, Brush checkedHot, Brush uncheckedHot) GetBrushes() {
+	internal static (Brush checkedCold, Brush checkedHot, Brush uncheckedHot) GetBrushes_() {
 		if (s_checkedCold == null) {
 			var c = (Color)new ColorInt(0x92C1E6);
 			SolidColorBrush brush1 = new(c), brush2 = new(Color.FromArgb(180, c.R, c.G, c.B)), brush3 = new(Color.FromArgb(80, c.R, c.G, c.B));
@@ -112,6 +112,43 @@ class KCheckNoBox : KCheckBox {
 		return (s_checkedCold, s_checkedHot, s_uncheckedHot);
 	}
 	static Brush s_checkedCold, s_checkedHot, s_uncheckedHot;
+}
+
+/// <summary>
+/// Child <c>Button</c> for <see cref="KCheckNoBox"/>.
+/// </summary>
+class KButtonRoundNoBorder : Button {
+	static KButtonRoundNoBorder() {
+		bool contrast = SystemParameters.HighContrast;
+		
+		var borderFactory = new FrameworkElementFactory(typeof(Border));
+		borderFactory.Name = "border";
+		borderFactory.SetValue(Border.CornerRadiusProperty, new CornerRadius(8));
+		borderFactory.SetValue(Border.BackgroundProperty, SystemColors.ControlLightLightBrush);
+		borderFactory.SetValue(Border.PaddingProperty, new Thickness(3, 0, 3, 0));
+		
+		var contentPresenter = new FrameworkElementFactory(typeof(ContentPresenter));
+		contentPresenter.SetValue(System.Windows.Documents.TextElement.ForegroundProperty, new TemplateBindingExtension(ForegroundProperty));
+		contentPresenter.SetValue(ContentPresenter.RecognizesAccessKeyProperty, true);
+		
+		borderFactory.AppendChild(contentPresenter);
+		
+		var template = new ControlTemplate(typeof(KButtonRoundNoBorder));
+		template.VisualTree = borderFactory;
+		
+		if (!contrast) {
+			var brushes = KCheckNoBox.GetBrushes_();
+			
+			var t2 = new Trigger { Property = IsMouseOverProperty, Value = true };
+			t2.Setters.Add(new Setter(Border.BackgroundProperty, brushes.uncheckedHot, "border"));
+			template.Triggers.Add(t2);
+		}
+		
+		var style = new Style(typeof(KButtonRoundNoBorder));
+		style.Setters.Add(new Setter(TemplateProperty, template));
+		
+		StyleProperty.OverrideMetadata(typeof(KButtonRoundNoBorder), new FrameworkPropertyMetadata(style));
+	}
 }
 
 /// <summary>

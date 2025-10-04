@@ -58,7 +58,7 @@ partial class SciCode : KScintilla {
 //		Call(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITEDC);
 //#endif
 		
-		SciTheme.Current.ToScintilla(this, sciCode: true);
+		SciTheme.Current.ToScintilla(this);
 		
 		_OnHandleCreatedOrDpiChanged();
 		if (_fn.IsCodeFile) CiFolding.InitFolding(this);

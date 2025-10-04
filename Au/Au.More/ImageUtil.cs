@@ -198,8 +198,9 @@ public static partial class ImageUtil {
 			e.Height = size.Value.height;
 		}
 		if (!measured) e.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-		bool arranged = measured && e.IsArrangeValid; //initially !measured but arranged; after measuring measured and !arranged
+		bool arranged = measured && e.IsArrangeValid;
 		if (!arranged) e.Arrange(new Rect(e.DesiredSize));
+		if (!arranged) e.UpdateLayout(); //prevent memory leak
 		if (size == null) {
 			var z = e.DesiredSize; //if using RenderSize or ActualX, if element height!=width, draws in wrong place, clipped
 			size = new(Math.Min(1024d, z.Width).ToInt(), Math.Min(1024d, z.Height).ToInt());
@@ -209,8 +210,6 @@ public static partial class ImageUtil {
 		//var rtb = t_rtb ??= new RenderTargetBitmap(wid, hei, dpi, dpi, PixelFormats.Pbgra32); rtb.Clear(); //not better
 		//note: if Bgra32, throws exception "'Bgra32' PixelFormat is not supported for this operation".
 		rtb.Render(e);
-		if (!arranged) e.InvalidateArrange(); //prevent huge memory leak
-		if (!measured) e.InvalidateMeasure();
 		int stride = wid * 4, msize = hei * stride;
 		var b = new System.Drawing.Bitmap(wid, hei, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
 		using var d = b.Data(System.Drawing.Imaging.ImageLockMode.ReadWrite);
