@@ -50,6 +50,8 @@ void _Build() {
 	if (cookbook) {
 		AuDocs.Cookbook(docDir);
 		print.it("DONE cookbook");
+		
+		script.run("LA menu doc.cs");
 	}
 	
 	var d = new AuDocs();

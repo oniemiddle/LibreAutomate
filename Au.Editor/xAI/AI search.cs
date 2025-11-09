@@ -133,7 +133,7 @@ class Embeddings(AiEmbeddingModel model) {
 	
 	List<EmVector> _GetEmbeddings(string dbPath, bool compact, Func<(List<string> names, List<EmInput> datas)> getData, CancellationToken cancel) {
 		_EmHash newHash = _Hash(dbPath), oldHash = default;
-		string emPath = folders.ThisAppDataCommon + $@"AI\Embedding\{model.GetType()}-{pathname.getNameNoExt(dbPath)}.bin";
+		string emPath = folders2.LaDataCommon + $@"AI\Embedding\{model.GetType()}-{pathname.getNameNoExt(dbPath)}.bin";
 		var emFile = new _EmStorageFile(emPath);
 		List<EmVector> ems = null;
 		bool retried = false; gRetry:
@@ -198,7 +198,7 @@ class Embeddings(AiEmbeddingModel model) {
 	
 	#region docs
 	
-	static string s_dbFileDocs = folders.ThisAppBS + "doc4ai.db";
+	static string s_dbFileDocs = folders2.La + "doc4ai.db";
 	
 	/// <summary>
 	/// Loads or creates/updates embeddings for docs.
@@ -212,40 +212,50 @@ class Embeddings(AiEmbeddingModel model) {
 			List<string> names = [];
 			List<EmInput> texts = [];
 			using var db = new sqlite(s_dbFileDocs, SLFlags.SQLITE_OPEN_READONLY);
-			using var sta = db.Statement("SELECT name,text FROM doc");
+			using var sta = db.Statement("SELECT name,summary,text FROM doc");
 			while (sta.Step()) {
-				string name = sta.GetText(0), text = sta.GetText(1);
-				if (name.Ends("] toc")) continue;
+				string name = sta.GetText(0), sum = sta.GetText(1), text = sta.GetText(2);
 				names.Add(name);
-				_ProcessText(name, ref text);
 				texts.Add(text);
+				if (!sum.NE()) {
+					names.Add("+" + name);
+					texts.Add(sum);
+				}
+				
+				//_SplitAndAdd(sta.GetText(0), sta.GetText(1));
 			}
 			return (names, texts);
+			
+			//void _SplitAndAdd(string name, string text) {
+				
+			//	//_ProcessText(name, ref text);
+			//	names.Add(name);
+			//	texts.Add(text);
+			//}
 		}
 		
-		static void _ProcessText(string name, ref string s) {
-			if (!name.Starts("[api]")) return;
-			//TODO
-			//print.clear();
+		//static void _ProcessText(string name, ref string s) {
+		//	if (name.Starts("[")) return;
+		//	//TODO
+		//	//print.clear();
 			
-			//int i = s.Find("\n\n##### Exceptions");
-			//if (i > 0) s = s[..i];
+		//	//int i = s.Find("\n\n##### Exceptions");
+		//	//if (i > 0) s = s[..i];
 			
-			//print.it(s);
+		//	//print.it(s);
 			
-			//if (!dialog.show("Continue?",)) Environment.Exit(0);
-		}
+		//	//if (!dialog.show("Continue?",)) Environment.Exit(0);
+		//}
 	}
 	
-	public string[] GetDocsTexts(IEnumerable<string> names, bool summary) {
+	public string[] GetDocsTexts(IEnumerable<string> names) {
 		string[] an = names.ToArray();
 		var a = new string[an.Length];
 		using var db = new sqlite(s_dbFileDocs, SLFlags.SQLITE_OPEN_READONLY);
-		using var sta = db.Statement($"SELECT name,{(summary ? "summary" : "text")} FROM doc WHERE name IN ({string.Join(',', an.Select(_ => "?"))})");
+		using var sta = db.Statement($"SELECT name,text FROM doc WHERE name IN ({string.Join(',', an.Select(_ => "?"))})");
 		sta.BindAll(an);
 		while (sta.Step()) {
 			string name = sta.GetText(0), text = sta.GetText(1);
-			if (summary && text is null) text = name[(name.IndexOf(' ') + 1)..];
 			a[an.IndexOf(name)] = text;
 		}
 		if (a.Contains(null)) throw new ArgumentException();
@@ -256,7 +266,7 @@ class Embeddings(AiEmbeddingModel model) {
 	
 	#region icons
 	
-	static string s_dbFileIcons = folders.ThisAppBS + "icons.db";
+	static string s_dbFileIcons = folders2.La + "icons.db";
 	
 	/// <summary>
 	/// Loads or creates/updates embeddings for icons.
@@ -459,9 +469,9 @@ file class _EmStorageFile(string file) {
 	}
 	
 	public bool TryDownload(AiEmbeddingModel model, _EmHash hash) {
-//#if !SCRIPT
-//		if (App.IsAtHome) return false;
-//#endif
+		//#if !SCRIPT
+		//		if (App.IsAtHome) return false;
+		//#endif
 		if (_TryGetZipName(model, hash) is not { } zipName) return false;
 		string zipFile = file + ".7z";
 		try {

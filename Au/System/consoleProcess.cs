@@ -44,7 +44,7 @@ public sealed unsafe class consoleProcess : IDisposable {
 	StringBuilder _sb;
 	
 	/// <summary>
-	/// Starts the console program.
+	/// Starts specified console program.
 	/// </summary>
 	/// <inheritdoc cref="run.console(string, string, string, Encoding)" path="/param"/>
 	/// <exception cref="AuException">Failed, for example file not found.</exception>
@@ -62,9 +62,10 @@ public sealed unsafe class consoleProcess : IDisposable {
 		Api.PROCESS_INFORMATION pi = default;
 		try {
 			var sa = new Api.SECURITY_ATTRIBUTES(null) { bInheritHandle = 1 };
-			if (!Api.CreatePipe(out hInRead, out _hInWrite, sa, 0)) throw new AuException(0);
 			if (!Api.CreatePipe(out _hOutRead, out hOutWrite, sa, 0)) throw new AuException(0);
 			//if (!Api.CreatePipe(out _hErrRead, out hErrWrite, sa, 0)) throw new AuException(0);
+			if (!Api.CreatePipe(out hInRead, out _hInWrite, sa, 0)) throw new AuException(0);
+			
 			Api.SetHandleInformation(_hInWrite, 1, 0); //remove HANDLE_FLAG_INHERIT
 			Api.SetHandleInformation(_hOutRead, 1, 0);
 			//Api.SetHandleInformation(_hErrRead, 1, 0);
@@ -103,7 +104,7 @@ public sealed unsafe class consoleProcess : IDisposable {
 	}
 	
 	void _Dispose() {
-		if (_hInWrite.Is0) return;
+		if (_hOutRead.Is0) return;
 		process.thisProcessExit -= _OnExit;
 		if (TerminateFinally && !Ended) TerminateNow();
 		_hProcess.Dispose();
@@ -120,6 +121,16 @@ public sealed unsafe class consoleProcess : IDisposable {
 	
 	void _OnExit(Exception e) {
 		if (TerminateFinally && !Ended) TerminateNow();
+	}
+
+	/// <summary>
+	/// Closes the standard input stream (stdin), signaling end of input to the process.
+	/// </summary>
+	/// <remarks>
+	/// Some console programs expect you to close stdin after writing all input data (see <see cref="Write"/>). This signals "end of file" (EOF).
+	/// </remarks>
+	public void EndInput() {
+		_hInWrite.Dispose();
 	}
 	
 	/// <summary>

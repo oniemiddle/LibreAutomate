@@ -460,6 +460,18 @@ script.setup(trayIcon: true, sleepExit: true);
 	<snippet name="failedSnippet" info="Throw 'failed' exception." more="Exception text is optional.">
 		<![CDATA[throw new ${2:AuException}($1);]]>
 	</snippet>
+	<snippet name="httpPostJsonSnippet" info="Sends an HTTP POST request with JSON data and parses the JSON response." using="System.Text.Json.Nodes">
+		<![CDATA[var post = new { aString = "A", aNumber = 10, aBool = true, anArray = (object[])[new { x = "X0", y = "Y0" }, new { x = "X1", y = "Y1" }] }; //example input; will be sent as JSON; or you can use a raw JSON string instead
+//print.it(System.Text.Json.JsonSerializer.Serialize(post)); //debug-print the JSON that will be sent
+if (!internet.http.TryPost(out var r, "$0", internet.jsonContent(post), headers: ["Authorization: Bearer " + Environment.GetEnvironmentVariable("API_KEY")], printError: true)) return;
+//var r = internet.http.Post("$0", internet.jsonContent(post), headers: ["Authorization: Bearer " + Environment.GetEnvironmentVariable("API_KEY")]);
+//if (!r.IsSuccessStatusCode) { print.it(r.StatusCode, r.ReasonPhrase, r.Text(ignoreError: true)); return; } //on error the response likely contains an error message
+//print.it(r.Text()); //debug-print the response JSON
+JsonNode j = r.Json();
+//var s1 = (string)j["a"]["b"]; print.it(s1);
+//foreach (var v in j["c"].AsArray()) { print.it(v["d"]); }
+]]>
+	</snippet>
 
 	<!--context="Type"-->
 

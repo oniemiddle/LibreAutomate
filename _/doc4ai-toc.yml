@@ -1,0 +1,1150 @@
+Instructions for AI:
+  This entire text contains three YAML documents separated by a `---` line:
+    - 1. Instructions for AI (this document).
+    - 2. TOC of LibreAutomate API documentation:
+      - YAML structure: namespace > type > member kind > list of members.
+      - Notes: Each type (class, enum etc) and member (method, event etc) has its own article. Articles for classes, structs and interfaces don't include member descriptions. Articles for enums include member descriptions. 
+    - 3. TOC of other documentation, which has three parts:
+      - articles: additional info for API documentation. Text formats, key names etc.
+      - editor: documentation of the script editor app.
+      - cookbook: how-to guides with code examples.
+---
+Au:
+  clipboard:
+    Properties: [text]
+    Methods: [clear, copy, copyData, paste, pasteData, tryCopy, tryPaste]
+  clipboardData:
+    Methods: [AddBinary, AddFiles, AddHtml, AddImage, AddText, SetClipboard, SetOpenClipboard, contains, getBinary, getFiles, getHtml, getImage, getText]
+  computer:
+    Properties: [isOnBattery, tickCountWithoutSleep]
+    Methods: [lockOrSwitchUser, logoff, shutdown, suspend]
+    Events: [suspendResumeEvent]
+  consoleProcess:
+    Constructors: [consoleProcess]
+    Properties: [Encoding, Ended, ExitCode, InputEncoding, IsLine, TerminateFinally]
+    Methods: [Dispose, Prompt, Read, ReadAllText, ReadLine, TerminateNow, Wait, Write]
+  csvTable:
+    Constructors: [csvTable]
+    Properties: [ColumnCount, Quote, RowCount, Rows, Separator, this]
+    Methods: [AddRow, Get, InsertRow, RemoveRow, Save, Set, ToDictionary, ToString, fromDictionary, load, parse]
+  dialog:
+    Constructors: [dialog]
+    Fields: [Timeout]
+    Properties: [Controls, DialogWindow, EditControl, IsOpen, Result, Send]
+    Methods: [Buttons, ButtonsList, Checkbox, CloseAfter, Default, Edit, ExpandedText, Expander, FooterIcon, FooterText, Icon, InScreen, OwnerWindow, Progress, RadioButtons, ShowDialog, ShowDialogNoWait, Text1, Text2, ThreadWaitForClosed, ThreadWaitForOpen, Title, Wider, XY, show, showError, showInfo, showInput, showInputNumber, showList, showNoWait, showOkCancel, showProgress, showWarning, showYesNo]
+    Events: [ButtonClicked, Created, Destroyed, HelpF1, HyperlinkClicked, OtherEvents, Timer]
+  dialog.options:
+    Properties: [autoOwnerWindow, defaultScreen, defaultTitle, rtlLayout, timeoutTextFormat, topmostIfNoOwnerWindow, useAppIcon]
+  elm:
+    Properties: [ChildCount, DefaultAction, Description, Elm, Help, IsChecked, IsChecked2, IsDisabled, IsFocused, IsInvisible, IsOffscreen, IsPassword, IsPressed, IsReadonly, IsSelected, Item, KeyboardShortcut, Level, MiscFlags, Name, Parent, Rect, Role, RoleInt, SelectedChildren, State, UiaCN, UiaId, Value, WndContainer, WndTopLevel, path]
+    Methods: [Check, ComboSelect, Dispose, Expand, Focus, GetProperties, GetRect, Html, HtmlAttribute, HtmlAttributes, Invoke, JavaInvoke, MouseClick, MouseClickD, MouseClickR, MouseMove, Navigate, PostClick, PostClickD, PostClickR, ScrollTo, Select, SendKeys, ToString, WaitFor, WebInvoke, focused, fromEvent, fromMouse, fromWindow, fromXY]
+  elmFinder:
+    Constructors: [elmFinder]
+    Properties: [Next, Result, ResultGetProperty, ResultProperty, this]
+    Methods: [Exists, Find, FindAll, In, ToString, Wait]
+  filesystem:
+    Methods: [copy, copyTo, createDirectory, createDirectoryFor, delete, enumDirectories, enumFiles, enumerate, exists, getAttributes, getProperties, loadBytes, loadStream, loadText, move, moveTo, rename, save, saveBytes, saveText, searchPath, setAttributes, waitIfLocked]
+  filesystem.more:
+    Methods: [calculateDirectorySize, comparePaths, createSymbolicLink, emptyRecycleBin, getFileId, getFinalPath, isSameFile]
+  folders:
+    Properties: [AccountPictures_Win8, AdminTools, ApplicationShortcuts_Win8, CDBurning, CameraRoll_Win81, CdDvdDrive, CommonAdminTools, CommonOEMLinks, CommonPrograms, CommonStartMenu, CommonStartup, CommonTemplates, Contacts, Cookies, Desktop, DeviceMetadataStore, Documents, DocumentsLibrary, Downloads, Editor, Favorites, Fonts, GameTasks, History, ImplicitAppShortcuts, InternetCache, Libraries, Links, LocalAppData, LocalAppDataLow, LocalizedResourcesDir, Music, MusicLibrary, NetHood, NetRuntime, NetRuntimeBS, NetRuntimeDesktop, NetRuntimeDesktopBS, OriginalImages, PhotoAlbums, Pictures, PicturesLibrary, Playlists, PrintHood, Profile, ProgramData, ProgramFiles, ProgramFilesCommon, ProgramFilesCommonX64, ProgramFilesCommonX86, ProgramFilesX64, ProgramFilesX86, Programs, Public, PublicDesktop, PublicDocuments, PublicDownloads, PublicGameTasks, PublicLibraries, PublicMusic, PublicPictures, PublicRingtones, PublicUserTiles_Win8, PublicVideos, QuickLaunch, Recent, RecordedTV, RemovableDrive0, RemovableDrive1, RemovableDrive2, RemovableDrive3, ResourceDir, Ringtones, RoamedTileImages_Win8, RoamingAppData, RoamingTiles_Win8, SampleMusic, SamplePictures, SamplePlaylists, SampleVideos, SavedGames, SavedPictures, SavedPicturesLibrary, SavedSearches, Screenshots_Win8, SearchHistory_Win81, SearchTemplates_Win81, SendTo, SidebarDefaultParts, SidebarParts, SkyDriveCameraRoll_Win81, SkyDriveDocuments_Win81, SkyDrivePictures_Win81, SkyDrive_Win81, StartMenu, Startup, System, SystemX64, SystemX86, Temp, Templates, ThisApp, ThisAppBS, ThisAppDataCommon, ThisAppDataLocal, ThisAppDataRoaming, ThisAppDocuments, ThisAppDriveBS, ThisAppImages, ThisAppTemp, TreeProperties, UserProfiles, UserProgramFiles, UserProgramFilesCommon, Videos, VideosLibrary, Windows, Workspace, WorkspaceDriveBS, noAutoCreate]
+    Methods: [envVar, getFolder, getKnownFolders, removableDrive, sourceCode, sourceCodeMain, unexpandPath]
+  folders.shell:
+    Properties: [AddNewPrograms, AppUpdates, Apps_Win8, ChangeRemovePrograms, Computer, Conflict, Connections, ControlPanel, Games, HomeGroup, HomeGroupCurrentUser_Win8, Internet, Network, Printers, RecycleBin, SEARCH_CSC, SEARCH_MAPI, SearchHome, SyncManager, SyncResults, SyncSetup, UsersFiles, UsersLibraries, pidlAddNewPrograms, pidlAppUpdates, pidlApps_Win8, pidlChangeRemovePrograms, pidlComputer, pidlConflict, pidlConnections, pidlControlPanel, pidlGames, pidlHomeGroup, pidlHomeGroupCurrentUser_Win8, pidlInternet, pidlNetwork, pidlPrinters, pidlRecycleBin, pidlSEARCH_CSC, pidlSEARCH_MAPI, pidlSearchHome, pidlSyncManager, pidlSyncResults, pidlSyncSetup, pidlUsersFiles, pidlUsersLibraries]
+  icon:
+    Constructors: [icon]
+    Properties: [Handle, Size, debugSpeed]
+    Methods: [Detach, Dispose, SetWindowIcon, ToGdipBitmap, ToGdipIcon, ToWpfImage, create, load, of, ofPidl, ofThisApp, ofWindow, parsePathIndex, stock, trayIcon, winStoreAppImage]
+    Operators: [implicit]
+  inputBlocker:
+    Constructors: [inputBlocker]
+    Properties: [DontBlockInjected, Pause, ResendBlockedKeys, ResumeAfterCtrlAltDelete]
+    Methods: [Dispose, Start, Stop]
+  internet:
+    Properties: [http]
+    Methods: [formContent, jsonContent, message, ping, urlAppend]
+  keys:
+    Constructors: [keys]
+    Properties: [Options, isAlt, isCapsLock, isCtrl, isNumLock, isScrollLock, isShift, isWin]
+    Methods: [Add, AddAction, AddChar, AddClipboardData, AddKey, AddKeys, AddRepeat, AddSleep, AddText, SendNow, getMod, isMod, isPressed, send, sendL, sendt, waitForHotkey, waitForHotkeys, waitForKey, waitForKeys, waitForNoModifierKeys, waitForNoModifierKeysAndMouseButtons, waitForReleased]
+    Events: [Pasting]
+  keys.gui:
+    Properties: [isAlt, isCapsLock, isCtrl, isNumLock, isScrollLock, isShift, isWin]
+    Methods: [getKeyState, getMod, isMod, isPressed, isToggled]
+  keys.more:
+    Methods: [KKeyFromWpf, KKeyToWpf, KModFromWinforms, KModFromWpf, KModToWinforms, KModToWpf, hotkeyToString, keyToString, parseHotkeyString, parseKeyName, parseKeysString, parseTriggerString, sendKey]
+  lastError:
+    Properties: [code, message]
+    Methods: [clear, messageFor]
+  miscInfo:
+    Properties: [isChildSession]
+    Methods: [getGUIThreadInfo, getTextCursorRect, isInputDesktop]
+  mouse:
+    Properties: [lastXY, xy]
+    Methods: [click, clickEx, doubleClick, drag, isPressed, leftDown, leftUp, move, moveBy, postClick, restore, rightClick, rightDown, rightUp, save, waitForClick, waitForCursor, waitForNoButtonsPressed, wheel]
+  ocr:
+    Properties: [FoundTextRange, FoundWordIndex, Text, TextForFind, Words, engine]
+    Methods: [GetRect, MouseClick, MouseClickD, MouseClickR, MouseMove, PostClick, find, recognize, wait, waitNot]
+  ocrFinder:
+    Constructors: [ocrFinder]
+    Properties: [Result]
+    Methods: [Exists, Find, ToString, Wait, WaitNot]
+  opt:
+    Properties: [key, mouse, warnings]
+  opt.scope:
+    Methods: [all, key, mouse, warnings]
+  osVersion:
+    Fields: [win10, win7, win8, win8_1]
+    Properties: [is32BitOS, is32BitProcess, is32BitProcessAnd64BitOS, isArm64OS, isArm64Process, minWin10, minWin10_1607, minWin10_1703, minWin10_1709, minWin10_1803, minWin10_1809, minWin10_1903, minWin10_1909, minWin10_2004, minWin10_20H2, minWin10_21H1, minWin10_21H2, minWin10_22H2, minWin11, minWin11_22H2, minWin11_23H2, minWin11_24H2, minWin11_25H2, minWin8, minWin8_1, onaString, thisLibrary, winBuild, winMajor, winMinor, winVer]
+  osdRect:
+    Constructors: [osdRect]
+    Properties: [Color, Thickness]
+    Methods: [OnPaint, SetRects]
+  osdText:
+    Constructors: [osdText]
+    Properties: [BackColor, BackgroundImage, BorderColor, ClickToClose, Font, Icon, IsOfImageSize, Rect, ResizeWhenContentChanged, SecondsTimeout, Shadow, ShowMode, Text, TextColor, TextFormatFlags, WrapWidth, XY, defaultBackColor, defaultBigFont, defaultBorderColor, defaultScreen, defaultSmallFont, defaultTextColor, defaultTransparentTextColor]
+    Methods: [Dispose, Measure, OnPaint, Show, WndProc, showImage, showText, showTransparentText]
+  pathname:
+    Fields: [maxDirectoryPathLength, maxFilePathLength]
+    Methods: [combine, correctName, expand, findExtension, getDirectory, getExtension, getName, getNameNoExt, getRootLength, getUrlProtocolLength, isFullPath, isFullPathExpand, isInvalidName, isInvalidNameChar, isInvalidPathChar, isUrl, makeUnique, normalize, prefixLongPath, prefixLongPathIfNeed, unprefixLongPath]
+  perf:
+    Properties: [incremental, mcs, ms, shared, timeTotal]
+    Methods: [cpu, first, local, next, nw, toArray, toString, write]
+  perf.Instance:
+    Properties: [Incremental, TimeTotal]
+    Methods: [Dispose, First, NW, Next, ToArray, ToString, Write]
+  popupMenu:
+    Constructors: [popupMenu]
+    Properties: [CheckDontClose, FocusedItem, Font, IsOpen, Items, ItemsAndSeparators, KeyboardHook, Last, Metrics, RawText, Result, caretRectFunc, defaultFont, defaultMetrics, this]
+    Methods: [Add, AddCheck, AddRadio, Close, Separator, Show, Submenu, showSimple]
+  print:
+    Properties: [ignoreConsole, isConsoleProcess, isWritingToConsole, logFile, logFileTimestamp, noHex, redirectConsoleOutput, redirectDebugOutput, writer]
+    Methods: [clear, directly, it, list, scrollToTop, warning]
+  print.util:
+    Methods: [toList, toString]
+  process:
+    Properties: [thisExeName, thisExePath, thisProcessCultureIsInvariant, thisProcessHandle, thisProcessId, thisProcessSessionId, thisThreadHandle, thisThreadId]
+    Methods: [allProcesses, exists, getCommandLine, getDescription, getName, getProcessId, getProcessIds, getSessionId, getTimes, getVersionInfo, is32Bit, processIdFromHandle, suspend, terminate, thisProcessExitInvoke, thisThreadHasMessageLoop, triggers, waitForExit]
+    Events: [thisProcessExit]
+  regexp:
+    Constructors: [regexp]
+    Properties: [Callout]
+    Methods: [FindAll, FindAllG, GetGroupNumberOf, GetMaxGroupNumber, IsMatch, Match, Replace, Split, SplitG, addReplaceFunc, escapeQE]
+  run:
+    Methods: [console, it, itSafe, selectInExplorer, thread]
+  screen:
+    Constructors: [screen]
+    Properties: [Dpi, Handle, Info, IsAlive, IsEmpty, LazyFunc, Now, Rect, ScreenIndex, WorkArea, all, ofActiveWindow, ofMouse, primary, virtualScreen]
+    Methods: [Equals, GetHashCode, GetRect, ToString, index, isInAnyScreen, of]
+    Operators: ['!=', ==]
+  screen.at:
+    Methods: [bottom, bottomLeft, bottomRight, left, right, top, topLeft, topRight]
+  script:
+    Properties: [isDebug, isInPip, isWpfPreview, name, paused, role, testing]
+    Methods: [debug, end, isRunning, pause, restart, run, runInPip, runWait, setup, single, sourcePath, trayIcon, writeResult]
+  shortcutFile:
+    Properties: [Arguments, Description, Hotkey, ShowState, TargetAnyType, TargetPath, TargetPathRawMSI, TargetPidl, TargetURL, WorkingDirectory]
+    Methods: [Dispose, GetIconLocation, Save, SetIconLocation, create, delete, getTarget, open, openOrCreate]
+  sound:
+    Properties: [volume]
+    Methods: [beep, playDefault, playError, playEvent, playWav, speak]
+  sqlite:
+    Constructors: [sqlite]
+    Properties: [Changes, Handle, IsInTransaction, LastInsertRowid]
+    Methods: [Any, Dispose, Execute, Get, GetStruct, Statement, TableExists, Transaction]
+    Operators: [implicit]
+  sqliteStatement:
+    Constructors: [sqliteStatement]
+    Properties: [ColumnCount, DB, Handle]
+    Methods: [Bind, BindAll, BindNull, BindStruct, ColumnIndex, ColumnName, Dispose, GetArray, GetBlob, GetBool, GetDouble, GetInt, GetList, GetLong, GetStruct, GetText, Reset, Step]
+    Operators: [implicit]
+  timer:
+    Constructors: [timer]
+    Properties: [IsRunning, Tag]
+    Methods: [After, Every, Now, Stop, after, every]
+  timer2:
+    Constructors: [timer2]
+    Properties: [Tag]
+    Methods: [After, Every, Stop, after, every]
+  toolbar:
+    Constructors: [toolbar]
+    Properties: [Anchor, AutoSize, AutoSizeWrapWidth, Background, Border, BorderColor, DisplayText, DpiScaling, FirstTime, Font, Hidden, Hwnd, IsOpen, IsOwned, Items, Last, Layout, MaximizedWindowTopPlus, Metrics, MiscFlags, Name, NoContextMenu, NoDefaultImage, Offsets, OwnerWindow, Satellite, SatelliteOwner, Sizable, Size, TextColor, Transparency, defaultMetrics, this]
+    Methods: [Add, AutoHide, AutoHideScreenEdge, Close, Group, Hide, Menu, Separator, Show, ToString, find, getSettingsFilePath, toolbarsDialog]
+    Events: [Closed]
+  trayIcon:
+    Constructors: [trayIcon]
+    Fields: [MsgNotify]
+    Properties: [Hwnd, Icon, Id, Tooltip, Visible, notificationIconSize]
+    Methods: [Dispose, Focus, GetRect, HideNotification, ShowNotification, WndProc]
+    Events: [Click, Message, MiddleClick, NotificationClick, PopupClose, PopupOpen, RightClick]
+  uacInfo:
+    Properties: [Elevation, Failed, IntegrityLevel, IsUIAccess, UnsafeTokenHandle, isAdmin, isUacDisabled, ofThisProcess]
+    Methods: [Dispose, ofProcess]
+  uiimage:
+    Properties: [ListIndex, MatchIndex, Rect, RectInScreen]
+    Methods: [MouseClick, MouseClickD, MouseClickR, MouseMove, PostClick, PostClickD, PostClickR, Skip, ToString, find, wait, waitChanged, waitNot]
+  uiimageFinder:
+    Constructors: [uiimageFinder]
+    Properties: [Result]
+    Methods: [Exists, Find, Wait, WaitNot]
+  wait:
+    Methods: [doEvents, doEventsUntil, forHandle, forPostedMessage, ms, retry, s, until]
+  wildex:
+    Constructors: [wildex]
+    Properties: [IgnoreCase, MultiArray, Not, RegexNet, RegexPcre, Text, TextType]
+    Methods: [Match, ToString, hasWildcardChars]
+    Operators: [implicit]
+  wnd:
+    Constructors: [wnd]
+    Properties: [ClassName, ClientRect, ClientRectInScreen, CommonControlType, ControlId, ControlText, Elm, ExStyle, Get, Handle, Is0, Is32Bit, IsActive, IsAlive, IsChild, IsCloaked, IsCloakedGetState, IsConsole, IsFocused, IsFullScreen, IsHung, IsHungGhost, IsMaximized, IsMessageOnly, IsMinimized, IsOfThisProcess, IsOfThisThread, IsPopupWindow, IsResizable, IsToolWindow, IsTopmost, IsUnicode, IsUwpApp, IsVisible, IsVisibleAndNotCloaked, IsWindows8MetroStyle, MouseClientXY, Name, NameElm, NameWinforms, ProcessId, ProgramDescription, ProgramName, ProgramPath, Prop, Rect, RectInDirectParent, RectInWindow, Screen, Style, TaskbarButton, ThreadId, Uac, UacAccessDenied, Window, active, focused]
+    Methods: [Activate, ActivateL, ButtonClick, Child, ChildAll, ChildFast, ChildFromXY, ClassNameIs, Close, CompareTo, ContainsScreenXY, ContainsWindowXY, Enable, EnsureInScreen, Equals, Focus, GetClientRect, GetHashCode, GetRect, GetRectIn, GetRectNotMinMax, GetText, GetThreadProcessId, GetTransparency, GetWindowAndClientRectInScreen, GetWindowLong, HasChild, HasElm, HasExStyle, HasStyle, IsChildOf, IsEnabled, IsMatch, IsOwnedBy, MapClientToClientOf, MapClientToScreen, MapClientToWindow, MapScreenToClient, MapWindowToClient, MapWindowToScreen, MenuClick, Move, MoveInScreen, MoveL, MoveToScreenCenter, NameIs, Post, ProgramNameIs, Resize, ResizeClient, ResizeL, Send, SendNotify, SendTimeout, SetExStyle, SetStyle, SetText, SetTransparency, SetWindowLong, SetWindowPos, Show, ShowL, ShowMaximized, ShowMinimized, ShowNotMinMax, ShowNotMinimized, ThrowIf0, ThrowIfInvalid, ThrowNoNative, ThrowUseNative, ToString, WaitFor, WaitForClosed, WaitForName, ZorderAbove, ZorderBelow, ZorderBottom, ZorderIsAbove, ZorderNoTopmost, ZorderTop, ZorderTopmost, find, findAll, findFast, findOrRun, fromMouse, fromXY, runAndFind, switchActiveWindow, wait, waitAny]
+    Operators: [explicit, implicit, '!=', ==]
+  wnd.getwnd:
+    Constructors: [getwnd]
+    Properties: [DirectParent, FirstChild, FirstSibling, LastChild, LastSibling, Owner, Window, root, shellWindow, top]
+    Methods: [AllOwned, AllOwners, Child, Children, EnabledOwned, LastActiveOwnedOrThis, Next, Previous, RootOwnerOrThis, SiblingAbove, SiblingBelow, SiblingLeft, SiblingRight, allWindows, allWindowsZorder, desktop, isMainWindow, mainWindows, nextMain, threadWindows, top2]
+  wnd.thisThread:
+    Properties: [active, focused]
+    Methods: [focus, isFocused]
+  wndChildFinder:
+    Constructors: [wndChildFinder]
+    Properties: [Result]
+    Methods: [Exists, Find, FindAll, FindAllInList, FindInList, IsMatch, ToString]
+  wndFinder:
+    Constructors: [wndFinder]
+    Properties: [Props, Result]
+    Methods: [Exists, Find, FindAll, FindAllInList, FindInList, IsMatch, ToString, Wait]
+  wpfBuilder:
+    Constructors: [wpfBuilder]
+    Properties: [Last, Last2, Panel, R, ResultButton, Window, gridLines, winTopmost, winWhite]
+    Methods: [Add, AddButton, AddOkCancel, AddSeparator, Align, AlignContent, AlsoAll, And, Bind, BindingContext, Border, Brush, Checked, Child, Columns, Disabled, Dock, Editable, End, Focus, Font, FormatText, Height, Hidden, Image, Items, LabeledBy, LoadFile, Margin, Multiline, Name, Options, Padding, Readonly, Row, Select, ShowDialog, Size, Skip, Span, SpanRows, Splitter, StartCanvas, StartDock, StartGrid, StartOkCancel, StartPanel, StartStack, Tag, Tooltip, UiaName, Validation, Watermark, Width, WinProperties, WinRect, WinSaved, WinSize, WinXY, Wrap, XY, formatTextOf, formattedText]
+    Events: [Loaded, OkApply]
+Au.More:
+  AppSingleInstance:
+    Methods: [AlreadyRunning]
+    Events: [Notified]
+  BufferedPaint:
+    Constructors: [BufferedPaint]
+    Properties: [DC, NonBufferedDC, Rect, UpdateRect]
+    Methods: [Dispose]
+  CaptureScreen:
+    Methods: [Image, ImageColorRectUI, Pixel, Pixels, RectPointWindowUI]
+  CaptureScreenImage:
+    Properties: [Height, Pixels, Width]
+    Methods: [Capture, Dispose, ToArray1D, ToArray2D, ToBitmap]
+  CheckListDialog:
+    Constructors: [CheckListDialog]
+    Properties: [Builder, ResultBits, ResultIndices, ResultItems]
+    Methods: [Add, FormatText, SetButtons, ShowDialog]
+  ComUtil:
+    Fields: [Missing]
+    Methods: [CreateObject, GetActiveObject, GetWindowObject]
+  Convert2:
+    Methods: [AesDecryptB, AesDecryptS, AesEncryptB, AesEncryptS, BrotliCompress, BrotliDecompress, DeflateCompress, DeflateDecompress, GzipCompress, GzipDecompress, HexDecode, HexEncode, Utf8Decode, Utf8Encode]
+  CpuUsage:
+    Constructors: [CpuUsage]
+    Properties: [ProcessorCount]
+    Methods: [Dispose, OfAllProcesses, OfProcess, OfProcesses, Start, Stop]
+  DebugTraceListener:
+    Methods: [Fail, Setup]
+  Dpi:
+    Properties: [System]
+    Methods: [AdjustWindowRectEx, GetSystemMetrics, IsWindowVirtualized, OfScreen, OfWindow, Scale, SystemParametersInfo, Unscale, WindowDpiAwareness]
+  Dpi.Awareness: {}
+  Dpi.AwarenessContext:
+    Constructors: [AwarenessContext]
+    Properties: [Available]
+    Methods: [Dispose]
+  EnumUI<TEnum>:
+    Constructors: [EnumUI]
+    Properties: [Result]
+  ExplorerFolder:
+    Properties: [Hwnd, HwndTab]
+    Methods: [All, GetFolderPath, GetSelectedItems, NewTab, Of, Open, SwitchToTab, ToString]
+  FastBuffer<T>:
+    Constructors: [FastBuffer]
+    Fields: [StackSize]
+    Properties: [n, p, this]
+    Methods: [Dispose, FindByteStringLength, FindStringLength, GetString, GetStringFindLength, More]
+    Operators: [implicit]
+  FileOpenSaveDialog:
+    Constructors: [FileOpenSaveDialog]
+    Properties: [CommonFlags, DefaultExt, FileNameLabel, FileNameText, FileTypeIndex, FileTypes, InitFolderFirstTime, InitFolderNow, OkButtonLabel, Title]
+    Methods: [ShowOpen, ShowSave]
+  FileSystemRedirection:
+    Methods: [Disable, Dispose, GetNonRedirectedSystemPath, IsSystem64PathIn32BitProcess, Revert]
+  FileTree:
+    Properties: [Info, IsDirectory, Name, Path, Size]
+    Methods: [Create, PrintSizes]
+  FileWatcher:
+    Properties: [Paused]
+    Methods: [Dispose, Watch]
+  GdiTextRenderer:
+    Constructors: [GdiTextRenderer]
+    Methods: [Dispose, DrawText, FontBold, FontNormal, GetCurrentPosition, MeasureText, MoveTo]
+  GridSplitter2:
+    Constructors: [GridSplitter2]
+    Properties: [ResizeNearest]
+    Methods: [OnKeyDown]
+  HelpUtil:
+    Properties: [AuHelpBaseUrl]
+    Methods: [AuHelp, AuHelpUrl]
+  HttpServerSession:
+    Properties: [Client, ClientIP, KeepAliveTimeout, Verbose]
+    Methods: [Auth, Listen, MessageReceived, Run]
+  IconImageCache:
+    Constructors: [IconImageCache]
+    Properties: [Common, ImageSize]
+    Methods: [Clear, ClearAll, CommonOfSize, Dispose, Get]
+    Events: [Cleared]
+  ImageUtil:
+    Methods: [ConvertWpfImageElementToGdipBitmap, HasImageOrResourcePrefix, HasImageStringPrefix, LoadGdipBitmap, LoadGdipBitmapFromXaml, LoadImageStreamFromString, LoadWpfImage, LoadWpfImageElement]
+  KeyToTextConverter:
+    Methods: [Clear, Convert]
+  Math2:
+    Methods: [AlignUp, AngleFromXY, Distance, HiByte, HiShort, HiWord, LoByte, LoShort, LoWord, MakeLparam, MakeWord, MulDiv, NintToPOINT, PercentFromValue, PercentToValue, Swap, SwapBits]
+  MemoryBitmap:
+    Constructors: [MemoryBitmap]
+    Properties: [Hbitmap, Hdc]
+    Methods: [Attach, Create, Delete, Detach, Dispose]
+  MemoryUtil:
+    Methods: [Alloc, Copy, Free, FreeAlloc, Move, ReAlloc, VirtualAlloc, VirtualFree]
+  MenuItemInfo:
+    Properties: [IsSystem, ItemId, MenuHandle, OwnerWindow]
+    Methods: [FromXY, GetText]
+  MouseCursor:
+    Constructors: [MouseCursor]
+    Properties: [Handle]
+    Methods: [Dispose, GetCurrentVisibleCursor, Hash, Load, ToGdipCursor]
+  OcrGoogleCloud:
+    Constructors: [OcrGoogleCloud]
+    Properties: [DpiScale, Features, ImageContext]
+    Methods: [Recognize]
+  OcrMicrosoftAzure:
+    Constructors: [OcrMicrosoftAzure]
+    Properties: [DpiScale]
+    Methods: [Recognize]
+  OcrTesseract:
+    Constructors: [OcrTesseract]
+    Properties: [AvailableLanguages, CommandLine, DpiScale, Language]
+    Methods: [Recognize]
+  OcrWin10:
+    Constructors: [OcrWin10]
+    Properties: [AvailableLanguages, DpiScale, Language]
+    Methods: [Recognize]
+  PrePostBuild:
+    Constructors: [PrePostBuild]
+    Properties: [Info, optimize, outputFile, outputPath, platform, preBuild, publish, role, source]
+  PrintServer:
+    Constructors: [PrintServer]
+    Properties: [MessageCount, NoNewline]
+    Methods: [GetMessage, SetNotifications, Start, Stop]
+  ProcessMemory:
+    Constructors: [ProcessMemory]
+    Properties: [Mem, MemAllocated, ProcessHandle]
+    Methods: [Dispose, Read, ReadByteString, ReadCharString, Write, WriteByteString, WriteCharString]
+  RecordingUtil:
+    Methods: [MouseToString]
+  RegisteredHotkey:
+    Fields: [WM_HOTKEY]
+    Methods: [Dispose, Register, Unregister]
+  ResourceUtil:
+    Methods: [Get, GetBytes, GetGdipBitmap, GetStream, GetString, GetWpfImage, GetWpfImageElement, GetXamlObject, HasResourcePrefix]
+  ScriptEditor:
+    Properties: [Available, IsPortable]
+    Methods: [GetCommandState, GetFileInfo, GetIcon, InvokeCommand, MainWindow, Open, ShowMainWindow, TestCurrentFileInProject]
+  SecurityUtil:
+    Methods: [SetPrivilege]
+  SpeakVoice:
+    Constructors: [SpeakVoice]
+    Properties: [IsDone, IsSpeaking, Rate, Volume]
+    Methods: [Dispose, Pause, Resume, SkipMilliseconds, SkipSentence, Speak, Stop, WaitUntilDone]
+  StringUtil:
+    Methods: [CommandLineFromArray, CommandLineToArray, CommonPrefix, CommonSuffix, FindUnderlineChar, FlagsFromLetters, FlagsToLetters, GetEncoding, JsonMultiline, LevenshteinDistance, LineAndColumn, ParseIntAndString, RemoveUnderlineChar, StringToIntArray]
+  TempFile:
+    Constructors: [TempFile]
+    Properties: [File]
+    Methods: [Dispose, ToString]
+    Operators: [implicit]
+  WaitLoop:
+    Constructors: [WaitLoop]
+    Properties: [Cancel, MaxPeriod, Period, TimeRemaining]
+    Methods: [IsTimeout, Sleep]
+  WaitableTimer:
+    Methods: [Create, Open, Set, SetAbsolute]
+  WatermarkAdorner:
+    Constructors: [WatermarkAdorner]
+    Properties: [Text]
+    Methods: [OnRender, SetAdornerVisibility]
+  WinEventHook:
+    Constructors: [WinEventHook]
+    Methods: [Add, Dispose, Hook, Remove, Unhook]
+  WindowsHook:
+    Properties: [IsSet, LowLevelHooksTimeout]
+    Methods: [Dispose, Hook, Keyboard, Mouse, Restore, ThreadCallWndProc, ThreadCallWndProcRet, ThreadCbt, ThreadGetMessage, ThreadKeyboard, ThreadMouse, Unhook]
+  WinformsControlNames:
+    Constructors: [WinformsControlNames]
+    Methods: [Dispose, GetControlName, GetSingleControlName, IsWinformsControl]
+  WndCopyData:
+    Constructors: [WndCopyData]
+    Properties: [DataId, RawData, RawDataSize]
+    Methods: [EnableReceivingWM_COPYDATA, GetBytes, GetString, Return, Send, SendReceive]
+  WndCopyData.ResultReader<TReceive>: {}
+  WndSavedRect:
+    Constructors: [WndSavedRect]
+    Properties: [Dpi, IsToolWindow, Maximize, RawRect]
+    Methods: [FromString, NormalizeRect, Restore, ToString]
+  WndUtil:
+    Methods: [CreateMessageOnlyWindow, CreateWindow, DefSubclassProc, DestroyWindow, DragLoop, EnableActivate, GetClassLong, GetWindowsStoreAppId, PostThreadMessage, PrintMsg, RegisterMessage, RegisterWindowClass, SetFont, SetOwnerWindow, Subclass, UacEnableMessages, Unsubclass, WaitForAnActiveWindow]
+  XmlUtil:
+    Methods: [LoadDoc, LoadElem, LoadElemIfExists]
+Au.Triggers:
+  ActionTrigger:
+    Properties: [Disabled, DisabledThisOrAll, EnabledAlways, ParamsString, Scope, SourceFile, SourceLine, TypeString]
+    Methods: [RunAction, ToString]
+  ActionTriggers:
+    Constructors: [ActionTriggers]
+    Properties: [Autotext, Disabled, DisabledEverywhere, FuncOf, Hotkey, Mouse, Of, Options, Window]
+    Methods: [ResetOptions, Run, RunThread, ShowTriggersListWindow, Stop]
+    Events: [Stopping]
+  AutotextTrigger:
+    Properties: [Flags, ParamsString, PostfixChars, PostfixType, Text, TypeString]
+  AutotextTriggerArgs:
+    Constructors: [AutotextTriggerArgs]
+    Properties: [HasPostfixChar, ShiftLeft, Text, Trigger, Window]
+    Methods: [Confirm, Menu, Replace, Replace2, SendPostfix, ToString]
+  AutotextTriggers:
+    Properties: [DefaultFlags, DefaultPostfixChars, DefaultPostfixType, Last, MenuOptions, PostfixKey, SimpleReplace, WordCharsPlus, this]
+    Methods: [GetEnumerator, ResetOptions]
+  HotkeyTrigger:
+    Properties: [Flags, ParamsString, TypeString]
+  HotkeyTriggerArgs:
+    Constructors: [HotkeyTriggerArgs]
+    Properties: [Key, Mod, Trigger, Window]
+    Methods: [ToString]
+  HotkeyTriggers:
+    Properties: [Last, this]
+    Methods: [GetEnumerator]
+  MouseTrigger:
+    Properties: [Button, Edge, Flags, Kind, Move, ParamsString, Screen, TypeString, Wheel]
+  MouseTriggerArgs:
+    Constructors: [MouseTriggerArgs]
+    Properties: [Mod, Trigger, Window]
+    Methods: [ToString]
+  MouseTriggers:
+    Properties: [Last, this]
+    Methods: [GetEnumerator]
+  TAFlags: {}
+  TAMenuItem:
+    Constructors: [TAMenuItem]
+    Properties: [Html, Label, Text]
+    Operators: [implicit]
+  TAMenuOptions:
+    Constructors: [TAMenuOptions]
+  TAPostfix: {}
+  TASimpleReplace:
+    Properties: [this]
+  TFunc: {}
+  TKFlags: {}
+  TMClick: {}
+  TMEdge: {}
+  TMFlags: {}
+  TMKind: {}
+  TMMove: {}
+  TMWheel: {}
+  TOBAArgs:
+    Properties: [ActionArgs, Exception]
+  TWEvent: {}
+  TWFlags: {}
+  TWLater: {}
+  TriggerArgs:
+    Properties: [TriggerBase]
+    Methods: [DisableTriggerUntilClosed]
+  TriggerFuncs:
+    Properties: [FollowingTriggers, FollowingTriggersBeforeWindow, NextTrigger, NextTriggerBeforeWindow]
+    Methods: [Reset]
+  TriggerOptions:
+    Properties: [AfterAction, BeforeAction, EnabledAlways]
+    Methods: [Reset, Thread, ThreadNew, ThreadOfTriggers, ThreadPool, ThreadThis]
+  TriggerScope:
+    Methods: [Match]
+  TriggerScopes:
+    Methods: [Again, AllWindows, NotWindow, NotWindows, Window, Windows]
+  WindowTrigger:
+    Properties: [Event, Finder, Flags, Later, ParamsString, TypeString]
+  WindowTriggerArgs:
+    Constructors: [WindowTriggerArgs]
+    Properties: [Later, Trigger, Window]
+    Methods: [ShowToolbarWhenWindowName, ToString]
+  WindowTriggers:
+    Properties: [Last, this]
+    Methods: [GetEnumerator, LogEvents, SimulateActiveNew, SimulateVisibleNew]
+Au.Types:
+  AnyWnd:
+    Properties: [Hwnd, IsEmpty]
+    Operators: [implicit]
+  AuException:
+    Constructors: [AuException]
+    Fields: [FormattedMessage]
+    Properties: [Message, NativeErrorCode]
+    Methods: [FormatMessage, ThrowIfHresultNegative, ThrowIfHresultNot0]
+  AuWndException:
+    Constructors: [AuWndException]
+    Properties: [Message, Window]
+  BIEvents: {}
+  BRFilter: {}
+  BSFlags: {}
+  CIFlags: {}
+  CIUFlags: {}
+  CIUResult:
+    Fields: [color, dpiScale, image, possiblyWrongWindow, rect, w]
+  CPResult: {}
+  CREATESTRUCT:
+    Fields: [cx, cy, dwExStyle, hInstance, hMenu, hwndParent, lpCreateParams, lpszClass, lpszName, style, x, y]
+    Properties: [ClassName, Name]
+  CRUResult:
+    Constructors: [CRUResult]
+    Properties: [hasRect, r, w]
+  CRUType: {}
+  CSLink: {}
+  CSuspend: {}
+  ClipFormats:
+    Fields: [Files, Image, Text]
+    Properties: [ClipboardViewerIgnore, Html, Png]
+    Methods: [EnumClipboard, GetName, Register]
+  ColorInt:
+    Constructors: [ColorInt]
+    Fields: [argb]
+    Methods: [FromBGR, FromHLS, FromString, GetPerceivedBrightness, SwapRB, ToBGR, ToHLS, ToString]
+    Operators: [explicit, implicit]
+  Coord:
+    Properties: [Center, FractionValue, IsEmpty, Max, MaxInside, Type, Value]
+    Methods: [Fraction, Normalize, NormalizeInRange, NormalizeInRect, NormalizeInWindow, Reverse, ToString]
+    Operators: [implicit]
+  CoordType: {}
+  DControls:
+    Properties: [Checkbox, ComboItems, EditText, EditType, IsChecked, RadioButtons, RadioId]
+  DEdit: {}
+  DEventArgs:
+    Constructors: [DEventArgs]
+    Fields: [returnValue]
+    Properties: [Button, DontCloseDialog, EditText, LinkHref, TimerTimeMS, d, hwnd, message, wParam]
+  DFlags: {}
+  DIcon: {}
+  DNative: {}
+  DNative.TDE: {}
+  DNative.TDIE: {}
+  DNative.TDM: {}
+  DNative.TDN: {}
+  DSend:
+    Methods: [ChangeExpandedText, ChangeFooterText, ChangeText1, ChangeText2, Close, EnableButton, Message, Progress]
+  DText:
+    Constructors: [DText]
+    Properties: [text]
+    Operators: [implicit]
+  DpiOf:
+    Constructors: [DpiOf]
+    Properties: [Dpi]
+    Operators: [implicit]
+  ECommandState: {}
+  EEvent: {}
+  EFFlags: {}
+  EFileInfo:
+    Constructors: [EFileInfo]
+    Properties: [filePath, id, kind, name, path, text, workspace]
+  EFileKind: {}
+  EFocusedFlags: {}
+  EGetIcon: {}
+  EHookFlags: {}
+  EMiscFlags: {}
+  EObjid: {}
+  EProperties:
+    Fields: [DefaultAction, Description, Help, HtmlAttributes, InnerHtml, KeyboardShortcut, Name, OuterHtml, Rect, Role, State, UiaCN, UiaId, Value, WndContainer]
+  ERole: {}
+  ESelect: {}
+  EState: {}
+  EWFlags: {}
+  EXYFlags: {}
+  ExtInternet:
+    Methods: [Add, AddFile, AddMany, Bytes, Download, DownloadAsync, Get, Json, Post, Save, Text, TryGet, TryPost]
+  ExtMisc:
+    Methods: [AppendSentence, AsSpan, DrawRectangleInset, FillRectangle, GetOffsetAndLength, GetStartEnd, GetValue2, Has, HasAny, Hwnd, InsertAt, IsAsciiAlpha, IsAsciiAlphaDigit, IsAsciiDigit, IsNull, Ref, RemoveAt, RemoveWhere, Resize, SetFlag, ToInt, ToS, ToStringWithoutStack]
+  ExtString:
+    Methods: [Ends, Eq, Eqi, Escape, Find, FindAny, FindLastAny, FindLastNot, FindNot, FindWord, IndexOf, Insert, IsAscii, IsNull, Lenn, Like, Limit, LineCount, Lines, Lower, NE, Remove, RemoveSuffix, ReplaceAt, ReverseString, RxFindAll, RxIsMatch, RxMatch, RxReplace, RxSplit, SplitAnySE, SplitSE, Starts, ToInt, ToNumber, ToStringUTF8, ToUTF8, Trim, TrimEnd, TrimStart, Unescape, Upper]
+  ExtWpf:
+    Methods: [AddChild, AddColumns, AddRows, DpiChangedWorkaround, FindVisualAncestor, FindVisualDescendant, FormOwner, HideGripAndOverflow, Hwnd, InsertColumn, InsertRow, LogicalDescendants, Preview, RectInScreen, RemoveColumn, RemoveRow, SetRect, SetXY, TextOrNull, UiaClick, UiaSetName, VisualAncestors, VisualDescendants]
+  ExtXml:
+    Methods: [Attr, Desc, Descs, Elem, ElemOrAdd, Elems, HasAttr, NextElem, PrevElem, SaveDoc, SaveElem]
+  FAFlags: {}
+  FAttr:
+    Properties: [Attributes, Directory, Exists, File, IsHidden, IsNtfsLink, IsReadonly, IsSystem, Unknown]
+    Methods: [ToString]
+    Operators: [implicit]
+  FCFlags: {}
+  FDFlags: {}
+  FEFile:
+    Properties: [Attributes, CreationTimeUtc, Extension, FullPath, IsDirectory, IsNtfsLink, LastWriteTimeUtc, Level, Name, ReparseTag, Size]
+    Methods: [ToString]
+  FEFlags: {}
+  FIfExists: {}
+  FOSFlags: {}
+  FPFormat: {}
+  FileId:
+    Constructors: [FileId]
+    Properties: [FileIndex, VolumeSerialNumber]
+  FileProperties:
+    Properties: [Attributes, CreationTimeUtc, IsNtfsLink, LastAccessTimeUtc, LastWriteTimeUtc, Size]
+  FolderPath:
+    Constructors: [FolderPath]
+    Properties: [IsNull, Path, PathOrThrow]
+    Methods: [ToString]
+    Operators: [explicit, implicit, +]
+  FontNSS:
+    Constructors: [FontNSS]
+  GCL:
+    Fields: [ATOM, CBCLSEXTRA, CBWNDEXTRA, HBRBACKGROUND, HCURSOR, HICON, HICONSM, HMODULE, MENUNAME, STYLE, WNDPROC]
+  GTIFlags: {}
+  GUITHREADINFO:
+    Fields: [cbSize, flags, hwndActive, hwndCapture, hwndCaret, hwndFocus, hwndMenuOwner, hwndMoveSize, rcCaret]
+  GWL:
+    Fields: [EXSTYLE, HINSTANCE, HWNDPARENT, ID, STYLE, USERDATA, WNDPROC]
+  GWL.DWL:
+    Fields: [DLGPROC, MSGRESULT, USER]
+  HSContentPart:
+    Constructors: [HSContentPart]
+    Properties: [Content, ContentType, FileName, Headers, Index, Name, Text]
+  HSContentType:
+    Properties: [Boundary, Charset, Encoding, MediaType]
+    Methods: [Create]
+  HSMessage:
+    Properties: [Content, ContentType, Headers, Method, Multipart, RawTarget, TargetPath, Text, UrlParameters, Urlencoded]
+    Methods: [Json]
+  HSResponse:
+    Properties: [Content, Headers, Reason, Status]
+    Methods: [SetContentJson, SetContentText]
+  HookData:
+    Fields: [AuExtraInfo]
+    Methods: [ReplyMessage]
+  HookData.CWPRETSTRUCT:
+    Fields: [hwnd, lParam, lResult, message, wParam]
+  HookData.CWPSTRUCT:
+    Fields: [hwnd, lParam, message, wParam]
+  HookData.CbtEvent: {}
+  HookData.Keyboard:
+    Fields: [hook]
+    Properties: [IsAlt, IsExtended, IsInjected, IsInjectedByAu, IsUp, Key, Mod, dwExtraInfo, flags, scanCode, time, vkCode]
+    Methods: [BlockEvent, IsKey, ToString]
+  HookData.MOUSEHOOKSTRUCT:
+    Fields: [dwExtraInfo, hwnd, pt, wHitTestCode]
+  HookData.Mouse:
+    Fields: [hook]
+    Properties: [Button, Event, IsButton, IsButtonDown, IsButtonUp, IsInjected, IsInjectedByAu, IsMove, IsWheel, WheelValue, dwExtraInfo, flags, mouseData, pt, time]
+    Methods: [BlockEvent, ToString]
+  HookData.MouseEvent: {}
+  HookData.ThreadCallWndProc:
+    Fields: [hook, msg, sentByOtherThread]
+  HookData.ThreadCallWndProcRet:
+    Fields: [hook, msg, sentByOtherThread]
+  HookData.ThreadCbt:
+    Fields: [code, hook, lParam, wParam]
+    Properties: [ActivationInfo, CreationInfo, Hwnd]
+  HookData.ThreadCbt.CBTACTIVATESTRUCT:
+    Fields: [fMouse, hWndActive]
+  HookData.ThreadCbt.CBT_CREATEWND:
+    Fields: [hwndInsertAfter, lpcs]
+  HookData.ThreadGetMessage:
+    Fields: [PM_NOREMOVE, hook, msg]
+  HookData.ThreadKeyboard:
+    Fields: [PM_NOREMOVE, hook, key, lParam]
+    Properties: [IsUp]
+  HookData.ThreadMouse:
+    Fields: [PM_NOREMOVE, hook, m, message]
+  HookData.WinEvent:
+    Fields: [event_, hook, idChild, idObject, thread, time, w]
+    Methods: [GetElm]
+  IFAlso: {}
+  IFArea:
+    Constructors: [IFArea]
+    Operators: [implicit]
+  IFFlags: {}
+  IFImage:
+    Properties: [Value]
+    Operators: [implicit]
+  IOcrEngine:
+    Properties: [DpiScale]
+    Methods: [GetBitmapData, GetBitmapPngFileData, PolyToRect, PrepareBitmap, Recognize]
+  ITBOwnerObject:
+    Properties: [IsAlive, IsVisible]
+    Methods: [GetRect]
+  IconGetFlags: {}
+  InputDesktopException:
+    Constructors: [InputDesktopException]
+    Methods: [ThrowIfBadDesktop]
+  JSettings:
+    Properties: [LoadedFile, NoAutoSave, NoAutoSaveTimer, SerializerOptions]
+    Methods: [Dispose, Load, Reload, SaveIfNeed]
+    Events: [ModifiedExternally]
+  KHotkey:
+    Constructors: [KHotkey]
+    Properties: [Key, Mod]
+    Methods: [Deconstruct, ToString]
+    Operators: [explicit, implicit]
+  KKey: {}
+  KKeyScan:
+    Constructors: [KKeyScan]
+    Fields: [extendedKey, scanCode, vk]
+  KKeysEtc:
+    Constructors: [KKeysEtc]
+    Properties: [Value]
+    Operators: [implicit]
+  KMod: {}
+  MButton: {}
+  MButtons: {}
+  MCursor: {}
+  MObject:
+    Properties: [Value]
+    Methods: [RectInWindow, Screen, Window]
+    Operators: [implicit]
+  MRelease:
+    Methods: [Dispose]
+    Operators: [implicit]
+  MSG:
+    Fields: [hwnd, lParam, message, pt, time, wParam]
+    Methods: [ToString]
+    Operators: [implicit]
+  MTBase:
+    Properties: [ActionException, ActionThread, ExtractIconPathFromCode, ImageSize, PathInTooltip]
+  MTImage:
+    Properties: [Value]
+    Operators: [implicit]
+  MTItem:
+    Properties: [File, Tag, Text, TextColor, Tooltip]
+    Methods: [ToString]
+  NativeApi: {}
+  NativeApi.BOOL:
+    Constructors: [BOOL]
+    Fields: [IntValue]
+    Methods: [ToString]
+    Operators: [implicit]
+  NativeApi.FlexibleArray<T>:
+    Properties: [this]
+    Methods: [AsSpan]
+  NativePathsAttribute:
+    Constructors: [NativePathsAttribute]
+    Fields: [Paths]
+  NotFoundException:
+    Constructors: [NotFoundException]
+  OKey:
+    Constructors: [OKey]
+    Properties: [Hook, KeySpeed, KeySpeedClipboard, NoBlockInput, NoCapsOff, NoModOff, PasteLength, PasteSleep, PasteWorkaround, RestoreClipboard, RestoreClipboardAllFormats, RestoreClipboardExceptFormats, SleepFinally, TextHow, TextShiftEnter, TextSpeed]
+    Methods: [PrintClipboard, ToString]
+  OKeyHookData:
+    Fields: [optk, w]
+  OKeyText: {}
+  OMouse:
+    Properties: [ClickSleepFinally, ClickSpeed, MoveSleepFinally, MoveSpeed, Relaxed]
+    Methods: [ToString]
+  ORLabelOptions:
+    Constructors: [ORLabelOptions]
+    Properties: [Placement]
+    Operators: [implicit]
+  OWarnings:
+    Properties: [Verbose]
+    Methods: [Disable, IsDisabled]
+  OcrFlags: {}
+  OcrWord:
+    Constructors: [OcrWord]
+    Properties: [Offset, Rect, Separator, Text]
+  OsdMode: {}
+  OsdWindow:
+    Properties: [ClickToClose, Hwnd, IsHandleCreated, Name, Opacity, Rect, Shadow, TransparentColor, Visible]
+    Methods: [Close, Dispose, Hide, Invalidate, OnPaint, Redraw, Show, WndProc, closeAll]
+    Events: [Clicked, Closed]
+  PMFlags: {}
+  PMItem:
+    Properties: [BackgroundColor, Clicked, FontBold, Hotkey, Id, IsChecked, IsDisabled, IsSeparator, IsSubmenu]
+  PMKHook: {}
+  PMMetrics:
+    Constructors: [PMMetrics]
+  PNFlags: {}
+  POINT:
+    Constructors: [POINT]
+    Fields: [x, y]
+    Methods: [Deconstruct, From, Offset, ToString]
+    Operators: [implicit, +]
+  PSFormat: {}
+  ParamStringAttribute:
+    Constructors: [ParamStringAttribute]
+    Properties: [Format]
+  PastingEventArgs:
+    Properties: [Options, Text, WndFocus]
+  PathInWorkspaceAttribute:
+    Constructors: [PathInWorkspaceAttribute]
+    Fields: [FilePath, Path]
+  Pidl:
+    Constructors: [Pidl]
+    Properties: [HandleRef, IsNull, UnsafePtr]
+    Methods: [Detach, Dispose, FromString, ToHexString, ToShellString, ToString, ValueEquals]
+  PopupXY:
+    Constructors: [PopupXY]
+    Fields: [inRect, rect, screen, workArea, x, y]
+    Properties: [Mouse]
+    Methods: [GetScreen, In]
+    Operators: [implicit]
+  PrintMsgOptions:
+    Constructors: [PrintMsgOptions]
+    Properties: [Indent, Number, Skip, WindowProperties]
+  PrintServerMessage:
+    Properties: [Caller, Text, TimeUtc, Type]
+    Methods: [ToString]
+  PrintServerMessageType: {}
+  ProcessInfo:
+    Constructors: [ProcessInfo]
+    Properties: [Id, Name, SessionId]
+  ProcessTriggerInfo:
+    Constructors: [ProcessTriggerInfo]
+    Properties: [Id, Name, SessionId, Started]
+  ProgressArgs:
+    Constructors: [ProgressArgs]
+    Properties: [Cancel, Current, Percent, Total]
+  RECT:
+    Constructors: [RECT]
+    Fields: [bottom, left, right, top]
+    Properties: [CenterX, CenterY, Height, Is0, NoArea, Size, Width, XY]
+    Methods: [Contains, EnsureInScreen, From, FromLTRB, Inflate, Intersect, IntersectsWith, Move, MoveInRect, MoveInScreen, Normalize, Offset, ToString, ToStringFormat, ToStringSimple, TryParse, Union]
+    Operators: [implicit]
+  RFlags: {}
+  ROptions:
+    Fields: [CurrentDirectory, FlagsAdd, FlagsRemove, OwnerWindow, Verb, WindowState]
+    Operators: [implicit]
+  RResult:
+    Properties: [ProcessExitCode, ProcessHandle, ProcessId]
+    Methods: [ToString]
+  RWCEtc:
+    Fields: [cbClsExtra, cbWndExtra, hCursor, hIcon, hIconSm, hbrBackground, mCursor, style]
+  RXCalloutData:
+    Properties: [LastGroup, LastGroupValue, Result, callout_flags, callout_number, callout_string, callout_string_offset, capture_last, capture_top, current_position, mark, next_item_length, pattern_position, start_match]
+    Methods: [Group, GroupValue]
+  RXFlags: {}
+  RXGroup:
+    Properties: [End, Exists, Length, Span, Start, Value]
+    Methods: [ToString]
+    Operators: [implicit]
+  RXMatch:
+    Properties: [End, Exists, GroupCountPlusOne, IsPartial, Length, Mark, Span, Start, StartNoK, Subject, Value, this]
+    Methods: [ExpandReplacement, GroupNumberFromName, ToString]
+  RXMatchFlags: {}
+  RefPathsAttribute:
+    Constructors: [RefPathsAttribute]
+    Fields: [Paths]
+  SIGDN: {}
+  SIZE:
+    Constructors: [SIZE]
+    Fields: [height, width]
+    Methods: [Deconstruct, From, ToString]
+    Operators: [implicit, +]
+  SLError: {}
+  SLException:
+    Constructors: [SLException]
+    Properties: [ErrorCode]
+  SLFlags: {}
+  SLIndexOrName:
+    Fields: [index, name]
+    Operators: [implicit]
+  SLTransaction:
+    Constructors: [SLTransaction]
+    Properties: [SqlOfDispose]
+    Methods: [Commit, Dispose, Rollback]
+  SMTFlags: {}
+  SODefault: {}
+  SRole: {}
+  STIFlags: {}
+  SUpper: {}
+  SVFlags: {}
+  SWPFlags: {}
+  Seconds:
+    Constructors: [Seconds]
+    Properties: [Cancel, DoEvents, MaxPeriod, Period, Time]
+    Operators: [implicit]
+  SpecHWND: {}
+  StartEnd:
+    Constructors: [StartEnd]
+    Fields: [end, start]
+    Properties: [Length, Range]
+    Methods: [ToString]
+    Operators: [implicit]
+  StockIcon: {}
+  Strings:
+    Constructors: [Strings]
+    Properties: [Value]
+    Methods: [Create, ToArray]
+    Operators: [implicit]
+  TBAnchor: {}
+  TBBorder: {}
+  TBCtor: {}
+  TBFlags: {}
+  TBHide: {}
+  TBItem:
+    Properties: [Clicked, ItemType, Text]
+  TBItemType: {}
+  TBLayout: {}
+  TBMetrics:
+    Constructors: [TBMetrics]
+  TBNoMenu: {}
+  TBOffsets:
+    Constructors: [TBOffsets]
+    Properties: [Bottom, Left, Right, Top]
+  TBScaling:
+    Constructors: [TBScaling]
+    Fields: [offsets, size]
+  TFFlags: {}
+  TIEventArgs:
+    Constructors: [TIEventArgs]
+    Properties: [Message, XY]
+  TINFlags: {}
+  TreeBase<T>:
+    Properties: [Count, FirstChild, HasChildren, HasParent, Index, LastChild, Level, Next, Parent, Previous, RootAncestor]
+    Methods: [AddChild, AddSibling, Ancestors, AncestorsFromRoot, Children, Descendants, IsAncestorOf, IsDescendantOf, Remove, XmlLoad, XmlSave]
+  TreeBase<T>.XmlNodeReader: {}
+  TreeBase<T>.XmlNodeWriter: {}
+  UExcept: {}
+  UacElevation: {}
+  UacIL: {}
+  UsingEndAction:
+    Constructors: [UsingEndAction]
+    Methods: [Dispose]
+  WBAlsoAllArgs:
+    Properties: [Column, Row]
+  WBBFlags: {}
+  WBButtonClickArgs:
+    Properties: [Button, Window]
+  WBGridLength:
+    Properties: [Column, Row]
+    Operators: [implicit]
+  WBLength:
+    Methods: [ApplyTo, GetLength, GetMax, GetMin]
+    Operators: [implicit]
+  WBPanelType: {}
+  WCFlags: {}
+  WContains:
+    Properties: [Value]
+    Operators: [implicit]
+  WControlType: {}
+  WDLArgs:
+    Fields: [cursor, msg]
+    Methods: [Stop]
+  WFCache:
+    Properties: [CacheName, IgnoreVisibility, NoTimeout]
+    Methods: [Clear]
+  WFlags: {}
+  WHFlags: {}
+  WNDPROC: {}
+  WOwner:
+    Properties: [IsEmpty, ThisThread]
+    Methods: [GetValue, Process, Thread]
+    Operators: [implicit]
+  WPMCallback: {}
+  WProp:
+    Properties: [this]
+    Methods: [GetList, Remove, Set, ToString]
+  WS: {}
+  WSE: {}
+  WSFlags: {}
+  WTBProgressState: {}
+  WTaskbarButton:
+    Methods: [Add, Delete, Flash, SetProgressState, SetProgressValue]
+  WXType: {}
+  WXYCFlags: {}
+  WXYFlags: {}
+---
+articles:
+- About the automation library (files, namespaces)
+- Caller info parameter
+- Key names and operators
+- Output tags
+- UAC
+- UI element issues
+- Wait timeout
+- Wildcard expression
+editor:
+- Class files, projects
+- Code editor
+- Command line
+- Compared with QM
+- Debugger
+- File properties
+- Git, backup, sync
+- Menu commands
+- NuGet
+- PiP session
+- Portable app
+- Program settings
+- Program
+- Publish
+- Scripts
+- Snippets
+cookbook:
+- Autotext triggers, expand text
+- Callback functions, lambda, delegate, event
+- Check internet connection, ping
+- Clipboard copy, paste, set-get text etc
+- Collections - array, List, Stack, Queue
+- Collections - Dictionary, HashSet
+- Collections - LINQ functions
+- COM components and type libraries
+- Command line programs
+- Comments, disabled code
+- Compress data
+- Computer time, code speed
+- Constants, enum
+- Convert Base64, hex, UTF-8, encoding, urlencode, htmlencode
+- Convert to-from string
+- Create exe program
+- Create folder
+- CSharp introduction
+- CSV table
+- Databases
+- Date and time
+- Desktop (show etc)
+- Dialog - add elements, show, get values
+- Dialog - button icon, toolbar
+- Dialog - columns, rows
+- Dialog - context menu, dropdown list
+- Dialog - DataGrid
+- Dialog - element color, font, border
+- Dialog - element size, position, margin
+- Dialog - enum check-list, select
+- Dialog - events
+- Dialog - icons, images, shapes
+- Dialog - IE web browser control
+- Dialog - libraries of controls and themes
+- Dialog - links, formatted text
+- Dialog - ListView
+- Dialog - load XAML
+- Dialog - menu bar
+- Dialog - multiple tabs
+- Dialog - owned, non-modal (don't wait)
+- Dialog - panels, group box
+- Dialog - save window placement, control values
+- Dialog - select date
+- Dialog - set element properties and values
+- Dialog - splitters
+- Dialog - textbox watermark, adorner
+- Dialog - use triggers
+- Dialog - validation
+- Dialog - WebView2 control
+- Dialog - window size, position, other properties
+- Dialog - Window-based class
+- Display text and variables
+- dot-NET, NuGet, other libraries
+- Editor extension - modify UI
+- Encrypt, hash
+- End script task, pause, exit
+- Enumerate drives, get drive properties
+- Enumerate files, folders
+- Environment variables
+- Errors, exceptions, try-catch-finally, throw
+- Extract table data using UI elements
+- File and folder dialogs, color dialog
+- File change triggers (events)
+- File copy
+- File delete, Recycle Bin
+- File exists, size, time, attributes
+- File move, rename
+- File paths, special folders
+- File read (load), write (save)
+- File shortcuts, symbolic links
+- Find UI image or color
+- Find window, controls, activate
+- Floating toolbars
+- for, foreach (repeat, loop, iterate)
+- Frequently asked questions
+- Functions (methods, properties)
+- Fuzzy string matching, word stemming
+- Http get web page, download file
+- Http post web form, JSON
+- If key pressed, toggled
+- if-else, switch
+- Input box dialog
+- Introduction, finding info
+- JSON
+- Keyboard triggers (hotkeys)
+- Markdown
+- Math functions
+- Message box dialog, list
+- Mouse click, move, drag, restore
+- Mouse get position, wait, cursor, etc
+- Mouse triggers
+- Multi-file scripts, projects
+- Namespaces, using
+- OCR, find UI text, extract text
+- Operators, expressions
+- Other conversions
+- Other triggers
+- Parse HTML
+- Passwords in scripts
+- Play sound, speak
+- Popup menu, check list
+- PowerShell, VBScript, Python
+- Process triggers (start, end)
+- Processes
+- Random numbers and strings, GUID
+- Read Excel files with ExcelDataReader
+- Read-write Excel files with ClosedXML
+- Read-write Excel files with EPPlus
+- Registry
+- Regular expressions (parse text, find-replace)
+- Remap keys
+- return, goto (exit, end, stop, jump)
+- Run code when script ends
+- Run console program and get its output text
+- Run program, open document, folder, URL
+- Run script at startup, output link
+- Run script command line, shortcut, schedule, shell menu
+- Run script from script
+- Run script on another computer; HTTP server
+- Saving variables, settings
+- Screens (display monitors)
+- Script 'Triggers and toolbars'
+- Script class with Main()
+- Script run-time settings
+- Script testing and debugging
+- Select-click menu, control (keyboard shortcuts)
+- Send and receive email (SMTP, POP3, IMAP)
+- Send email message (SMTP)
+- Send keys, text
+- Services
+- SFTP (upload, download, etc)
+- Shared classes and functions, libraries
+- Show triggers
+- Shutdown, restart, logoff, sleep, hibernate, lock computer, battery power
+- Simple string functions
+- Simple wait (sleep, delay)
+- SQLite database
+- SSH (manage website)
+- String formatting with variables
+- Strings (text), numbers, characters, bool, null, default
+- Strings and characters
+- Take screenshot
+- Threads
+- Timers
+- Tray icon and notifications
+- Trigger scopes (window, program)
+- Types (class, struct, generic, nullable, tuple)
+- UI elements (find, click, check, focus, select, expand, check menu item, wait for state, etc)
+- Use CSharp compiler at run time
+- Variables, fields, built-in types
+- Wait for file
+- Wait for key, hotkey
+- Wait for something
+- Web automation, navigate
+- Web browser automation with Playwright
+- Web browser automation with Selenium
+- Wildcard expressions (compare text)
+- Window actions (close, move, resize, properties, etc)
+- Window triggers, auto-close popup windows
+- Windows API, native libraries
+- Windows OS version, computer and user name
+- WMI
+- XML
+- Zip files (compress, extract)

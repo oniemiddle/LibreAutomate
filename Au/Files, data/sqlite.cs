@@ -273,6 +273,8 @@ namespace Au {
 			return R;
 		}
 		
+		//note: can't add overload to get ReadOnlySpan<T>, because it becomes invalid when the func returns.
+		
 		/// <remarks>
 		/// Can be used to get various value types, for example <c>decimal</c>, <see cref="Guid"/>, <see cref="RECT"/>.
 		/// </remarks>

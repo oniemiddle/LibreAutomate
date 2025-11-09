@@ -1,3 +1,5 @@
+//TODO: bug: if parent window switches from topmost to normal, toolbar remains topmost.
+
 namespace Au;
 
 public partial class toolbar {

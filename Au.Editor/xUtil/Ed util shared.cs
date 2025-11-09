@@ -5,6 +5,32 @@ using System.Security.Cryptography;
 namespace LA;
 
 /// <summary>
+/// Gets paths of LA folders, regardless whether this code runs in LA or in a script, even when launched not by LA.
+/// In script must be defined SCRIPT.
+/// </summary>
+static class folders2 {
+	/// <summary>
+	/// ThisApp
+	/// </summary>
+	public static FolderPath La
+#if SCRIPT
+		=> new(Environment.GetEnvironmentVariable("au_") ?? throw null);
+#else
+		=> folders.ThisApp;
+#endif
+	
+	/// <summary>
+	/// ThisAppDataCommon
+	/// </summary>
+	public static FolderPath LaDataCommon
+#if SCRIPT
+		=> new(@"C:\ProgramData\LibreAutomate");
+#else
+		=> folders.ThisAppDataCommon;
+#endif
+}
+
+/// <summary>
 /// Calls <see cref="ProtectedData"/> <c>Protect</c> or <c>Unprotect</c> with LA's entropy.
 /// </summary>
 static class EdProtectedData {
@@ -27,7 +53,7 @@ static class EdProtectedData {
 /// Compresses and extracts files using the LA's installed 7za.exe.
 /// </summary>
 static class SevenZip {
-	static string _Sevenzip => folders.ThisAppBS + @"32\7za.exe";
+	static string _Sevenzip => folders2.La + @"32\7za.exe";
 	
 	/// <summary>
 	/// Compresses a file or directory.

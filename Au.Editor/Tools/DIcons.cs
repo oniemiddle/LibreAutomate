@@ -98,9 +98,9 @@ Can be Pack.Icon, like Material.Folder.");
 		b.AddButton(out var bExportXaml, ".xaml", _ => _InsertCodeOrExport(_Action.ExportXaml)).Disabled();
 		b.AddButton(out var bExportIco, ".ico", _ => _InsertCodeOrExport(_Action.ExportIcon)).Disabled();
 		b.Add("sizes", out iconSizes, "16,20,24,28,32,48,64");
-//#if DEBUG
-//		b.R.AddButton("[debug] Copy PNG", _ => _InsertCodeOrExport(_Action._DebugCopyPng));
-//#endif
+		//#if DEBUG
+		//		b.R.AddButton("[debug] Copy PNG", _ => _InsertCodeOrExport(_Action._DebugCopyPng));
+		//#endif
 		b.End();
 		
 		b.StartStack<Expander>("Custom icon string", vertical: true);
@@ -414,7 +414,7 @@ Can be Pack.Icon, like Material.Folder.");
 		var emModel = new AI.ModelVoyageEmbedM();
 		//var emModel = AI.AiModel.Models.OfType<AI.AiEmbeddingModel>().First(o => o.isMultimodal /*&& o.DisplayName == App.Settings.ai_modelIconSearch*/);
 		//if (emModel == null) {
-		//	_AiSettingsError($"Please go to Options > AI and select models for icon search.");
+		//	_AiSettingsError($"Please go to Options > AI and select model for icon search.");
 		//	return;
 		//}
 		
@@ -429,7 +429,7 @@ Can be Pack.Icon, like Material.Folder.");
 			var ems = await Task.Run(() => em.GetIconsEmbeddings(true, cancel));
 			
 			using var osd = osdText.showText("Searching.\nClick to cancel.", -1, PopupXY.Mouse, showMode: OsdMode.ThisThread);
-			osd.ResizeWhenContentChanged = true;
+			osd.Clicked += (_, _) => { _ctsTask?.Cancel(); };
 			
 			AI.EmInput input = new(png == null ? [query] : query.NE() ? [png] : [query, png]);
 			var queryVector = await Task.Run(() => em.CreateEmbedding(input, cancel));

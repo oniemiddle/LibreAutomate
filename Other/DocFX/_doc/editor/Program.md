@@ -92,30 +92,10 @@ List of bookmarks.
 Right-click - context menu.
 
 ### Debug, Breakpoints
-[Debugger](Debugger.md).
+[Debugger](xref:debugger).
 
 ## Menus
-
-### File
-File and workspace management.
-
-### Edit
-Code editing.
-
-### Code
-Tools that help to create code.
-
-### TT
-Triggers and toolbars.
-
-### Run
-Execute current script. Or just compile.
-
-### Tools
-Tool windows.
-
-### Help
-Program help and library reference.
+See [Menu commands](xref:menu_commands).
 
 ## Tray icon
 Click - show and activate editor window. Right-click - show context menu.

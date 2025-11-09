@@ -691,19 +691,21 @@ Example:
 			.Add(out KPasswordBox apiKey).Tooltip("API key or environment variable (if (X) checked).\nAPI keys are saved encrypted and can't be decrypted on other computers/accounts.").Hidden();
 		b.End();
 		
-		b.StartGrid().Columns(0, -1, 10, 0, -1);
+		b.StartGrid().Columns(0, -1, 28);
 		b.xAddGroupSeparator("Models for documentation search and chat");
-		b.R.Add("Search", out ComboBox modelDocSearch).Tooltip("AI embedding model for documentation search and chat RAG");
-		b.Skip().Add("Chat", out ComboBox modelDocChat).Tooltip("AI chat model");
+		b.R.Add("Embedding", out ComboBox modelEmbed);
+		b.xAddControlHelpButton(_ => { dialog.show(null, $"Embedding model is used for semantic search.\n\nBest models for LibreAutomate documentation:\n1. Gemini\n2. Voyage", icon: DIcon.Info, owner: this); });
+		b.R.Add("Reranker", out ComboBox modelRerank);
+		b.xAddControlHelpButton(_ => { dialog.show(null, "Reranker model improves search results.", icon: DIcon.Info, owner: this); });
+		b.R.Add("Chat", out ComboBox modelChat).Span(1);
 		//b.R.StartGrid<KGroupBox>("Chat model settings");
 		//b.End();
 		
 		//rejected. Currently using Voyage multimodal. It supports text and images.
 		//b.xAddGroupSeparator("Models for icon search in the Icons tool");
 		//b.R.Add("Search", out ComboBox modelIconSearch).Tooltip("AI embedding model for icon search");
-		//b.Skip().Add("Improve", out ComboBox modelIconImprove).Tooltip("AI chat model for filtering/reranking AI search results");
 		
-		b.AddSeparator(false);
+		b.R.AddSeparator(false);
 		b.R.AddButton("...", _ => _MoreMenu()).Align(HorizontalAlignment.Left).Span(1);
 		
 		b.End();
@@ -739,10 +741,11 @@ Example:
 				return null;
 			});
 			
-			_InitModelCombo(modelDocSearch, o => o is AI.AiEmbeddingModel { isCompact: false }, App.Settings.ai_modelDocSearch);
-			_InitModelCombo(modelDocChat, o => o is AI.AiChatModel, App.Settings.ai_modelDocChat);
+			_InitModelCombo(modelEmbed, o => o is AI.AiEmbeddingModel { isCompact: false }, App.Settings.ai_modelEmbed);
+			_InitModelCombo(modelRerank, o => o is AI.AiRerankModel, App.Settings.ai_modelRerank, optional: true);
+			_InitModelCombo(modelChat, o => o is AI.AiChatModel, App.Settings.ai_modelChat);
 			//_InitModelCombo(modelIconSearch, o => o is AI.AiEmbeddingModel { isCompact: true }, App.Settings.ai_modelIconSearch);
-			//_InitModelCombo(modelIconImprove, o => o is AI.AiChatModel, App.Settings.ai_modelIconImprove, true);
+			
 			void _InitModelCombo(ComboBox c, Func<AI.AiModel, bool> predicate, string select, bool optional = false) {
 				var e = AI.AiModel.Models.Where(predicate).Select(o => o.DisplayName);
 				if (optional) e = e.Prepend("none");
@@ -759,10 +762,11 @@ Example:
 					}
 				}
 				
-				App.Settings.ai_modelDocSearch = _GetModelCombo(modelDocSearch);
-				App.Settings.ai_modelDocChat = _GetModelCombo(modelDocChat);
+				App.Settings.ai_modelEmbed = _GetModelCombo(modelEmbed);
+				App.Settings.ai_modelRerank = _GetModelCombo(modelRerank);
+				App.Settings.ai_modelChat = _GetModelCombo(modelChat);
 				//App.Settings.ai_modelIconSearch = _GetModelCombo(modelIconSearch);
-				//App.Settings.ai_modelIconImprove = _GetModelCombo(modelIconImprove);
+				
 				string _GetModelCombo(ComboBox c) => c.SelectedItem is string s && s != "none" ? s : null;
 			};
 		};
@@ -778,8 +782,8 @@ Example:
 		}
 		
 		void _AddCustomModel() {
-			if (modelDocChat.SelectedIndex < 0 && modelDocChat.Items.Count > 0) modelDocChat.SelectedIndex = 0;
-			if (!(modelDocChat.SelectedItem is string mdn && AI.AiModel.Models.FirstOrDefault(o => o is AI.AiChatModel && o.DisplayName == mdn) is AI.AiChatModel m)) return;
+			if (modelChat.SelectedIndex < 0 && modelChat.Items.Count > 0) modelChat.SelectedIndex = 0;
+			if (!(modelChat.SelectedItem is string mdn && AI.AiModel.Models.FirstOrDefault(o => o is AI.AiChatModel && o.DisplayName == mdn) is AI.AiChatModel m)) return;
 			string code = $$"""
 /*/ role editorExtension; testInternal Au.Editor; r Au.Editor.dll; /*/
 using AI;

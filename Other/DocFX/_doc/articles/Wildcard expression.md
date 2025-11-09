@@ -4,7 +4,7 @@ uid: wildcard_expression
 
 # Wildcard expression
 
-*Wildcard expression* is a simple text format that supports wildcard characters, regular expression, "match case", "text1 or text2" and "not text". Like a regular expression, but much simpler. Used with "find" functions, for example [wnd.find]().
+*Wildcard expression* is a simple text format that supports wildcard characters, regular expression, "match case", "text1 or text2" and "not text". Used with "find" functions, for example [wnd.find]().
 
 Wildcard characters:
 

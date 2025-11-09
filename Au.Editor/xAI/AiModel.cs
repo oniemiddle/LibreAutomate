@@ -14,14 +14,6 @@ abstract record class AiModel(string api, string url, string model, AMLimits lim
 	
 	static AiModel() {
 		Models = [
-			new ModelMistralEmbed(),
-#if ADD_ALL_COMPACT_EMBEDDING_MODELS
-			new ModelMistralEmbed2(),
-#endif
-			new ModelMistralChat("mistral-medium-latest"),
-			new ModelMistralChat("mistral-large-latest"),
-			new ModelMistralChat("codestral-latest"),
-			
 			new ModelOpenaiEmbed(),
 #if ADD_ALL_COMPACT_EMBEDDING_MODELS
 			new ModelOpenaiEmbed2(),
@@ -38,15 +30,6 @@ abstract record class AiModel(string api, string url, string model, AMLimits lim
 			new ModelGeminiChat("gemini-2.5-flash"),
 			new ModelGeminiChat("gemini-2.5-flash-lite"),
 			
-			
-			new ModelCohereEmbed(),
-#if ADD_ALL_COMPACT_EMBEDDING_MODELS
-			new ModelCohereEmbed2(),
-#endif
-			new ModelCohereChat("command-a-03-2025"),
-			new ModelCohereRerank("rerank-v3.5"),
-			new ModelCohereRerank("rerank-english-v3.0"),
-			
 			new ModelVoyageEmbed(),
 #if ADD_ALL_COMPACT_EMBEDDING_MODELS
 			new ModelVoyageEmbed2(),
@@ -56,13 +39,45 @@ abstract record class AiModel(string api, string url, string model, AMLimits lim
 			
 			new ModelClaudeChat("claude-opus-4-1"),
 			new ModelClaudeChat("claude-sonnet-4-0"),
+			
+			new ModelDeepseekChat(),
+			
+#if MISTRAL
+			new ModelMistralEmbed(),
+#if ADD_ALL_COMPACT_EMBEDDING_MODELS
+			new ModelMistralEmbed2(),
+#endif
+			new ModelMistralChat("mistral-medium-latest"),
+			new ModelMistralChat("mistral-large-latest"),
+			new ModelMistralChat("codestral-latest"),
+#endif
+			
+#if COHERE
+			new ModelCohereEmbed(),
+#if ADD_ALL_COMPACT_EMBEDDING_MODELS
+			new ModelCohereEmbed2(),
+#endif
+			new ModelCohereChat("command-a-03-2025"),
+			new ModelCohereRerank("rerank-v3.5"),
+			new ModelCohereRerank("rerank-english-v3.0"),
+#endif
 		];
 	}
 	
 	public static List<AiModel> Models { get; }
 	
+	/// <summary>
+	/// Finds model by type.
+	/// </summary>
 	public static T GetModel<T>() where T : AiModel => Models.OfType<T>().First();
-	public static T GetModel<T>(string model) where T : AiModel => Models.OfType<T>().First(o => o.model == model);
+	
+	/// <summary>
+	/// Finds model by type and name.
+	/// </summary>
+	/// <param name="model"></param>
+	/// <param name="displayName"><i>model</i> is like <c>"API model"</c>.</param>
+	/// <returns>null if not <i>model</i> found.</returns>
+	public static T GetModel<T>(string model, bool displayName = false) where T : AiModel => Models.OfType<T>().FirstOrDefault(o => (displayName ? o.DisplayName : o.model) == model);
 	
 	#endregion
 	
@@ -163,9 +178,9 @@ abstract record class AiRerankModel(string api, string url, string model, AMLimi
 record struct AiRerankResult(int index, float score);
 
 #region Mistral
-
+#if MISTRAL //waekar chat model. Embedding good, but not as good as Gemini and Voyage.
 record class ModelMistralEmbed : AiEmbeddingModel {
-	public ModelMistralEmbed() : base("Mistral", "https://api.mistral.ai/v1/embeddings", "codestral-embed", 1536, "float", new(32000, 256, requestPeriod: 1100)) { }
+	public ModelMistralEmbed() : base("Mistral", "https://api.mistral.ai/v1/embeddings", "codestral-embed", 1024, "float", new(32000, 256, requestPeriod: 1100)) { }
 	//"mistral-embed" (only 1024 dim float), "codestral-embed"
 	
 	public override object GetPostData(IList<EmInput> input, bool isQuery)
@@ -198,13 +213,13 @@ record class ModelMistralChat : AiChatModel {
 	public override AiChatMessage GetAnswer(JsonNode j)
 		=> new AiChatMessage(ACMRole.assistant, (string)j["choices"][0]["message"]["content"]);
 }
-
+#endif
 #endregion
 
 #region OpenAI
 
 record class ModelOpenaiEmbed : AiEmbeddingModel {
-	public ModelOpenaiEmbed() : base("OpenAI", "https://api.openai.com/v1/embeddings", "text-embedding-3-small", 1536, null, new(100000, 2048)) { }
+	public ModelOpenaiEmbed() : base("OpenAI", "https://api.openai.com/v1/embeddings", "text-embedding-3-small", 1024, null, new(100000, 2048)) { }
 	
 	public override object GetPostData(IList<EmInput> input, bool isQuery)
 		=> new { model, input, dimensions, encoding_format = "base64" };
@@ -225,6 +240,11 @@ record class ModelOpenaiEmbed2 : ModelOpenaiEmbed {
 record class ModelOpenaiChat : AiChatModel {
 	public ModelOpenaiChat(string model) : base("OpenAI", "https://api.openai.com/v1/responses", model, new(100000, 2048)) { apiSuffix = " responses"; }
 	//"gpt-5", "gpt-5-mini", "gpt-5-nano"
+	
+	/// <summary>
+	/// high, medium (default), low, minimal
+	/// </summary>
+	public string reasoning { get; init; } = "medium";
 	
 	public override object GetPostData(string instructions, List<AiChatMessage> messages, double? temperature = null) {
 		List<object> input = [];
@@ -248,7 +268,7 @@ record class ModelOpenaiChat : AiChatModel {
 			input,
 			//temperature, //not supported
 			store = false,
-			reasoning = new { effort = "medium" } //high, medium, minimal
+			reasoning = new { effort = reasoning }
 		};
 	}
 	
@@ -290,7 +310,7 @@ record class ModelOpenaiChat : AiChatModel {
 record class ModelGeminiEmbed : AiEmbeddingModel {
 	const string c_model = "gemini-embedding-001";
 	
-	public ModelGeminiEmbed() : base("Gemini", $"https://generativelanguage.googleapis.com/v1beta/models/{c_model}:batchEmbedContents", c_model, 1536, null, new(8000, 100, requestPeriod: 2000)) { }
+	public ModelGeminiEmbed() : base("Gemini", $"https://generativelanguage.googleapis.com/v1beta/models/{c_model}:batchEmbedContents", c_model, 1024, null, new(8000, 100, requestPeriod: 2000)) { }
 	
 	private protected override IEnumerable<string> _GetHeaders(string apiKey) => ["x-goog-api-key: " + apiKey];
 	
@@ -334,59 +354,6 @@ record class ModelGeminiChat : AiChatModel {
 		=> new AiChatMessage(ACMRole.assistant, (string)j["candidates"][0]["content"]["parts"][0]["text"]);
 	
 	//tokens: (int)json["usageMetadata"]["totalTokenCount"]
-}
-
-#endregion
-
-#region Cohere
-
-record class ModelCohereEmbed : AiEmbeddingModel {
-	public ModelCohereEmbed() : base("Cohere", "https://api.cohere.ai/v2/embed", "embed-v4.0", 1536, "base64", new(100000, 96, requestPeriod: 1000, maxSize: 256000)) { }
-	
-	public override object GetPostData(IList<EmInput> texts, bool isQuery)
-		=> new { model, texts, output_dimension = dimensions, embedding_types = (string[])[emType], input_type = isQuery ? "search_query" : "search_document" };
-	
-	public override IEnumerable<JsonNode> GetVectors(JsonNode j)
-		=> j["embeddings"][emType].AsArray();
-	
-	public override int GetTokens(JsonNode j)
-		=> (int)j["meta"]["billed_units"]["input_tokens"];
-}
-
-#if ADD_ALL_COMPACT_EMBEDDING_MODELS
-record class ModelCohereEmbed2 : ModelCohereEmbed {
-	public ModelCohereEmbed2() { isCompact = true; dimensions = 512; emType = "int8"; }
-}
-#endif
-
-record class ModelCohereChat : AiChatModel {
-	public ModelCohereChat(string model) : base("Cohere", "https://api.cohere.com/v2/chat", model, new(0, 96, maxSize: 256000)) { } //doc: max content length 256k (chars or tokens?)
-	
-	public override object GetPostData(string systemInstruction, List<AiChatMessage> messages, double? temperature = null)
-		=> new {
-			model,
-			messages = (object[])[new { role = "developer", content = systemInstruction }, .. messages.Select(o => new { role = o.role.ToString(), content = o.text })],
-			temperature,
-		};
-	
-	public override AiChatMessage GetAnswer(JsonNode j)
-		=> new AiChatMessage(ACMRole.assistant, (string)j["choices"][0]["message"]["content"]);
-}
-
-record class ModelCohereRerank : AiRerankModel {
-	public ModelCohereRerank(string model) : base("Cohere", "https://api.cohere.com/v2/rerank", model, new(4096, 1000)) { }
-	
-	public override object GetPostData(string query, IList<string> documents, int top_n = 0)
-		=> new {
-			model, //rerank-v3.5, rerank-english-v3.0
-			query,
-			documents,
-			top_n = Math.Min(top_n > 0 ? top_n : int.MaxValue, documents.Count),
-			//max_tokens_per_doc //4096 is default and max
-		};
-	
-	public override IEnumerable<AiRerankResult> GetResults(JsonNode j)
-		=> j["results"].AsArray().Select(o => new AiRerankResult((int)o["index"], (float)o["relevance_score"]));
 }
 
 #endregion
@@ -493,4 +460,97 @@ record class ModelClaudeChat : AiChatModel {
 		=> new AiChatMessage(ACMRole.assistant, (string)j["content"][0]["text"]);
 }
 
+#endregion
+
+#region DeepSeek
+
+//no embedding API
+
+record class ModelDeepseekChat : AiChatModel {
+	public ModelDeepseekChat(string model = "deepseek-chat") : base("DeepSeek", "https://api.deepseek.com/chat/completions", model, new(200000, 100000)) { }//TODO: limits
+	
+	public override object GetPostData(string systemInstruction, List<AiChatMessage> messages, double? temperature = null)
+		=> new {
+			model, //deepseek-chat, deepseek-reasoner
+			messages = (object[])[new { role = "system", content = systemInstruction }, .. messages.Select(o => new { role = o.role.ToString(), content = o.text })],
+			temperature = temperature ?? 1, //1-2
+		};
+	
+	public override AiChatMessage GetAnswer(JsonNode j)
+		=> new AiChatMessage(ACMRole.assistant, (string)j["choices"][0]["message"]["content"]);
+}
+
+#endregion
+
+#region Cohere
+#if COHERE
+record class ModelCohereEmbed : AiEmbeddingModel {
+	public ModelCohereEmbed() : base("Cohere", "https://api.cohere.ai/v2/embed", "embed-v4.0", 1024, "base64", new(100000, 96, requestPeriod: 1000, maxSize: 256000)) { }
+	
+	public override object GetPostData(IList<EmInput> texts, bool isQuery)
+		=> new { model, texts, output_dimension = dimensions, embedding_types = (string[])[emType], input_type = isQuery ? "search_query" : "search_document" };
+	
+	public override IEnumerable<JsonNode> GetVectors(JsonNode j)
+		=> j["embeddings"][emType].AsArray();
+	
+	public override int GetTokens(JsonNode j)
+		=> (int)j["meta"]["billed_units"]["input_tokens"];
+}
+
+#if ADD_ALL_COMPACT_EMBEDDING_MODELS
+record class ModelCohereEmbed2 : ModelCohereEmbed {
+	public ModelCohereEmbed2() { isCompact = true; dimensions = 512; emType = "int8"; }
+}
+#endif
+
+record class ModelCohereChat : AiChatModel {
+	public ModelCohereChat(string model = "command-a-03-2025") : base("Cohere", "https://api.cohere.com/v2/chat", model, new(0, 96, maxSize: 256000)) { } //doc: max content length 256k (chars or tokens?)
+	
+	public override object GetPostData(string systemInstruction, List<AiChatMessage> messages, double? temperature = null)
+		=> new {
+			model,
+			messages = (object[])[new { role = "assistant", content = systemInstruction }, .. messages.Select(o => new { role = o.role.ToString(), content = o.text })],
+			temperature,
+		};
+	
+	public override AiChatMessage GetAnswer(JsonNode j)
+		=> new AiChatMessage(ACMRole.assistant, (string)j["message"]["content"][0]["text"]);
+}
+
+record class ModelCohereRerank : AiRerankModel {
+	public ModelCohereRerank(string model) : base("Cohere", "https://api.cohere.com/v2/rerank", model, new(4096, 1000)) { }
+	
+	public override object GetPostData(string query, IList<string> documents, int top_n = 0)
+		=> new {
+			model, //rerank-v3.5, rerank-english-v3.0
+			query,
+			documents,
+			top_n = Math.Min(top_n > 0 ? top_n : int.MaxValue, documents.Count),
+			//max_tokens_per_doc //4096 is default and max
+		};
+	
+	public override IEnumerable<AiRerankResult> GetResults(JsonNode j)
+		=> j["results"].AsArray().Select(o => new AiRerankResult((int)o["index"], (float)o["relevance_score"]));
+}
+#endif
+#endregion
+
+#region Jina
+#if false //much worse for this task
+record class ModelJinaRerank : AiRerankModel {
+	public ModelJinaRerank(string model = "jina-reranker-v2-base-multilingual") : base("Jina", "https://api.jina.ai/v1/rerank", model, new(8000, 1000, requestPeriod: 1000)) { } //TODO: limits
+	
+	public override object GetPostData(string query, IList<string> documents, int top_n = 0)
+		=> new {
+			model, //jina-reranker-v3 (error; paid only?), jina-reranker-v2-base-multilingual
+			query,
+			documents,
+			top_n = Math.Min(top_n > 0 ? top_n : int.MaxValue, documents.Count),
+			return_documents = false,
+		};
+	
+	public override IEnumerable<AiRerankResult> GetResults(JsonNode j)
+		=> j["results"].AsArray().Select(o => new AiRerankResult((int)o["index"], (float)o["relevance_score"]));
+}
+#endif
 #endregion

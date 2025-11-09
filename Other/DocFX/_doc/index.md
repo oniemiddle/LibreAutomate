@@ -53,6 +53,7 @@ The setup may be blocked by security software because it is new, not commonly do
 - [Source code](https://github.com/qgindi/LibreAutomate)
 - [Changes](https://github.com/qgindi/LibreAutomate/blob/master/Other/DocFX/_doc/changes/)
 - [Donate](https://github.com/sponsors/qgindi)
+- [Privacy policy](https://www.libreautomate.com/misc/privacy-policy.html)
 
 ### Developers
 

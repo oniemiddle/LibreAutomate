@@ -29,6 +29,10 @@ Several small improvements.
 Fixed bugs:
 - .
 
+#### Breaking changes
+
+Changed namespaces in `Au.Editor` project. Edit your `editorExtension` scripts that use its internal classes (unlikely).
+
 ### Library
 Updated PCRE regex library to v10.46.
 
@@ -54,7 +58,3 @@ Fixed bugs:
 - `script.restart` does not work.
 - `JSettings` can deadlock.
 - `WTaskbarButton` exception if used in multiple threads.
-
-### Breaking changes
-
-Changed namespaces in `Au.Editor` project. Edit your `editorExtension` scripts that use its internal classes (unlikely).

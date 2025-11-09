@@ -160,7 +160,7 @@ public unsafe partial class KTreeView {
 	/// </summary>
 	/// <param name="item">Can be null.</param>
 	public int IndexOf(ITreeViewItem item) {
-		if (_dvi != null && _dvi.TryGetValue(item, out int i)) return i;
+		if (item != null && _dvi != null && _dvi.TryGetValue(item, out int i)) return i;
 		return -1;
 	}
 	

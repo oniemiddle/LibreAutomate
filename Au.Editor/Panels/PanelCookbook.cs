@@ -3,25 +3,12 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml.Linq;
 using Au.Controls;
+using System.Security.Authentication;
 
 //CONSIDER: Add a menu-button. Menu:
 //	Item "Request a recipe for this search query (uses internet)".
 
 //CONSIDER: option to show Recipe panel when Cookbook panel is really visible and hide when isn't.
-
-//TODO3: add some synonyms:
-//	string/text, folder/directory, program/app/application, run/open, internet/web, email/mail, regular expression/regex
-//	See _DebugGetWords.
-
-//CONSIDER: auto-search in text too, and somehow separate results. Now some users don't know how to search in text; or it's inconvenient.
-
-//TODO: show search results in 4 tabs:
-//	Name - found in names.
-//	+text - found in names and texts.
-//	AI - found using AI embeddings.
-//	AI+ - found using AI RAG.
-//The last 2 show not only cookbook recipes.
-//Maybe move the search box to the Help toolbar. And use separate panel for results (or in Found).
 
 namespace LA;
 
@@ -44,6 +31,7 @@ class PanelCookbook {
 		b.R.Add(out _search).Tooltip("Part of recipe name.\nTo search in recipe text, click the button next to this field.\nMiddle-click to clear.").UiaName("Find recipe");
 		b.Options(modifyPadding: false, margin: new());
 		_search.TextChanged += (_, _) => _Search();
+		b.xAddButtonIcon(EdIcons.AiSearch, _ => _AiSearch(), "AI search");
 		b.xAddButtonIcon("*EvaIcons.ArrowBack" + EdIcons.darkYellow, _ => _HistoryMenu(), "Go back...").Margin(right: 3);
 		_tv = new() { Name = "Cookbook_list", SingleClickActivate = true, FullRowExpand = true, HotTrack = true, BackgroundColor = 0xf0f8e8 };
 		b.Row(-1).Add(_tv);
@@ -287,6 +275,98 @@ class PanelCookbook {
 	}
 	(Libs.Porter2Stemmer.EnglishPorter2Stemmer stemmer, List<string> a, regexp rx) _stem;
 	
+	async void _AiSearch() {
+		var query = _search.Text.Trim();
+		if (query.Length < 2) return;
+		
+		AI.AiModel.ApiKeys = App.Settings.ai_ak;
+		var emModel = AI.AiModel.GetModel<AI.AiEmbeddingModel>(App.Settings.ai_modelEmbed, displayName: true);
+		if (emModel == null) {
+			_AiSettingsError($"Please go to Options > AI and select models for documentation search.");
+			return;
+		}
+		var rrModel = AI.AiModel.GetModel<AI.AiRerankModel>(App.Settings.ai_modelRerank, displayName: true);
+		
+		try {
+			_ctsTask?.Cancel();
+			_ctsTask?.Dispose();
+			_ctsTask = new();
+			var cancel = _ctsTask.Token;
+			
+			var em = new AI.Embeddings(emModel);
+			var ems = await Task.Run(() => em.GetDocsEmbeddings(cancel).Where(o => o.name.Starts("[cook")).ToList());
+			
+			using var osd = osdText.showText("Searching.\nClick to cancel.", -1, PopupXY.Mouse, showMode: OsdMode.ThisThread);
+			osd.Clicked += (_, _) => { _ctsTask?.Cancel(); };
+			
+			int take = 15 + Math.Sqrt(query.Count(c => c <= ' ') + query.Count(c => c is ',' or '.' or ';') * 4).ToInt();
+			
+			var queryVector = await Task.Run(() => em.CreateEmbedding(query, cancel));
+			var topAll = em.GetTopMatches(queryVector, ems, rrModel == null ? take : take * 5);
+			if (topAll.Count == 0) return;
+			
+			Dictionary<string, (float score, bool summary)> dTop = [];
+			foreach (var v in topAll) {
+				var name = v.f.name;
+				bool isSum = name[0] == '+';
+				if (isSum) name = name[1..];
+				dTop.TryAdd(name, (v.score, isSum));
+			}
+			var aTop = dTop.Select(o => (name: o.Key, v: o.Value)).OrderByDescending(o => o.v.score).ToArray();
+			
+			List<_Item> a = [];
+			if (rrModel != null) {
+				osd.Text = "Reranking.\nClick to cancel.";
+				await Task.Run(() => {
+					var names = aTop.Select(o => o.name).ToArray();
+					var texts = em.GetDocsTexts(names);
+					var headers = rrModel.GetHeaders();
+					var post = rrModel.GetPostData(query, texts);
+					var j = rrModel.Post(post, headers, cancel).Json();
+					//print.it(j.ToJsonString(new() { WriteIndented = true }));
+					var ar = rrModel.GetResults(j);
+					int i = 0;
+					float firstScore = 0;
+					foreach (var v in ar) {
+						if (i == 0) firstScore = v.score;
+						if (i++ > take || firstScore - v.score > .3f) break;
+						_FindAdd(names[v.index]);
+					}
+				});
+			} else {
+				float firstScore = aTop[0].v.score;
+				foreach (var v in aTop) {
+					if (v.v.score < firstScore - .15f) break;
+					_FindAdd(v.name);
+				}
+			}
+			
+			void _FindAdd(string s) {
+				s = s[11..];
+				s = s.Replace("CSharp", "C#").Replace("dot-", ".");
+				if (_FindRecipe(s, true) is { } r) {
+					a.Add(r);
+				} else {
+					Debug_.Print(s);
+				}
+			}
+			
+			_tv.SetItems(a);
+		}
+		catch (OperationCanceledException etc) { if (etc.InnerException is TimeoutException) print.it(etc.Message); }
+		catch (InvalidCredentialException) {
+			var api = emModel.api;
+			_AiSettingsError($"Please go to Options > AI and set the API key for {api}.\nYou can create an API key in your account on the {api} website.");
+		}
+		catch (Exception e1) { print.it(e1); }
+		
+		void _AiSettingsError(string text) {
+			if (!dialog.showOkCancel("AI search error", text, owner: P)) return;
+			DOptions.AaShow(DOptions.EPage.AI);
+		}
+	}
+	CancellationTokenSource _ctsTask;
+	
 	/// <summary>
 	/// Finds and opens a recipe.
 	/// <para>
@@ -310,7 +390,7 @@ class PanelCookbook {
 	/// </summary>
 	/// <param name="name">Exact recipe name. If null, opens the cookbook index page.</param>
 	public static void OpenRecipeInWebBrowser(string name) {
-		var s = name?.Replace("#", "Sharp").Replace(".", "dot-") ?? "index"; //see project @Au docs -> AuDocs.Cookbook
+		var s = name?.Replace("C#", "CSharp").Replace(".", "dot-") ?? "index"; //see project @Au docs -> AuDocs.Cookbook
 		HelpUtil.AuHelp($"cookbook/{s}");
 	}
 	

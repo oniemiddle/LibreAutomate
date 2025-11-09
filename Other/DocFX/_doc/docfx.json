@@ -33,6 +33,7 @@
           "editor/**.md",
           "editor/**/toc.yml",
           "cookbook/**.md",
+          "misc/**.md",
           "toc.yml",
           "*.md"
         ]

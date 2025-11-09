@@ -1052,8 +1052,6 @@ public static partial class filesystem {
 	}
 	
 	static bool _DeleteShell(string path, bool recycle, List<string> a = null) {
-		//TODO: sometimes LA crashes when deleting a file. The crash dump shows it may be related to COM. Try to call the shell API in other thread.
-		
 		if (a != null) path = string.Join("\0", a);
 		if (wildex.hasWildcardChars(path)) throw new ArgumentException("*? not supported.");
 		var x = new Api.SHFILEOPSTRUCT() { wFunc = Api.FO_DELETE };
@@ -1062,7 +1060,17 @@ public static partial class filesystem {
 		x.fFlags = (ushort)f;
 		x.pFrom = path + "\0";
 		x.hwnd = wnd.getwnd.root;
-		var r = Api.SHFileOperation(x);
+		
+		//Call SHFileOperation in another thread. Because it pumps messages, including WM_PAINT and WM_TIMER, which causes random bugs. Also it's better to always call it in a STA thread.
+		//	However .NET wait methods pump messages too, although less. To reproduce, try to delete eg 10 files.
+		//int r = Api.SHFileOperation(x);
+		//int r = Task.Run(() => Api.SHFileOperation(x)).Result_(); //slower
+		//int r = Task.Factory.StartNew(() => Api.SHFileOperation(x), default, 0, StaTaskScheduler_.Default).Result_();
+		//run.thread(() => { Api.SHFileOperation(x); }).Join();
+		
+		using var wh = run.thread(out _, out _, () => { try { Api.SHFileOperation(x); } catch (Exception ex) { Debug_.Print(ex); } });
+		wait.forHandle(0, 0, wh.DangerousGetHandle());
+		
 		//if(r != 0 || x.fAnyOperationsAborted) return false; //do not use fAnyOperationsAborted, it can be true even if finished to delete. Also, I guess it cannot be aborted because there is no UI, because we use FOF_SILENT to avoid deactivating the active window even when the UI is not displayed.
 		//if(r != 0) return false; //after all, I don't trust this too
 		//in some cases API returns 0 but does not delete. For example when path too long.
@@ -1073,7 +1081,7 @@ public static partial class filesystem {
 		}
 		return true;
 		
-		//Also tested IFileOperation, but it is even slower. Also it requires STA, which is not a big problem.
+		//Also tested IFileOperation, but it is even slower.
 		
 		//Unsuccessfully tried to add flag 'if cannot use Recycle Bin, show a Yes|No message box and delete or fail'.
 		//	FOF_WANTNUKEWARNING does not work as it should, eg is ignored when the file is in a flash drive.

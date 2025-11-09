@@ -37,7 +37,8 @@ static class ToolProcess {
 			var poDir = folders.ThisAppDataCommon + "optimization";
 			if (!Directory.Exists(poDir)) Directory.CreateDirectory(poDir);
 			AssemblyLoadContext.Default.SetProfileOptimizationRoot(poDir);
-			AssemblyLoadContext.Default.StartProfileOptimization(args[0]);
+			Debug.Assert(args[1][0] == 'D'); //Dwnd etc
+			AssemblyLoadContext.Default.StartProfileOptimization(args[1]);
 		}
 		catch (Exception ex) { Debug_.Print(ex); }
 		

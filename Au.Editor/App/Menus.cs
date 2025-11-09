@@ -1,3 +1,35 @@
+/*
+LibreAutomate's menu bar menus are defined in the `Menus` class. The menu hierarchy is the same as the hierarchy of nested classes.
+At startup the program creates all menus using reflection. Also it creates customizable toolbars with buttons for the same commands.
+For each class and method with `[Command]` attribute, the program creates a menu item and its `ICommand`. Classes define menus/submenus. Methods define leaf items.
+Some classes also have method named `_Init`. The program calls it when it created all menus. The method eg can set initial check states or event handlers to populate the submenu dynamically.
+
+## Menu item properties
+All properties can be defined via `CommandAttribute`. Some properties are by default derived from the method/class name.
+
+- `name` (string) - command name (used to find commands, customization, etc). Assigned in one of ways: 1. By default it's the name of the method or class. 2. Attribute property `name`; this way can be used to prevent duplicates.
+- `text` (string) - the display text (in menu item and button tooltip). Assigned in one of ways: 1. By default it's the name of the method or class, but underscores are replaced with spaces; if the first argument is "...", it is appended. 2. The first argument as string, except if it's "...".
+- `checkable` (bool) - it's a toggle.
+- `hide` (bool) - it's a command without UI (menu item, toolbar button).
+- `image` (string) - icon of the menu item and toolbar button. Usually XAML icon name.
+- `keys` (string) - default hotkey. Users can change it.
+- `keysText` (string) - alternative display text for hotkey.
+- `namePrefix` (string) - name prefix of the command, and default prefix of descendants. Used to prevent duplicates.
+- `separator` (bool) - add separator before the menu item.
+- `tooltip` (string) - tooltip text of the menu item and toolbar button (to be appended to the display text).
+- `target` (string) - name of panel etc where the hotkey(s) is/are active. Inheritable. If "" - in entire window (used to override the inherited target).
+- `underlined` (char) - the access character. Assigned in one of ways: 1. The first argument as char. 2. Underscore in explicitly specified display text. 3. Auto-assigned by the program.
+
+When AI generates documentation from this code:
+- Include all menu items generated from classes and methods with `[Command]` attribute, except where `hide` is present.
+- Markdown format: Use headings for menus/submenus (hierarchical, not flat). Place leaf items in lists.
+- Generate menu item descriptions from these properties: `text`, `checkable`, `tooltip`. Ignore other properties and separators. Example: `- **Display text**. Tooltip or optionally AI-generated short description.`.
+- If a tooltip is missing and the display text does not give enough information to users, generate short description from the display text or/and the method code. Don't generate if you are unsure how the command works. Better no description than incorrect description.
+- You can generate multiline descriptions. Keep newlines in tooltips.
+- Where method `_Init` populates submenu items dynamically, mention it somehow, eg "Populated dynamically at run time".
+- The generated Markdown document will be part of the LibreAutomate documentation. LibreAutomate users will see it.
+*/
+
 using Au.Controls;
 using ToolLand;
 using System.Windows;
@@ -97,16 +129,6 @@ static class Menus {
 			[Command(target = "", image = "*Codicons.CollapseAll" + black)]
 			public static void Collapse_inactive_folders() { App.Model.CloseEtc(FilesModel.ECloseCmd.CollapseInactiveFolders); }
 		}
-		
-		//[Command]
-		//public static class More
-		//{
-		//	//[Command("...", separator = true)]
-		//	//public static void Print_setup() { }
-		
-		//	//[Command("...")]
-		//	//public static void Print() { }
-		//}
 		
 		[Command("Export, import", separator = true)]
 		public static class ExportImport {
@@ -212,7 +234,7 @@ static class Menus {
 			[Command(keys = "Ctrl+V", image = EdIcons.Paste)]
 			public static void Paste() { Panels.Editor.ActiveDoc.EPaste(); }
 			
-			[Command(image = "*Material.ForumOutline" + brown, text = "Copy _forum code", separator = true)]
+			[Command("Copy _forum code", image = "*Material.ForumOutline" + brown, separator = true)]
 			public static void Forum_copy() { Panels.Editor.ActiveDoc.ECopy(SciCode.ECopyAs.Forum); }
 			
 			[Command("Copy HTML <span style>")]
@@ -595,7 +617,7 @@ More info in app help topic "Code editor".
 		[Command(image = "*SimpleIcons.NuGet" + blue)]
 		public static void NuGet() { DNuget.ShowSingle(); }
 		
-		[Command(image = "*Codicons.SymbolSnippet" + green)]
+		[Command(image = "*Codicons.SymbolSnippet" + blue)]
 		public static void Snippets() { DSnippets.ShowSingle(); }
 		
 		[Command]
@@ -631,7 +653,7 @@ More info in app help topic "Code editor".
 		[Command(image = "*BoxIcons.RegularLibrary" + darkYellow)]
 		public static void Library_help() { HelpUtil.AuHelp("api/"); }
 		
-		[Command(text = "C# help", image = "*Modern.LanguageCsharp" + darkYellow)]
+		[Command("C# help", image = "*Modern.LanguageCsharp" + darkYellow)]
 		public static void CSharp_help() { run.itSafe("https://learn.microsoft.com/en-us/dotnet/csharp/"); }
 		
 		[Command(keys = "F1", image = "*Unicons.MapMarkerQuestion" + darkYellow)]

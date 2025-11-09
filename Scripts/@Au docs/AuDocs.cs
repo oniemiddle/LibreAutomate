@@ -245,7 +245,21 @@ partial class AuDocs {
 		void _Param(ImmutableArray<IParameterSymbol> a) {
 			foreach (var p in a) {
 				var x = xr.Elem("param", "name", p.Name);
-				if (x == null || !_Append(x)) _analyze.MissingParam(p, x);
+				if (x == null || _IsXElementWithoutValue(x)) { //if enum, add enum members. Useful for AI.
+					if (p.Type is INamedTypeSymbol ptype && ptype.IsEnumType()) {
+						var mn = ptype.MemberNames;
+						if (!mn.TryGetNonEnumeratedCount(out int n)) throw null;
+						if (n <= 16) {
+							x ??= new("param", new XAttribute("name", p.Name));
+							x.Value = $"Enum: {string.Join(", ", mn)}.";
+							//bool isFlags = ptype.GetAttributes().Any(a => a.AttributeClass?.ToDisplayString() == "System.FlagsAttribute");
+							//x.Value = $"Enum{(isFlags ? " (flags)" : "")}: {string.Join(", ", mn)}."; //rejected. Most parameters are named `flags` etc.
+						}
+					}
+				}
+				if (x == null || !_Append(x)) {
+					_analyze.MissingParam(p, x);
+				}
 			}
 		}
 		
@@ -314,10 +328,12 @@ partial class AuDocs {
 		
 		return true;
 		
+		static bool _IsXElementWithoutValue(XElement x) => x.IsEmpty || x.FirstNode == null || (!x.HasElements && string.IsNullOrWhiteSpace(x.Value));
+		
 		bool _Append(XElement xp, bool hasCref = false) {
 			if (hasCref) _Cref(xp);
 			
-			if (xp.IsEmpty || xp.FirstNode == null || (!xp.HasElements && string.IsNullOrWhiteSpace(xp.Value))) {
+			if (_IsXElementWithoutValue(xp)) {
 				_b.AppendLine(xp.ToString());
 				return false;
 			}

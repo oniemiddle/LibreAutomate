@@ -1,23 +1,23 @@
 # Automation library
 
-### Namespaces
+## Namespaces
 - `Au` - main classes of this library, except triggers.
 - `Au.Types` - types of function parameters, exceptions, etc.
 - `Au.Triggers` - triggers: hotkeys, autotext, mouse, window.
 - `Au.More` - classes that are rarely used in automation scripts.
 
-### Files
-#### .NET assembly files
+## Files
+### .NET assembly files
 - `Au.dll` - contains code of the above namespaces.
 
-#### Native code files
+### Native code files
 - `AuCpp.dll`, `Au.DllHost.exe` - used by `Au.dll`.
 
 These files are in LibreAutomate subfolders `64` and `32`. The exe compiler copies them to the exe folder. When using the library via NuGet, they are in subfolder `runtimes`.
 
 Other dll files in the LibreAutomate folder are not part of the library. They are undocumented.
 
-### Using the library without LibreAutomate
+## Using the library without LibreAutomate
 To get the dlls use NuGet package [LibreAutomate](https://www.nuget.org/packages/LibreAutomate). Or copy from the LibreAutomate folder. Or build from source code.
 
 Your project settings:

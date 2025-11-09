@@ -128,38 +128,31 @@ namespace Au {
 		//	=> new(fields.Select(o=>new KeyValuePair<string, string>(o.Item1, o.Item2)));
 		
 		/// <summary>
-		/// Creates an <see cref="HttpContent"/> for posting an object serialized as JSON. It can be used with functions like <see cref="HttpClient.PostAsync(string?, HttpContent?)"/> and <see cref="ExtInternet.Post"/>.
+		/// Creates <see cref="HttpContent"/> for posting JSON. It can be used with functions like <see cref="HttpClient.PostAsync(string?, HttpContent?)"/> and <see cref="ExtInternet.Post"/>.
 		/// </summary>
-		/// <param name="x">An object of any type that can be serialized to JSON with a <see cref="JsonSerializer"/>.</param>
-		/// <exception cref="Exception">Exceptions of <see cref="JsonContent.Create{T}(T, MediaTypeHeaderValue?, JsonSerializerOptions?)"/>.</exception>
-		/// <remarks>
-		/// Just calls <see cref="JsonContent.Create{T}(T, MediaTypeHeaderValue?, JsonSerializerOptions?)"/>. You can instead call it directly if want to specify media type or JSON serializer parameters.
-		/// </remarks>
+		/// <param name="x">JSON string, or <see cref="JsonNode"/> (or a derived type), or object of any type that can be serialized to JSON with <see cref="JsonSerializer"/>.</param>
+		/// <param name="options"></param>
+		/// <exception cref="Exception">Exceptions of <see cref="JsonContent.Create(object?, Type, MediaTypeHeaderValue?, JsonSerializerOptions?)"/>.</exception>
+		/// <returns>
+		/// If <i>x</i> is string, creates/returns new <see cref="StringContent"/>.
+		/// Else if <i>x</i> is <see cref="JsonNode"/> (or a derived type), calls <see cref="JsonNode.ToJsonString"/> and creates/returns new <see cref="StringContent"/>.
+		/// Else if <i>x</i> is <see cref="HttpContent"/> (or a derived type), returns <i>x</i>.
+		/// Else calls/returns <see cref="JsonContent.Create(object?, Type, MediaTypeHeaderValue?, JsonSerializerOptions?)"/>.
+		/// </returns>
 		/// <example>
 		/// <code><![CDATA[
-		/// var v = new POINT(10, 20);
+		/// var v = new { a = "A", b = true };
 		/// string s = internet.http.Post("https://httpbin.org/anything", internet.jsonContent(v)).Text();
 		/// ]]></code>
 		/// </example>
-		public static JsonContent jsonContent<T>(T x)
-			=> JsonContent.Create(x);
-		
-		/// <summary>
-		/// Creates an <see cref="HttpContent"/> for posting a JSON string. It can be used with functions like <see cref="HttpClient.PostAsync(string?, HttpContent?)"/> and <see cref="ExtInternet.Post"/>.
-		/// </summary>
-		/// <param name="json">JSON string.</param>
-		/// <example>
-		/// <code><![CDATA[
-		/// string json = "{ ... }";
-		/// string s = internet.http.Post("https://httpbin.org/anything", jsonContent(json)).Text();
-		/// ]]></code>
-		/// </example>
-		public static StringContent jsonContent(string json) => new(json, null, "application/json");
-		
-		/// <summary>
-		/// Creates an <see cref="HttpContent"/> for posting JSON. It can be used with functions like <see cref="HttpClient.PostAsync(string?, HttpContent?)"/> and <see cref="ExtInternet.Post"/>.
-		/// </summary>
-		public static StringContent jsonContent(JsonNode json) => jsonContent(json.ToJsonString());
+		public static HttpContent jsonContent(object x, JsonSerializerOptions options = null) {
+			return x switch {
+				HttpContent c => c,
+				string s => new StringContent(s, null, "application/json"),
+				JsonNode n => new StringContent(n.ToJsonString(options), null, "application/json"),
+				_ => JsonContent.Create(x, x.GetType(), null, options),
+			};
+		}
 		
 		/// <summary>
 		/// Creates <see cref="HttpRequestMessage"/> for <see cref="HttpClient.Send"/> or <see cref="HttpClient.SendAsync"/> in the same way as the <see cref="HttpClient"/> extension methods of this library (<b>ExtInternet.Get</b>, <b>ExtInternet.Post</b> etc).
@@ -345,7 +338,11 @@ namespace Au.Types {
 			try {
 				r = t.Send(m, dontWait ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead);
 				if (r.IsSuccessStatusCode) return true;
-				if (printError) print.warning($"HTTP GET failed. {(int)r.StatusCode} ({r.StatusCode}), {r.ReasonPhrase}");
+				if (printError) {
+					var s1 = $"HTTP GET failed. {(int)r.StatusCode} ({r.StatusCode}), {r.ReasonPhrase}";
+					if (!dontWait) try { if (r.Text(ignoreError: true) is [_, ..] s2) s1 = s1 + ", " + s2; } catch { }
+					print.warning(s1);
+				}
 			}
 			catch (Exception e) {
 				r = null;
@@ -395,7 +392,7 @@ namespace Au.Types {
 		/// ]]></code>
 		/// Post object as JSON.
 		/// <code><![CDATA[
-		/// var v = new POINT(1, 2);
+		/// var v = new { a = "A", b = true };
 		/// string s = internet.http.Post("https://httpbin.org/anything", internet.jsonContent(v)).Text();
 		/// print.it(s);
 		/// ]]></code>
@@ -430,7 +427,7 @@ namespace Au.Types {
 		/// ]]></code>
 		/// Post object as JSON.
 		/// <code><![CDATA[
-		/// var v = new POINT(1, 2);
+		/// var v = new { a = "A", b = true };
 		/// if (!internet.http.TryPost(out var r, "https://httpbin.org/anything", internet.jsonContent(v), printError: true)) return;
 		/// print.it(r.Text());
 		/// ]]></code>
@@ -440,7 +437,11 @@ namespace Au.Types {
 			try {
 				r = t.Send(m, dontWait ? HttpCompletionOption.ResponseHeadersRead : HttpCompletionOption.ResponseContentRead);
 				if (r.IsSuccessStatusCode) return true;
-				if (printError) print.warning($"HTTP POST failed. {(int)r.StatusCode} ({r.StatusCode}), {r.ReasonPhrase}");
+				if (printError) {
+					var s1 = $"HTTP POST failed. {(int)r.StatusCode} ({r.StatusCode}), {r.ReasonPhrase}";
+					if (!dontWait) try { if (r.Text(ignoreError: true) is [_, ..] s2) s1 = s1 + ", " + s2; } catch { }
+					print.warning(s1);
+				}
 			}
 			catch (Exception e) {
 				r = null;

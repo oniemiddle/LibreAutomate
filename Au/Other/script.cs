@@ -944,6 +944,7 @@ public static class script {
 		int r = (int)WndCopyData.Send<char>(w, 5, name);
 		return r == 1 ? true : r == 2 ? null : false;
 	}
+	//TODO: option to end all other processes of current script. Maybe if name is "".
 	
 	/// <summary>
 	/// Returns <c>true</c> if the specified script task is running.
