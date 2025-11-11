@@ -7,7 +7,6 @@ namespace LA;
 
 static class Panels {
 	public static KPanels PanelManager;
-	//internal static KPanels.ILeaf DocPlaceholder_;
 	//panels
 	public static PanelEdit Editor;
 	public static PanelFiles Files;
@@ -25,7 +24,6 @@ static class Panels {
 	public static PanelDebug Debug;
 	//menu and toolbars
 	public static Menu Menu;
-	//public static ToolBar[] Toolbars;
 	public static ToolBar TFile, TEdit, TRun, TTools, THelp, TCustom1, TCustom2;
 	
 	public static void LoadAndCreateToolbars() {
@@ -42,6 +40,10 @@ static class Panels {
 					bool silent = s2.RxIsMatch(@"<document name=""documents"" ?/>\s*</tab>"); //very old and incompatible
 					if (!silent) print.it("Info: The window layout has been reset, because several new panels have been added in this app version.\r\n\tIf you want to undo it: 1. Exit the program. 2. Restore file Layout.xml from the Recycle Bin (replace the existing file). 3. Run the program. 4. Move panels from the bottom of the window to a better place.");
 					//rejected: show Yes/No dialog. Let users at first see the new default layout, then they can undo.
+				} else if (!s2.Contains("<panel name=\"How to\"")) { //in v1.15 renamed some panels
+					s2 = s2.Replace("<panel name=\"Cookbook\"", "<panel name=\"How to\"");
+					s2 = s2.Replace("<panel name=\"Recipe\"", "<panel name=\"Read\"");
+					filesystem.saveText(customLayoutPath, s2);
 				}
 			}
 			catch (Exception e1) { Debug_.Print(e1); }
@@ -99,11 +101,10 @@ static class Panels {
 		var pm = PanelManager;
 		
 		pm["documents"].Content = (Editor = new()).P;
-		//DocPlaceholder_ = pm["documents"];
 		
 		pm["Files"].Content = (Files = new()).P;
 		_AddDontFocus("Outline", (Outline = new()).P);
-		pm["Cookbook"].Content = (Cookbook = new()).P;
+		pm["How to"].Content = (Cookbook = new()).P;
 		_AddDontFocus("Debug", (Debug = new()).P);
 		_AddDontFocus("Open", (Open = new()).P);
 		_AddDontFocus("Tasks", (Tasks = new()).P);
@@ -113,7 +114,7 @@ static class Panels {
 		_AddDontFocus("Output", (Output = new()).P);
 		_AddDontFocus("Mouse", (Mouse = new()).P);
 		_AddDontFocus("Found", (Found = new()).P);
-		_AddDontFocus("Recipe", (Recipe = new()).P);
+		_AddDontFocus("Read", (Recipe = new()).P);
 		
 		void _AddDontFocus(string panel, FrameworkElement content) {
 			var p = pm[panel];

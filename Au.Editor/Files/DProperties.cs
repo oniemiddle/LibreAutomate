@@ -121,7 +121,7 @@ class DProperties : KDialogWindow {
 		b.Add(out cMultiline, "/*/ multiple lines /*/").Checked(_meta.Multiline);
 		b.Options(modifyPadding: false); //workaround for: OK/Cancel text incorrectly vcentered. Only on Win11, only in this dialog, only when this dialog is not in the secondary screen with DPI 125%.
 		b.AddOkCancel();
-		b.xAddDialogHelpButtonAndF1("editor/File properties"); //TODO: test
+		b.xAddDialogHelpButtonAndF1("editor/File properties");
 		b.End();
 		
 		b.End();

@@ -92,6 +92,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="NuGet.Configuration" Version="6.14.0" />
+	  <PackageReference Include="NuGet.Versioning" Version="6.14.0" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Resource Include="resources\ci\Class.xaml" />
 		<Resource Include="resources\ci\Constant.xaml" />
 		<Resource Include="resources\ci\Delegate.xaml" />
@@ -158,14 +163,6 @@
 		</Reference>
 		<Reference Include="MSTSCLib">
 		  <HintPath>..\_\MSTSCLib.dll</HintPath>
-		</Reference>
-		<Reference Include="NuGet.Configuration">
-		  <HintPath>$(ProgramFiles)\dotnet\sdk\$(NETCoreSdkVersion)\NuGet.Configuration.dll</HintPath>
-		  <Private>False</Private>
-		</Reference>
-		<Reference Include="NuGet.Versioning">
-		  <HintPath>$(ProgramFiles)\dotnet\sdk\$(NETCoreSdkVersion)\NuGet.Versioning.dll</HintPath>
-		  <Private>False</Private>
 		</Reference>
 	</ItemGroup>
 

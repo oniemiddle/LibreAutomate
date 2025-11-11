@@ -1,8 +1,11 @@
 - name: Key names and operators
   href: Key names and operators.md
+
 - name: Output tags
   href: Output tags.md
-- name: UAC, run as administrator
+
+- name: UAC
   href: UAC.md
+
 - name: Wildcard expression
   href: Wildcard expression.md

@@ -30,7 +30,7 @@ Indeterminate - use <IncludeNativeLibrariesForSelfExtract>. Adds all dlls to exe
 			b.R.Add(out KCheckBox cR2R, "ReadyToRun").Checked(0 != (4 & App.Settings.publish));
 			b.R.Add("Platform", out ComboBox cbPlatform).Width(100, "L").Items("x64|arm64|x86").Select(Math.Clamp(App.Settings.publish >>> 4 & 3, 0, 2));
 			b.R.Add(out TextBlock tProgress).Hidden(null);
-			b.R.StartOkCancel().AddOkCancel(out var bOK, out _, out _).xAddDialogHelpButtonAndF1("editor/Publish").End();
+			b.R.StartOkCancel().AddOkCancel(out var bOK, out _, out _).xAddDialogHelpButtonAndF1("editor/Creating exe programs").End();
 			b.End();
 			
 			DotnetUtil.MissingSdkUI(b.Window, [bOK]);

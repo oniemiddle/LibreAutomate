@@ -139,6 +139,12 @@ static class DotnetUtil {
 			if (!s_fullSdkDirOnce) {
 				if (filesystem.searchPath("dotnet.exe") is string dotnetExe) {
 					try {
+						//TODO: bad: if exists a SDK of a newer than LA's runtime version, dothet.exe returns it. But LA can't use its assemblies (eg NuGet.Configuration), because they require a newer runtime.
+						//	Possible solutions:
+						//	- Look for the compatible SDK. Possibly bad: dotnet commands will use the newer SDK anyway.
+						//	- Don't use the installed SDK (always use the minimal).
+						//	- Copy the assemblies to the LA dir.
+						
 						if (0 == run.console(out string v, dotnetExe, "--version", curDir: folders.ThisApp)) { //fast. Use `curDir: folders.ThisApp` because it searches for global.json (and SDK version in it) in this and ancestor dirs.
 							var dir = pathname.getDirectory(dotnetExe) + @"\sdk\" + v.Trim();
 							if (filesystem.exists(dir, true).Directory) (s_fullDotnetExe, s_fullSdkDir) = (dotnetExe, dir);

@@ -256,8 +256,8 @@ begin
   if (Length(urls) < 2) then
   begin
     SetLength(urls, 2);
-    urls[0] := 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/9.0.10/windowsdesktop-runtime-9.0.10-win-x64.exe';
-    urls[1] := 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/9.0.10/windowsdesktop-runtime-9.0.10-win-arm64.exe';
+    urls[0] := 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/9.0.11/windowsdesktop-runtime-9.0.11-win-x64.exe';
+    urls[1] := 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/9.0.11/windowsdesktop-runtime-9.0.11-win-arm64.exe';
   end;
 	
 	if IsArm64 then url := urls[1] else url := urls[0];

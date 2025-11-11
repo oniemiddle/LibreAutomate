@@ -22,7 +22,7 @@ Au:
   consoleProcess:
     Constructors: [consoleProcess]
     Properties: [Encoding, Ended, ExitCode, InputEncoding, IsLine, TerminateFinally]
-    Methods: [Dispose, Prompt, Read, ReadAllText, ReadLine, TerminateNow, Wait, Write]
+    Methods: [Dispose, EndInput, Prompt, Read, ReadAllText, ReadLine, TerminateNow, Wait, Write]
   csvTable:
     Constructors: [csvTable]
     Properties: [ColumnCount, Quote, RowCount, Rows, Separator, this]
@@ -971,6 +971,7 @@ editor:
 - Code editor
 - Command line
 - Compared with QM
+- Creating exe programs
 - Debugger
 - File properties
 - Git, backup, sync
@@ -980,7 +981,6 @@ editor:
 - Portable app
 - Program settings
 - Program
-- Publish
 - Scripts
 - Snippets
 cookbook:

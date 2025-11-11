@@ -286,6 +286,8 @@ class PanelRecipe {
 			m["New script", disable: !_CanGetCode] = o => { if (_GetCode() is string s) App.Model.NewItem("Script.cs", null, _panel._currentRecipeName + ".cs", true, new(true, s)); };
 			m.Separator();
 			m["Open in web browser"] = o => { PanelCookbook.OpenRecipeInWebBrowser(_panel._currentRecipeName); };
+			m.Separator();
+			m.Submenu("History", Panels.Cookbook.HistoryMenu_);
 			m.Show(owner: Handle);
 		}
 		

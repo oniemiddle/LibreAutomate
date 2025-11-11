@@ -221,31 +221,9 @@ class Embeddings(AiEmbeddingModel model) {
 					names.Add("+" + name);
 					texts.Add(sum);
 				}
-				
-				//_SplitAndAdd(sta.GetText(0), sta.GetText(1));
 			}
 			return (names, texts);
-			
-			//void _SplitAndAdd(string name, string text) {
-				
-			//	//_ProcessText(name, ref text);
-			//	names.Add(name);
-			//	texts.Add(text);
-			//}
 		}
-		
-		//static void _ProcessText(string name, ref string s) {
-		//	if (name.Starts("[")) return;
-		//	//TODO
-		//	//print.clear();
-			
-		//	//int i = s.Find("\n\n##### Exceptions");
-		//	//if (i > 0) s = s[..i];
-			
-		//	//print.it(s);
-			
-		//	//if (!dialog.show("Continue?",)) Environment.Exit(0);
-		//}
 	}
 	
 	public string[] GetDocsTexts(IEnumerable<string> names) {

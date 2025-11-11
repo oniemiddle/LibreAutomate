@@ -35,7 +35,7 @@ partial class AuDocs {
 					if (tag != "s") continue;
 					var cspath = path + "\\" + name;
 					name = name[..^3];
-					var nameMd = name.Replace("C#", "CSharp").Replace(".", "dot-") + ".md"; //also in PanelCookbook.cs
+					var nameMd = name.Replace("C#", "CSharp").Replace(".", "dot-") + ".md"; //SYNC: cookbook replace name
 					sbToc.Append('#', level).AppendFormat(" [{0}]({1})\r\n", name, nameMd);
 					aFiles.Add((name, nameMd, cspath));
 				}

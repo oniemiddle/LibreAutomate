@@ -234,7 +234,7 @@ static partial class App {
 		if (_FindEditorExtensionInStack(out var asm)) return MiniProgram_.ResolveAssemblyFromRefPathsAttribute_(alc, an, asm);
 		
 		Debug_.Print(an.FullName);
-		//print.qm2.write(an); 
+		//print.qm2.write(an);
 		return alc.LoadFromAssemblyPath(folders.ThisAppBS + an.Name + ".dll");
 	}
 	static Dictionary<string, string> _arDlls;

@@ -428,7 +428,8 @@ Can be Pack.Icon, like Material.Folder.");
 			var em = new AI.Embeddings(emModel);
 			var ems = await Task.Run(() => em.GetIconsEmbeddings(true, cancel));
 			
-			using var osd = osdText.showText("Searching.\nClick to cancel.", -1, PopupXY.Mouse, showMode: OsdMode.ThisThread);
+			var r1 = _tName.RectInScreen();
+			using var osd = osdText.showText("Searching.\nClick to cancel.", -1, new(r1.right, r1.bottom), showMode: OsdMode.ThisThread);
 			osd.Clicked += (_, _) => { _ctsTask?.Cancel(); };
 			
 			AI.EmInput input = new(png == null ? [query] : query.NE() ? [png] : [query, png]);

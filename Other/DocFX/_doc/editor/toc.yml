@@ -10,7 +10,7 @@
 - name: Class files, projects
   href: Class files, projects.md
 
-- name: C# file properties
+- name: File properties
   href: File properties.md
 
 - name: Menu commands
@@ -22,8 +22,8 @@
 - name: Command line
   href: Command line.md
 
-- name: Creating .exe programs
-  href: Publish.md
+- name: Creating exe programs
+  href: Creating exe programs.md
 
 - name: NuGet
   href: NuGet.md

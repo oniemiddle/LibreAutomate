@@ -33,7 +33,7 @@ Yellow background if the file is open in the code editor.
 
 C# code files have `.cs` extension, but it is hidden.
 
-File properties are documented in the **Properties** dialog.
+See [file properties](xref:file_properties).
 
 Files are of these types:
 - Script - C# code file that can be executed directly, like a program.

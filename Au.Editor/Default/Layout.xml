@@ -37,7 +37,7 @@ active - tab.
 			<tab z="320*" s="1" captionAt="Top">
 				<panel name="Files" captionAt="Top" />
 				<panel name="Outline" captionAt="Top" />
-				<panel name="Cookbook" captionAt="Top" />
+				<panel name="How to" captionAt="Top" />
 			</tab>
 			<panel name="Open" z="80" />
 			<panel name="Tasks" z="50" />
@@ -64,7 +64,7 @@ active - tab.
 				<panel name="Output" />
 				<panel name="Mouse" />
 				<panel name="Found" />
-				<panel name="Recipe" />
+				<panel name="Read" />
 			</tab>
 		</stack>
 	</stack>

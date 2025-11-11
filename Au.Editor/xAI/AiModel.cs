@@ -538,7 +538,7 @@ record class ModelCohereRerank : AiRerankModel {
 #region Jina
 #if false //much worse for this task
 record class ModelJinaRerank : AiRerankModel {
-	public ModelJinaRerank(string model = "jina-reranker-v2-base-multilingual") : base("Jina", "https://api.jina.ai/v1/rerank", model, new(8000, 1000, requestPeriod: 1000)) { } //TODO: limits
+	public ModelJinaRerank(string model = "jina-reranker-v2-base-multilingual") : base("Jina", "https://api.jina.ai/v1/rerank", model, new(8000, 1000, requestPeriod: 1000)) { } //todo: limits
 	
 	public override object GetPostData(string query, IList<string> documents, int top_n = 0)
 		=> new {
