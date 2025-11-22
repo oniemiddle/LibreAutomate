@@ -12,3 +12,4 @@ string s1 = Convert.ToBase64String(b2);
 b2 = Convert.FromBase64String(s1);
 
 /// See also recipe <+recipe>Zip files<>.
+

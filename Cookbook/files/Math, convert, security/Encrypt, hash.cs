@@ -1,4 +1,4 @@
-/// To hash data, use classes from .NET namespace <.c>System.Security.Cryptography<>.
+/// To hash data, use classes from .NET namespace `System.Security.Cryptography`.
 using System.Security.Cryptography;
 
 var b = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };

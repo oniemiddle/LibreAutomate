@@ -6,29 +6,29 @@ namespace LA;
 
 class CiPopupText {
 	public enum UsedBy { PopupList, Signature, Info }
-
+	
 	KPopup _w;
 	FlowDocumentControl _c;
 	EventHandler _onHiddenOrDestroyed;
 	UsedBy _usedBy;
 	System.Windows.Documents.Section _section;
 	bool _updateText;
-
+	
 	public CiPopupText(UsedBy usedy, EventHandler onHiddenOrDestroyed = null) {
 		_usedBy = usedy;
 		_onHiddenOrDestroyed = onHiddenOrDestroyed;
 	}
-
+	
 	/// <summary>
 	/// The top-level popup window.
 	/// </summary>
 	public KPopup PopupWindow => _CreateOrGet();
-
+	
 	/// <summary>
 	/// Called when clicked a link with href prefix "^".
 	/// </summary>
 	public Action<CiPopupText, string> OnLinkClick { get; set; }
-
+	
 	/// <summary>
 	/// Text to show. Set before calling Show.
 	/// </summary>
@@ -42,7 +42,7 @@ class CiPopupText {
 			}
 		}
 	}
-
+	
 	KPopup _CreateOrGet() {
 		if (_w == null) {
 			bool ubInfo = _usedBy == UsedBy.Info;
@@ -53,10 +53,10 @@ class CiPopupText {
 			};
 			_w.Size = (_usedBy == UsedBy.Signature ? 800 : 600, _usedBy == UsedBy.PopupList ? 360 : 300);
 			//rejected: save size in app settings (if not info). Popup list too.
-
+			
 			_c = CiText.CreateControl();
 			_w.Content = _c;
-
+			
 			if (_onHiddenOrDestroyed != null) _w.Hidden += _onHiddenOrDestroyed;
 			_c.LinkClicked += (sender, s) => {
 				if (s.Starts('#')) return; //anchor
@@ -64,6 +64,8 @@ class CiPopupText {
 					OnLinkClick?.Invoke(this, s);
 				} else if (s.Starts('|')) { //go to symbol source file/position or web page
 					CiGoTo.LinkGoTo(s);
+				} else if (HelpUtil.IsAuHelp_(s)) {
+					HelpUtil.AuHelp(s);
 				} else {
 					run.itSafe(s);
 				}
@@ -73,7 +75,7 @@ class CiPopupText {
 		}
 		return _w;
 	}
-
+	
 	/// <summary>
 	/// Shows by anchorRect, owned by ownerControl.
 	/// </summary>
@@ -84,7 +86,7 @@ class CiPopupText {
 		_CreateOrGet();
 		if (_updateText) _SetText();
 		_w.ShowByRect(ownerControl, side, anchorRect);
-
+		
 		if (hideIfOutside) {
 			timer.every(100, t => {
 				if (IsVisible) {
@@ -96,13 +98,13 @@ class CiPopupText {
 			});
 		}
 	}
-
+	
 	public void Show(SciCode ownerControl, int pos16, bool hideIfOutside = false, bool above = false) {
 		var r = ownerControl.EGetCaretRectFromPos(pos16, inScreen: true);
 		r.Inflate(50, 0);
 		Show(ownerControl, r, above ? Dock.Top : Dock.Bottom, hideIfOutside);
 	}
-
+	
 	public bool Hide() {
 		if (!IsVisible) return false;
 		//print.it(new StackTrace());
@@ -111,9 +113,9 @@ class CiPopupText {
 		_SetText();
 		return true;
 	}
-
+	
 	public bool IsVisible => _w?.IsVisible ?? false;
-
+	
 	void _SetText() {
 		_updateText = false;
 		_c?.Clear();

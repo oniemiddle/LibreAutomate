@@ -12,7 +12,7 @@ Some features:
 - Hotkeys, autotext and other triggers. Auto-replace/expand text when typing. Auto-close windows. Remap keys.
 - Custom toolbars that can be attached to windows or screen edges. And menus.
 - Custom dialog windows of any complexity.
-- The scripting language is C#. The program is a good way to learn it.
+- The scripting language is C#. The app is a good way to learn it.
 - C# code editor with intellisense. Script manager, cookbook, debugger.
 - Tools for recording keyboard/mouse and selecting UI objects such as buttons, links and images.
 - Also you can use .NET, libraries from NuGet, Windows API, etc.
@@ -65,7 +65,7 @@ This software replaces [Quick Macros](xref:qm2). The same developer.
 
 The goal is to provide automation software for Windows with these features:
 - Powerful library that includes UI automation, triggers, toolbars.
-- Script editor/manager program with tools for automation.
+- Script editor/manager application with tools for automation.
 - In scripts use the C# language and .NET libraries.
 - Free and open-source.
 

@@ -4,14 +4,14 @@
 
 /// Quick ways to add a toolbar button:
 /// - Clone an existing button.
-/// - Snippet: start typing <.c>tool<> and select <.x>tbToolbarButtonSnippet<>.
+/// - Snippet: start typing `tool` and select <.x>tbToolbarButtonSnippet<>.
 /// - Drag and drop a script, file, folder or link. Then select menu item <b>t[name] = ...<>.
-/// - Use the quick capturing hotkey (default <mono>Ctrl+Shift+Q<>) to add a "run program" button.
+/// - Use the quick capturing hotkey (default `Ctrl+Shift+Q`) to add a "run program" button.
 
 /// To set button icon: click the button in the code editor, and double-click an icon in the <b>Icons<> dialog.
 
 /// Click the <b>Run<> button to apply changes after editing.
-/// To show a window-attached toolbar, open or activate its trigger window. The toolbar initially is in its top-left corner. <mono>Shift<>+drag to move it to another place relative to the window.
+/// To show a window-attached toolbar, open or activate its trigger window. The toolbar initially is in its top-left corner. `Shift`+drag to move it to another place relative to the window.
 /// Toolbar properties can be changed in code and in the right-click menu.
 
 /// To delete a toolbar:

@@ -314,7 +314,7 @@ class CiText {
 				foreach (var m in s.RxFindAll(@"\[(.*?)\]\(xref:(.+?)\)")) {
 					if (!s_xrefmap.TryGetValue(m[2].Value, out var v)) continue;
 					if (m.Start > i) Append(s[i..m.Start]);
-					Hyperlink(HelpUtil.AuHelpUrl(v.url), m[1].Length > 0 ? m[1].Value : v.text);
+					Hyperlink(v.url, m[1].Length > 0 ? m[1].Value : v.text);
 					i = m.End;
 				}
 				if (i > 0) s = s[i..];
@@ -762,7 +762,7 @@ class CiText {
 	//}
 	
 	public bool AppendSymbolLinks(ISymbol sym) {
-		string helpUrl = CiUtil.GetSymbolHelpUrl(sym);
+		string helpUrl = CiUtil.GetSymbolHelpUrl(sym, out _);
 		string sourceUrl = CiGoTo.GetLinkData(sym);
 		if (helpUrl == null && sourceUrl == null) return false;
 		AppendSymbolLinks(helpUrl, sourceUrl);

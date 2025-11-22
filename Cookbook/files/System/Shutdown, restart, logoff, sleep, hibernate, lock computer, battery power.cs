@@ -16,7 +16,7 @@ run.console("shutdown.exe", "/r /f /t 0"); //reboot, force
 run.console("shutdown.exe", "/l"); //log off
 run.console("shutdown.exe", "/h"); //hibernate
 
-/// On Windows 10 can use the <mono>Win+X<> menu.
+/// On Windows 10 can use the `Win+X` menu.
 
 keys.send("Win+X ^u"); //show popup menu with shutdown options
 

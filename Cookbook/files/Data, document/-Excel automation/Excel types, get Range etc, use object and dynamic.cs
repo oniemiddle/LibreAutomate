@@ -1,6 +1,6 @@
 /// The mostly used Excel classes are in this simplified hierarchy:
 /// <.x>Application<> - represents an Excel process. Contains workbooks.
-/// . <.x>Workbook<> - represents an Excel file (<.c>.xlsx, .xls<>). Contains sheets (worksheets, charts, macros). Can have more than 1 window (the <.x>Window<> class). 
+/// . <.x>Workbook<> - represents an Excel file (`.xlsx, .xls`). Contains sheets (worksheets, charts, macros). Can have more than 1 window (the <.x>Window<> class). 
 /// .. <.x>Worksheet<> - contains cells.
 /// ... <.x>Range<> - represents 1 or more cells. You need it to get or set cell values etc.
 

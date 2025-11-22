@@ -7,11 +7,11 @@ print.it(p);
 
 if (mouse.isPressed(MButtons.Left)) print.it("yes");
 
-/// Wait for mouse left button down. <help mouse.waitForClick>More info<>.
+/// Wait for mouse left button down. <see cref="mouse.waitForClick">More info<>.
 
 mouse.waitForClick(0, MButtons.Left);
 
-/// Wait for cursor (mouse pointer). <help mouse.waitForCursor>More info<>.
+/// Wait for cursor (mouse pointer). <see cref="mouse.waitForCursor">More info<>.
 
 mouse.waitForCursor(0, MCursor.Hand); //standard
 mouse.waitForCursor(0, -3191259760238497114); //custom

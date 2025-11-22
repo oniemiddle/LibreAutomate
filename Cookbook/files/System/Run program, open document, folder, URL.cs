@@ -1,4 +1,4 @@
-/// The most universal function is <see cref="run.it"/>. To quickly insert code can be used <.x>riRunItSnippet<>. Or drag and drop from File Explorer. Or hotkey <mono>Ctrl+Shift+Q<>.
+/// The most universal function is <see cref="run.it"/>. To quickly insert code can be used <.x>riRunItSnippet<>. Or drag and drop from File Explorer. Or hotkey `Ctrl+Shift+Q`.
 
 run.it(@"C:\folder\program.exe"); //run program
 run.it(@"C:\folder\file.txt"); //open file in default program

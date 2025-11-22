@@ -795,7 +795,8 @@ System.Threading.Tasks.TaskCanceledException
 	void _AutoShowHidePanel(bool starting) {
 		if (starting) {
 			if (_hidePanelWhenEnds) _timerHidePanel?.Stop();
-			if (!_ipanel.Visible) _ipanel.Visible = _hidePanelWhenEnds = true;
+			if (!_ipanel.Visible) _hidePanelWhenEnds = true;
+			_ipanel.Visible = true;
 		} else if (_hidePanelWhenEnds && !_restart) {
 			_timerHidePanel ??= new timer(t => {
 				if (_ipanel.Visible) {

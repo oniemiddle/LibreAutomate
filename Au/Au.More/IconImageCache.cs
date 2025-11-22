@@ -1,3 +1,5 @@
+//TODO: recently often the main floating toolbar expands slowly.
+
 using System.Drawing;
 using Microsoft.Win32;
 

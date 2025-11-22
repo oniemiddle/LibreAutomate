@@ -16,14 +16,13 @@ class KTextExpressionBox : KTextBox {
 	
 	/// <summary>
 	/// Replaces the standard context menu. Adds standard items + item "Expressions..." that shows how to enter an expression.
+	/// Does nothing if <c>t.ContextMenu?.HasItems == true</c>.
 	/// </summary>
 	public static void SetExpressionContextMenu(TextBox t) {
-		var m = new ContextMenu();
-		_Add("Cut", "Ctrl+X", t.SelectionLength > 0 ? () => t.Cut() : null);
-		_Add("Copy", "Ctrl+C", t.SelectionLength > 0 ? () => t.Copy() : null);
-		_Add("Paste", "Ctrl+V", Clipboard.ContainsText() ? () => t.Paste() : null);
-		m.Items.Add(new Separator());
-		_Add("Expressions...", null, () => { dialog.show("Expressions", """
+		if (t.ContextMenu?.HasItems == true) return;
+		var m = t.xAddCutCopyPasteToContextMenu(addClear: t is KTextBox, setStateNow: true);
+		m.xAddSeparator();
+		m.xAdd("Expressions...", null, (_, _) => { dialog.show("Expressions", """
 In this text field you can enter literal text or a C# expression.
 Literal text in code will be enclosed in "" or @"" and escaped if need.
 Expression will be added to code without changes.
@@ -41,39 +40,23 @@ Real expression examples:
 @@Environment.GetEnvironmentVariable("API_KEY")
 @@"line1\r\nline2"
 """, owner: t); });
-		t.ContextMenu = m;
-		
-		void _Add(string name, string key, Action click) {
-			var k = new MenuItem { Header = name, InputGestureText = key };
-			if (click is null) k.IsEnabled = false;else k.Click += (_,_)=>click();
-			m.Items.Add(k);
-		}
 	}
 }
 
 /// <summary>
 /// Editable <b>ComboBox</b> that supports C# expression in text.
-/// Just adds context menu item "Expressions..." that shows how to enter an expression; see <see cref="SetExpressionContextMenu"/>.
+/// Just adds context menu item "Expressions..." that shows how to enter an expression.
 /// </summary>
 class KComboExpressionBox : ComboBox {
 	public KComboExpressionBox() {
 		IsEditable = true;
-		SetExpressionContextMenu(this);
 	}
 	
-	/// <summary>
-	/// Replaces the standard context menu. Adds standard items + item "Expressions..." that shows how to enter an expression.
-	/// </summary>
-	public static void SetExpressionContextMenu(ComboBox t) {
-		if (t.IsLoaded) {
-			_Set();
-		} else {
-			t.Loaded += (_, _) => _Set();
-		}
-		void _Set() {
-			if (t.Template.FindName("PART_EditableTextBox", t) is TextBox x) {
-				KTextExpressionBox.SetExpressionContextMenu(x);
-			}
+	public override void OnApplyTemplate() {
+		base.OnApplyTemplate();
+		if (GetTemplateChild("PART_EditableTextBox") is TextBox t) {
+			t.ContextMenu = new();
+			t.ContextMenuOpening += (_, _) => KTextExpressionBox.SetExpressionContextMenu(t);
 		}
 	}
 }

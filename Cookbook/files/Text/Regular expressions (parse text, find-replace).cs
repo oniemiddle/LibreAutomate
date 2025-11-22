@@ -6,11 +6,11 @@
 
 /// The PCRE regular expression class is <see cref="regexp"/>. And there are string extension methods that use it internally.
 /// 
-/// - <see cref="regexp.IsMatch"/> and <help Au.Types.ExtString.RxIsMatch>string.RxIsMatch<> - compare the string or find a substring.
-/// - <see cref="regexp.Match"/> and <help Au.Types.ExtString.RxMatch>string.RxMatch<> - compare/find, and get match info.
-/// - <see cref="regexp.FindAll"/> and <help Au.Types.ExtString.RxFindAll>string.RxFindAll<> - find/get all matches.
-/// - <see cref="regexp.Replace"/> and <help Au.Types.ExtString.RxReplace>string.RxReplace<> - find and replace all.
-/// - <see cref="regexp.Split"/> and <help Au.Types.ExtString.RxSplit>string.RxSplit<> - split.
+/// - <see cref="regexp.IsMatch"/> and <see cref="Au.Types.ExtString.RxIsMatch">string.RxIsMatch<> - compare the string or find a substring.
+/// - <see cref="regexp.Match"/> and <see cref="Au.Types.ExtString.RxMatch">string.RxMatch<> - compare/find, and get match info.
+/// - <see cref="regexp.FindAll"/> and <see cref="Au.Types.ExtString.RxFindAll">string.RxFindAll<> - find/get all matches.
+/// - <see cref="regexp.Replace"/> and <see cref="Au.Types.ExtString.RxReplace">string.RxReplace<> - find and replace all.
+/// - <see cref="regexp.Split"/> and <see cref="Au.Types.ExtString.RxSplit">string.RxSplit<> - split.
 
 var s = "one two22 three333 four";
 
@@ -23,7 +23,7 @@ if (x.IsMatch(s)) print.it("found");
 
 if (s.RxIsMatch(@"\b(\w+?)(\d+)\b")) print.it("found");
 
-/// Find and get match info. The <.c>m[1]<> and <.c>m[2]<> are substrings that match regex parts enclosed in <.c>()<>.
+/// Find and get match info. The `m[1]` and `m[2]` are substrings that match regex parts enclosed in `()`.
 
 if(s.RxMatch(@"\b(\w+?)(\d+)\b", out var m)) print.it(m.Start, m.End, m.Value, m[1].Value, m[2].Value);
 
@@ -74,7 +74,7 @@ var a = s.RxSplit(@" *, *");
 for(int i = 0; i < a.Length; i++) print.it(i, a[i]);
 
 /// There are to ways to insert an unknown string into a regular expression:
-/// 1. Enclose it in <.c>\Q \E<>.
+/// 1. Enclose it in `\Q \E`.
 /// 2. Escape special characters in it.
 
 string c = clipboard.text;

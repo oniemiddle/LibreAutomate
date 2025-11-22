@@ -1,4 +1,4 @@
-/// Simplest "Open" dialog. <help Au.More.FileOpenSaveDialog>More info<>.
+/// Simplest "Open" dialog. <see cref="Au.More.FileOpenSaveDialog">More info<>.
 
 var dOpen = new FileOpenSaveDialog();
 if (!dOpen.ShowOpen(out string path1)) return;

@@ -12,7 +12,7 @@ using EStyle = LA.SciTheme.EStyle;
 namespace LA;
 
 class DOptions : KDialogWindow {
-	public enum EPage { Program, Workspace, FontAndColors, CodeEditor, Templates, Hotkeys, AI, Other, OS }
+	public enum EPage { App, Workspace, FontAndColors, CodeEditor, Templates, Hotkeys, AI, Other, OS }
 	
 	public static void AaShow(EPage? page = null) {
 		var d = ShowSingle(() => new DOptions());
@@ -29,12 +29,12 @@ class DOptions : KDialogWindow {
 		_b.Row(-1).Add(out _tc).Height(300..);
 		_b.R.StartOkCancel()
 			.AddOkCancel(out var bOK, out var bCancel, out _, apply: "Apply")
-			.xAddDialogHelpButtonAndF1("editor/Program settings");
+			.xAddDialogHelpButtonAndF1("editor/Settings");
 		if (miscInfo.isChildSession) _b.Add<TextBlock>().FormatText($"<a {() => HelpUtil.AuHelp("editor/PiP session")}>PiP</a>");
 		_b.End();
 		bOK.IsDefault = false; bCancel.IsCancel = false;
 		
-		_Program();
+		_App();
 		_Workspace();
 		_FontAndColors();
 		_CodeEditor();
@@ -58,8 +58,8 @@ class DOptions : KDialogWindow {
 		return new wpfBuilder(tp, panelType).Margin("3");
 	}
 	
-	void _Program() {
-		var b = _Page("Program").Columns(-1, 20, -1);
+	void _App() {
+		var b = _Page("App").Columns(-1, 20, -1);
 		
 		//left column
 		b.StartGrid();
@@ -216,8 +216,6 @@ Example:
 		}
 		var font = _AddFontControls("Editor");
 		var fontOutput = _AddFontControls("Output");
-		var fontRecipeText = _AddFontControls("Recipe text");
-		var fontRecipeCode = _AddFontControls("Recipe code");
 		var fontFind = _AddFontControls("Find");
 		b.R.xAddInfoBlockT("Only editor font depends on theme.");
 		b.End();
@@ -269,8 +267,6 @@ Example:
 			
 			font.Init(fonts);
 			fontOutput.Init(fonts, App.Settings.font_output);
-			fontRecipeText.Init(fonts, App.Settings.font_recipeText);
-			fontRecipeCode.Init(fonts, App.Settings.font_recipeCode);
 			fontFind.Init(fonts, App.Settings.font_find);
 			
 			//styles
@@ -446,7 +442,6 @@ Example:
 				
 				if (fontFind.Apply(ref App.Settings.font_find) || stylesOrThemeChanged) Panels.Find.CodeStylesChanged_();
 				if (fontOutput.Apply(ref App.Settings.font_output)) Panels.Output.Scintilla.AaSetStyles();
-				if (fontRecipeText.Apply(ref App.Settings.font_recipeText) | fontRecipeCode.Apply(ref App.Settings.font_recipeCode)) Panels.Recipe.Scintilla.AaChangedFontSettings();
 			};
 			
 			_OpenTheme(SciTheme.Current);
@@ -810,7 +805,7 @@ Or clone an existing model configuration and change some properties. Example:
 	
 	void _Other() {
 		var b = _Page("Other");
-		b.R.Add("Documentation", out ComboBox localHelp).Items("Online documentation of the latest program version|Local documentation of the installed program version").Select(App.Settings.localDocumentation ? 1 : 0);
+		b.R.Add("Documentation", out ComboBox localHelp).Items("Local docs of this app version, in Read panel|Online docs of the latest version, in web browser").Select(App.Settings.doc_web ? 1 : 0);
 		b.R.Add("Internet search URL", out TextBox internetSearchUrl, App.Settings.internetSearchUrl);
 		b.R.Add(out CheckBox minimalSdk, "Use minimal .NET SDK").Checked(App.Settings.minimalSDK, threeState: true).Tooltip("The SDK is used to install NuGet packages and for the Publish feature.\nIndeterminate - use full SDK if installed, else minimal.");
 		b.R.Add(out CheckBox printCompiled, "Always print \"Compiled\"").Checked(App.Settings.comp_printCompiled, threeState: true)
@@ -819,8 +814,8 @@ Or clone an existing model configuration and change some properties. Example:
 		
 		b.Loaded += () => {
 			_b.OkApply += e => {
-				if ((localHelp.SelectedIndex == 1) != App.Settings.localDocumentation) {
-					App.Settings.localDocumentation ^= true;
+				if ((localHelp.SelectedIndex == 1) != App.Settings.doc_web) {
+					App.Settings.doc_web ^= true;
 					DocsHttpServer.StartOrSwitch();
 				}
 				App.Settings.internetSearchUrl = internetSearchUrl.TextOrNull();
@@ -863,7 +858,7 @@ Or clone an existing model configuration and change some properties. Example:
 		};
 	}
 	
-	static class _Api {
+	class _Api : NativeApi {
 		[DllImport("gdi32.dll", EntryPoint = "EnumFontFamiliesExW")]
 		internal static extern int EnumFontFamiliesEx(IntPtr hdc, in Api.LOGFONT lpLogfont, FONTENUMPROC lpProc, nint lParam, uint dwFlags);
 		internal unsafe delegate int FONTENUMPROC(Api.LOGFONT* lf, IntPtr tm, uint fontType, nint lParam);

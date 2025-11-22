@@ -198,7 +198,7 @@ class Embeddings(AiEmbeddingModel model) {
 	
 	#region docs
 	
-	static string s_dbFileDocs = folders2.La + "doc4ai.db";
+	static string s_dbFileDocs = folders2.La + "doc-ai.db";
 	
 	/// <summary>
 	/// Loads or creates/updates embeddings for docs.

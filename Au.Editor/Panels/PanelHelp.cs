@@ -6,123 +6,91 @@ using Au.Controls;
 using System.Security.Authentication;
 using System.Text.Json.Nodes;
 using System.Net;
-
-//TODO: review recipe "Introduction, finding info".
+using System.Windows.Media;
+using ToolLand;
 
 //CONSIDER: Add a menu-button. Menu:
 //	Item "Request a recipe for this search query (uses internet)".
 
-//CONSIDER: option to show Read panel when this panel is really visible and hide when isn't.
-
 namespace LA;
 
-class PanelCookbook {
+class PanelHelp {
 	KTreeView _tv;
 	KTextBox _search;
 	_Item _root;
-	bool _loadedOnce;
-	bool _openingRecipe;
-	List<string> _history = new();
+	_Item _selectedItem;
+	List<_Item> _aiResults;
+	bool _showingResults;
+	bool _openingItem;
+	internal (Button back, Button forward, Button openInBrowser, Button copyForAiChat) buttons_;
 	
-	static sqlite s_sqlite;
-	static sqliteStatement s_sqliteGetText;
-	
-	public PanelCookbook() {
-		P = new _Base(this);
-		P.UiaSetName("Cookbook panel");
+	public PanelHelp() {
+		P = new();
+		P.UiaSetName("Help panel");
 		
 		var b = new wpfBuilder(P).Columns(-1, 0, 0).Brush(SystemColors.ControlBrush);
-		b.R.Add(out _search).Tooltip("Find documentation.\nMiddle-click to clear.").UiaName("Find documentation");
-		b.Options(modifyPadding: false, margin: new());
-		_search.TextChanged += (_, _) => _Search();
+		
+		b.R.Add(out _search).Tooltip("Find documentation.\n\nMiddle-click to clear.").UiaName("Find documentation"); //rejected: watermark
+		_search.TextChanged += (_, _) => _SearchInNameOnSearchTextChanged();
 		_search.PreviewKeyDown += (_, e) => { if (e.Key == Key.Enter) _AiSearch(); };
-		b.xAddButtonIcon(EdIcons.AiSearch, _ => _AiSearch(), "AI search").Margin(right: 3);
-		_tv = new() { Name = "Cookbook_list", SingleClickActivate = true, HotTrack = true, BackgroundColor = 0xf0f8e8 };
+		
+		b.Options(modifyPadding: false, margin: new());
+		
+		b.xAddButtonIcon(EdIcons.AiSearch, _ => _AiSearch(), "AI search\n\nEnter").Margin(right: 3);
+		
+		_tv = new() { Name = "Help_TOC", SingleClickActivate = true, HotTrack = true, BackgroundColor = 0xf0f8e8, SmallIndent = true };
 		b.Row(-1).Add(_tv);
+		
+		var tb = b.R.xAddToolBar();
+		tb.UiaSetName("Debug_toolbar");
+		buttons_.back = tb.AddButton("*EvaIcons.ArrowBack" + EdIcons.black, null, "Back", enabled: false);
+		buttons_.forward = tb.AddButton("*EvaIcons.ArrowForward" + EdIcons.black, null, "Forward", enabled: false);
+		buttons_.openInBrowser = tb.AddButton("*Modern.Browser" + EdIcons.black, null, "Open in web browser", enabled: false);
+		buttons_.copyForAiChat = tb.AddButton("*Material.ContentCopy" + EdIcons.black, _CopyResultsForAiChat, "Copy results for AI chat", enabled: false);
+		
 		b.End();
 		
 		Panels.PanelManager["Help"].DontActivateFloating = e => e == _tv;
 		
-#if DEBUG
-		_tv.ItemClick += e => {
-			if (s_sqlite != null) return;
-			if (e.Button == MouseButton.Right) {
-				var m = new popupMenu();
-				m.Add("DEBUG", disable: true);
-				m["Create cookbook.db"] = o => { script.run("Create cookbook.db"); };
-				m["Reload"] = o => { Menus.File.Workspace.Save_now(); UnloadLoad(false); UnloadLoad(true); };
-				//m["Check links"] = o => _DebugCheckLinks();
-				m["Print name words"] = o => _DebugGetWords(false);
-				m["Print body words"] = o => _DebugGetWords(true);
-				m.Show();
+		P.IsVisibleChanged += (_, e) => {
+			if (e.NewValue is bool y && y) {
+				_Load();
+				_tv.ItemActivated += e => _OpenItem(e.Item as _Item, false);
 			}
 		};
-#endif
+		
+		//#if DEBUG
+		//		_tv.ItemClick += e => {
+		//			if (e.Button == MouseButton.Right) {
+		//				var m = new popupMenu();
+		//				m.Add("DEBUG", disable: true);
+		//				//m["Print name words"] = o => _DebugGetWords();
+		//				m.Show();
+		//			}
+		//		};
+		//#endif
 	}
 	
 	public UserControl P { get; }
 	
-	void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
-		if (!_loadedOnce && e.Property.Name == "IsVisible" && e.NewValue is bool y && y) {
-			_loadedOnce = true;
-			_Load();
-			_tv.ItemActivated += e => _OpenItem(e.Item as _Item, false);
-		}
-	}
-	
-	class _Base : UserControl {
-		PanelCookbook _p;
-		
-		public _Base(PanelCookbook p) { _p = p; }
-		
-		protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e) {
-			_p.OnPropertyChanged(e);
-			base.OnPropertyChanged(e);
-		}
-	}
-	
 	void _Load() {
 		try {
-			static XElement _OpenDb() {
-				s_sqlite = new(folders.ThisAppBS + "cookbook.db", SLFlags.SQLITE_OPEN_READONLY);
-				s_sqliteGetText = s_sqlite.Statement("SELECT data FROM files WHERE name=?");
-				var xml = _GetRecipeTextFromDb("files.xml");
-				return XElement.Parse(xml);
-			}
-#if DEBUG
-			var dirPath = folders.ThisAppBS + @"..\Cookbook\files";
-			var xr = filesystem.exists(dirPath) ? XmlUtil.LoadElem(dirPath + ".xml") : _OpenDb();
-#else
-			var dbPath = folders.ThisAppBS + "cookbook.db";
-			var xr = filesystem.exists(dbPath) ? _OpenDb() : XmlUtil.LoadElem(folders.ThisAppBS + @"..\Cookbook\files.xml");
-			//cookbook.db does not exist if LA compiled not at home (source from github). See project BuildEvents > GitBinaryFiles.PrePushHook.
-#endif
-			
 			_root = new _Item(null, _DocKind.Folder);
-			_AddCookbookItems(xr, _root, 0);
-			_AddOtherItems(folders.ThisAppBS + "toc.json", _root);
+			_TOC(folders.ThisAppBS + "toc.json", _root);
 			
-			static void _AddCookbookItems(XElement xp, _Item ip, int level) {
-				foreach (var x in xp.Elements()) {
-					var name = x.Attr("n");
-					if (name[0] == '-') continue;
-					var ftype = FileNode.XmlTagToFileType(x.Name.LocalName, false);
-					if (ftype == FNType.Other) continue;
-					if (ftype == FNType.Folder) {
-						var i = new _Item(name, _DocKind.Folder);
-						ip.AddChild(i);
-						_AddCookbookItems(x, i, level + 1);
-					} else {
-						ip.AddChild(new _Item(name[..^3], _DocKind.Cookbook));
-					}
-				}
-			}
+			var cookbookRoot = _root.FirstChild;
+			var first = cookbookRoot.FirstChild;
+			first.Remove();
+			_root.AddChild(first, first: true);
 			
-			static void _AddOtherItems(string jsonFile, _Item root) {
+			cookbookRoot.isExpanded = true;
+			cookbookRoot.Next.isExpanded = true; //API
+			
+			static void _TOC(string jsonFile, _Item root) {
 				var json = filesystem.loadText(jsonFile);
 				var jRoot = JsonNode.Parse(json).AsArray();
 				foreach (JsonObject j in jRoot) {
-					var docKind = (string)j["name"] switch { "API" => _DocKind.Api, "Editor" => _DocKind.Editor, _ => _DocKind.Article };
+					var docKind = (string)j["name"] switch { "Cookbook" => _DocKind.Cookbook, "Articles" => _DocKind.Article, "Editor" => _DocKind.Editor, _ => _DocKind.Api };
 					_Add(j, root, docKind);
 				}
 				
@@ -146,70 +114,44 @@ class PanelCookbook {
 		catch (Exception e1) { print.it(e1); }
 	}
 	
-	//Used by script "Create cookbook.db" to unlock database file and auto-reload.
-	public bool UnloadLoad(bool load) {
-		if (load == (_root != null)) return false;
-		if (load) {
-			_Load();
-		} else {
-			if (s_sqlite != null) {
-				s_sqliteGetText.Dispose(); s_sqliteGetText = null;
-				s_sqlite.Dispose(); s_sqlite = null;
-			}
-			_root = null;
-			_tv.SetItems(null);
-		}
-		return true;
-	}
-	
-	static string _Unmangle(string s) => s_unmangle.Replace(s, "$1");
-	static readonly regexp s_unmangle = new(@"A([A-Z][a-z]+)");
-	
-	static string _GetRecipeTextFromDb(string name) {
-		if (!s_sqliteGetText.Reset().Bind(1, name).Step()) {
-			print.warning($"{name} not found in cookbook.db. Reinstall this program.");
-			return null;
-		}
-		var s = s_sqliteGetText.GetText(0);
-		return _Unmangle(s);
-	}
-	//In Release loads files from database "cookbook.db" created by script "Create cookbook.db".
-	//In Debug loads files directly. It allows to edit them and see results without creating database.
-	//Previously always loaded from files. But it triggered 7 false positives in virustotal.com. The "bad" recipe was PowerShell.
-	//The same recipes don't trigger FP when in database. Additionally the script mangles text to avoid FP in the future.
-	//In Debug loads from database if the Cookbook folder does not exist, ie running not in the home _ dir. Then s_cookbookPath is null.
-	
 	void _OpenItem(_Item item, bool select) {
 		if (item == null) return;
-		if (item.dir && item.href == null) {
-			_tv.Expand(item, null);
-			return;
-		}
-		
-		if (select) {
-			_openingRecipe = true;
-			_search.Text = "";
-			_openingRecipe = false;
-			_tv.Select(item);
-		}
-		
-		if (item.docKind == _DocKind.Cookbook) {
-			if (item.GetRecipeText() is string code) {
-				Panels.Recipe.Display(item.name, code);
-				AddToHistory_(item.name);
+		if (item.dir) {
+			if (item.href == null) {
+				_tv.Expand(item, null);
+				return;
+			} else if (!item.isExpanded) {
+				_tv.Expand(item, true);
 			}
-		} else {
-			var s1 = item.docKind switch { _DocKind.Editor => "editor/", _DocKind.Article => "articles/", _ => null };
-			HelpUtil.AuHelp($"{s1}{item.href}");
 		}
+		
+		if (_showingResults) {
+			_selectedItem = item.clonedFrom;
+		} else {
+			if (select) {
+				_openingItem = true;
+				_search.Text = "";
+				_openingItem = false;
+				_tv.Select(item);
+			}
+			
+			_selectedItem = item;
+		}
+		
+		var s1 = item.docKind switch { _DocKind.Cookbook => "cookbook/", _DocKind.Editor => "editor/", _DocKind.Article => "articles/", _ => "api/" };
+		var href = item.docKind == _DocKind.Cookbook ? Uri.EscapeDataString(item.name.Replace("C#", "CSharp").Replace(".", "dot-")) + ".html" : item.href; //SYNC: cookbook replace name
+		HelpUtil.AuHelp($"{s1}{href}"); //opens in the Read panel or in the web browser, depending on user settings
 	}
 	
-	void _Search() {
+	void _SearchInNameOnSearchTextChanged() {
+		_aiResults = null;
 		var s = _search.Text.Trim();
 		if (s.Length < 2) {
 			_tv.SetItems(_root.Children());
-			if (!_openingRecipe && _history.LastOrDefault() is string s1 && _FindRecipe(s1, exact: true) is _Item r) {
-				_tv.Select(r);
+			_showingResults = false;
+			buttons_.copyForAiChat.IsEnabled = false;
+			if (!_openingItem && _selectedItem != null) {
+				_tv.Select(_selectedItem);
 			}
 			return;
 		}
@@ -279,6 +221,7 @@ class PanelCookbook {
 		}
 		
 		_tv.SetItems(root?.Children());
+		_showingResults = true;
 		
 		static bool _Match(string s1, string s2) {
 			if (s1[0] != s2[0] || Math.Abs(s1.Length - s2.Length) > 1) return false; //the first char must match
@@ -381,8 +324,7 @@ class PanelCookbook {
 					}
 				} else {
 					bool isAPI = s[0] != '[';
-					var s1 = isAPI ? "API" : s[1] == 'e' ? "Editor" : "Articles";
-					var r = _root.Children().First(o => o.name == s1);
+					var r = _root.Children().ElementAt(isAPI ? 2 : s[1] == 'a' ? 3 : 4);
 					if (isAPI) {
 						int i = s.Starts("Au.More") ? 7
 							: s.Starts("Au.Types") ? 8
@@ -410,13 +352,16 @@ class PanelCookbook {
 							s = r.name;
 						}
 						
-						r = new(s, r.docKind, null, href);
+						r = new(s, r.docKind, null, href, r);
 					}
 					a.Add(r);
 				}
 			}
 			
 			_tv.SetItems(a);
+			_aiResults = a;
+			_showingResults = true;
+			buttons_.copyForAiChat.IsEnabled = a.Count > 0;
 		}
 		catch (OperationCanceledException etc) { if (etc.InnerException is TimeoutException) print.it(etc.Message); }
 		catch (InvalidCredentialException) {
@@ -432,6 +377,13 @@ class PanelCookbook {
 	}
 	CancellationTokenSource _ctsAiSearch;
 	
+	void _CopyResultsForAiChat(Button b) {
+		if (!(_aiResults?.Count > 0)) return;
+		print.clear();
+		
+		//TODO
+	}
+	
 	/// <summary>
 	/// Finds and opens a recipe.
 	/// <para>
@@ -440,7 +392,7 @@ class PanelCookbook {
 	/// </summary>
 	/// <param name="name">Wildcard or start or any substring of recipe name.</param>
 	public static void OpenRecipe(string name) {
-		if (process.IsLaMainThread_) Panels.Cookbook._OpenRecipe(name);
+		if (process.IsLaMainThread_) Panels.Help._OpenRecipe(name);
 		else if (process.IsLaProcess_) App.Dispatcher.InvokeAsync(() => OpenRecipe(name));
 		else WndCopyData.Send<char>(ScriptEditor.WndMsg_, 18, name);
 	}
@@ -448,15 +400,6 @@ class PanelCookbook {
 	void _OpenRecipe(string name) {
 		Panels.PanelManager[P].Visible = true;
 		_OpenItem(_FindRecipe(name), true);
-	}
-	
-	/// <summary>
-	/// Opens recipe in web browser. Does not change anything in the Cookbook panel. Does not add to history.
-	/// </summary>
-	/// <param name="name">Exact recipe name. If null, opens the cookbook index page.</param>
-	public static void OpenRecipeInWebBrowser(string name) {
-		var s = name?.Replace("C#", "CSharp").Replace(".", "dot-") ?? "index"; //SYNC: cookbook replace name
-		HelpUtil.AuHelp($"cookbook/{s}");
 	}
 	
 	_Item _FindRecipe(string s, bool exact = false) {
@@ -467,39 +410,27 @@ class PanelCookbook {
 			?? d.FirstOrDefault(o => !o.dir && o.name.Find(s, true) >= 0);
 	}
 	
-	internal void AddToHistory_(string recipe) {
-		_history.Remove(recipe);
-		_history.Add(recipe);
-		if (_history.Count > 20) _history.RemoveAt(0);
-	}
-	
-	internal void HistoryMenu_(popupMenu m) {
-		for (int i = _history.Count - 1; --i >= 0;) m[_history[i]] = o => _Open(o.Text);
+	public void MenuCommand() {
+		Panels.PanelManager[P].Visible = true;
+		_search.Focus();
 		
-		void _Open(string name) {
-			_OpenItem(_FindRecipe(name, exact: true), true);
+		if (_selectedItem == null && !App.Settings.doc_web) {
+			_OpenItem(_root.FirstChild, true);
 		}
 	}
 	
-#if DEBUG
-	void _DebugGetWords(bool body) {
-		print.clear();
-		var hs = new HashSet<string>();
-		foreach (var recipe in _root.Descendants().Where(o => o.docKind is _DocKind.Cookbook)) {
-			string text;
-			if (body) {
-				text = recipe.GetRecipeTextWithoutLinksEtc();
-				if (text == null) { print.it("Failed to load the recipe. Probably renamed. Try to reload the tree."); return; }
-			} else {
-				text = recipe.name;
-			}
-			var a = _Stem(text);
-			foreach (var s in a)
-				if (s.Length > 2 && !s[0].IsAsciiDigit()) hs.Add(s);
-		}
-		print.it(hs.OrderBy(o => o, StringComparer.OrdinalIgnoreCase));
-	}
-#endif
+	//#if DEBUG
+	//	void _DebugGetWords() {
+	//		print.clear();
+	//		var hs = new HashSet<string>();
+	//		foreach (var recipe in _root.Descendants().Where(o => o.docKind is _DocKind.Cookbook)) {
+	//			var a = _Stem(recipe.name);
+	//			foreach (var s in a)
+	//				if (s.Length > 2 && !s[0].IsAsciiDigit()) hs.Add(s);
+	//		}
+	//		print.it(hs.OrderBy(o => o, StringComparer.OrdinalIgnoreCase));
+	//	}
+	//#endif
 	
 	enum _DocKind : byte { Folder, Cookbook, Api, Editor, Article }
 	
@@ -508,17 +439,19 @@ class PanelCookbook {
 		internal readonly _DocKind docKind;
 		internal readonly string symKind;
 		internal readonly string href;
+		internal readonly _Item clonedFrom;
 		internal bool isExpanded;
 		internal string[] stemmedName;
 		
-		public _Item(string name, _DocKind docKind, string symKind = null, string href = null) {
+		public _Item(string name, _DocKind docKind, string symKind = null, string href = null, _Item clonedFrom = null) {
 			this.name = name;
 			this.docKind = docKind;
 			this.symKind = symKind;
 			this.href = href;
+			this.clonedFrom = clonedFrom;
 		}
 		
-		public _Item Clone(string newName = null) => new(newName ?? name, docKind, symKind, href);
+		public _Item Clone(string newName = null) => new(newName ?? name, docKind, symKind, href, this);
 		
 		internal bool dir => docKind == _DocKind.Folder;
 		
@@ -529,9 +462,9 @@ class PanelCookbook {
 		object ITreeViewItem.Image
 			=> docKind switch {
 				_DocKind.Folder => symKind != null ? _KindIcon : EdIcons.FolderArrow(isExpanded),
-				_DocKind.Cookbook => "*BoxIcons.RegularCookie" + EdIcons.darkYellow,
+				_DocKind.Cookbook => name == "Documentation" ? EdIcons.Help : "*BoxIcons.RegularCookie" + EdIcons.darkYellow,
 				_DocKind.Api => _KindIcon,
-				_DocKind.Editor => "*Material.ApplicationCogOutline" + EdIcons.blue,
+				_DocKind.Editor => "*Material.ApplicationOutline" + EdIcons.blue,
 				_DocKind.Article => "*PhosphorIcons.Article" + EdIcons.black,
 				_ => null
 			};
@@ -561,38 +494,14 @@ class PanelCookbook {
 		
 		#endregion
 		
-		public string GetRecipeText() {
-			Debug.Assert(docKind is _DocKind.Cookbook);
-#if DEBUG
-			if (s_sqlite == null) {
-				try {
-					var path = folders.ThisAppBS + @"..\Cookbook\files\" + string.Join("\\", AncestorsFromRoot(andSelf: true, noRoot: true).Select(o => o.name)) + ".cs";
-					return filesystem.loadText(path);
-				}
-				catch { return null; }
-			}
-#endif
-			return _GetRecipeTextFromDb(name);
-		}
-		
-#if DEBUG
-		public string GetRecipeTextWithoutLinksEtc() {
-			var t = GetRecipeText(); if (t == null) return null;
-			t = t.RxReplace(@"<see cref=""(.+?)""/>", "$1");
-			while (0 != t.RxReplace(@"<(\+?\w+)(?: [^>]+)?>(.+?)<(?:/\1|)>", "$2", out t)) { }
-			t = t.RxReplace(@"\bimage:[\w/+=]+", "");
-			return t;
-		}
-#endif
-		
 		public bool ApiFullNameEquals(string s) {
 			if (!s.Ends(name)) return false;
 			int i1 = s.Length - name.Length - 1;
 			if (s[i1] != '.') return false;
-			int level = Level; if (!(level is 3 or 5)) return false;
+			int level = Level; if (!(level is 3 or 4)) return false;
 			var t = this;
-			if (level == 5) { //member of a type
-				t = Parent.Parent; //type
+			if (level == 4) { //member of a type
+				t = Parent; //type
 				int i2 = i1 - t.name.Length;
 				if (!s.Eq(i2, t.name) || !s.Eq(--i2, '.')) return false;
 				i1 = i2;

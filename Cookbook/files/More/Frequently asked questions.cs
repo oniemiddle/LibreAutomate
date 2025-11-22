@@ -7,4 +7,4 @@
 /// May not work. Some games disable artificial clicks/keystrokes, triggers, etc.
 
 /// <b>Can LibreAutomate execute or convert Quick Macros scripts?<>
-/// No. <help editor/Compared with QM2>More info<>.
+/// No. <help editor/Compared with QM>More info<>.

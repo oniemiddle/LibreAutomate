@@ -314,7 +314,11 @@ static class CiUtil {
 		if (!CodeInfo.GetContextAndDocument(out var cd)) return;
 		var (sym, keyword, helpKind, _) = GetSymbolEtcFromPos(cd, forHelp: true);
 		if (sym != null) {
-			url = GetSymbolHelpUrl(sym);
+			url = GetSymbolHelpUrl(sym, out bool isAu);
+			if (isAu) {
+				HelpUtil.AuHelp(url);
+				return;
+			}
 		} else if (keyword != null) {
 			var s = helpKind switch {
 				HelpKind.PreprocKeyword => "preprocessor directive",
@@ -510,7 +514,14 @@ static class CiUtil {
 	
 	static SyntaxNode _GetLocalScope(SyntaxNode node) => node.FirstAncestorOrSelf<SyntaxNode>(o => _IsLocalScope(o));
 	
-	public static string GetSymbolHelpUrl(ISymbol sym) {
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <param name="sym"></param>
+	/// <param name="isAu">It's an Au symbol. Returns not URL but just HTML filename like <c>"Au.Something"</c> or <c>"Au.Types.Generic-1"</c>. Call <see cref="HelpUtil.AuHelp"/>. Another way to detect it - <see cref="HelpUtil.IsAuHelp_"/>.</param>
+	/// <returns></returns>
+	public static string GetSymbolHelpUrl(ISymbol sym, out bool isAu) {
+		isAu = false;
 		//print.it(sym);
 		//print.it(sym.IsInSource(), sym.IsFromSource());
 		if (sym is IParameterSymbol or ITypeParameterSymbol) return null;
@@ -520,29 +531,29 @@ static class CiUtil {
 			if ((metadata = loc.MetadataModule) != null) break;
 		}
 		
-		bool au = metadata?.Name == "Au.dll";
-		if (au && !sym.HasPublicResultantVisibility()) metadata = null; //no online doc for other than public, protected, protected internal. But the google search is useful eg if it's an Api class member visible because of meta testInternal.
+		isAu = metadata?.Name == "Au.dll";
+		if (isAu && !sym.HasPublicResultantVisibility()) metadata = null; //no online doc for other than public, protected, protected internal. But the google search is useful eg if it's an Api class member visible because of meta testInternal.
 		
 		if (metadata != null) {
-			if (au && sym.IsEnumMember()) sym = sym.ContainingType;
+			if (isAu && sym.IsEnumMember()) sym = sym.ContainingType;
 			//print.it(sym, sym.GetType(), sym.GetType().GetInterfaces());
 			if (sym is INamedTypeSymbol nt && nt.IsGenericType) {
 				var qn = sym.QualifiedName(noDirectName: true);
-				if (au) query = qn + "." + sym.MetadataName.Replace('`', '-');
+				if (isAu) query = qn + "." + sym.MetadataName.Replace('`', '-');
 				else query = $"{qn}.{sym.Name}<{string.Join(", ", nt.TypeParameters)}>";
 			} else {
 				query = sym.QualifiedName();
 			}
 			
-			if (query.Ends("..ctor")) query = query.ReplaceAt(^6.., au ? ".-ctor" : " constructor");
+			if (query.Ends("..ctor")) query = query.ReplaceAt(^6.., isAu ? ".-ctor" : " constructor");
 			else if (query.Ends(".this[]")) query = query.ReplaceAt(^7.., ".Item");
 			
-			if (au) return HelpUtil.AuHelpUrl(query);
+			if (isAu) return query;
 			if (metadata.Name.Starts("Au.")) return null;
 			
 			string kind = (sym is INamedTypeSymbol ints) ? ints.TypeKind.ToString() : sym.Kind.ToString();
 			query = query + " " + kind.Lower();
-		} else if (!sym.IsInSource() && !au) { //eg an operator of string etc
+		} else if (!sym.IsInSource() && !isAu) { //eg an operator of string etc
 			if (!(sym is IMethodSymbol me && me.MethodKind == MethodKind.BuiltinOperator)) return null;
 			//print.it(sym, sym.Kind, sym.QualifiedName());
 			//query = "C# " + sym.ToString(); //eg "string.operator +(string, string)", and Google finds just Equality

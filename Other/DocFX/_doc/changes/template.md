@@ -1,6 +1,6 @@
-## Version 1..0 (2025-)
+# Version 1..0 (2025-)
 
-### Editor
+## Editor
 New tools:
 - .
 
@@ -13,7 +13,7 @@ Improved:
 Fixed bugs:
 - .
 
-### Library
+## Library
 New classes:
 - .
 

@@ -72,4 +72,4 @@ Class file `global.cs` is automatically included in the compilation of every scr
 
 Note: editing this file affects all C# code files, not only files created afterward.
 
-If the `global.cs` file is missing, scripts cannot compile, and the program prints a warning with a link to create a new `global.cs` file with the default content. If multiple class files named `global.cs` exist in the workspace, the program uses the one in the default location: `\Classes\global.cs`. If that file is missing, it uses a non-external `global.cs` file if a single such file exists.
+If the `global.cs` file is missing, scripts cannot compile, and the app prints a warning with a link to create a new `global.cs` file with the default content. If multiple class files named `global.cs` exist in the workspace, the app uses the one in the default location: `\Classes\global.cs`. If that file is missing, it uses a non-external `global.cs` file if a single such file exists.

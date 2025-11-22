@@ -5,33 +5,62 @@ namespace Au.More;
 /// </summary>
 public static class HelpUtil {
 	/// <summary>
-	/// Opens a help topic of the Au library or LibreAutomate.
+	/// Opens a LibreAutomate help topic.
 	/// </summary>
-	/// <param name="topic">Topic file name, like <c>"Au.wnd.find"</c> or <c>"wnd.find"</c> or <c>"articles/Wildcard expression"</c>.</param>
+	/// <param name="topic">Topic file name, like <c>"wnd.find"</c> or <c>"Au.Types.RECT"</c> or <c>"articles/Wildcard expression"</c>.</param>
 	public static void AuHelp(string topic) {
-		run.itSafe(AuHelpUrl(topic));
+#pragma warning disable CS0612 //Type or member is obsolete
+		var url = AuHelpUrl(topic);
+#pragma warning restore CS0612 //Type or member is obsolete
+		if (AuHelpEvent_ is { } e) {
+			var k = new AuHelpEventArgs_ { Url = url };
+			e(k);
+			if (k.Cancel) return;
+			url = k.Url;
+		}
+		run.itSafe(url);
 	}
 	
 	/// <summary>
-	/// Gets URL of a help topic of the Au library or LibreAutomate.
+	/// Gets URL of a LibreAutomate help topic.
 	/// </summary>
-	/// <param name="topic">Topic file name, like <c>"Au.wnd.find"</c> or <c>"wnd.find"</c> or <c>"articles/Wildcard expression"</c>.</param>
+	/// <param name="topic">Topic file name, like <c>"wnd.find"</c> or <c>"Au.Types.RECT"</c> or <c>"articles/Wildcard expression"</c>.</param>
 	public static string AuHelpUrl(string topic) {
+		string fragment = null;
+		int i = topic.IndexOf('#');
+		if (i >= 0) {
+			fragment = topic[i..];
+			topic = topic[..i];
+		}
+		
 		if (topic.Ends(".this[]")) topic = topic.ReplaceAt(^7.., ".Item");
 		else if (topic.Ends(".this")) topic = topic.ReplaceAt(^5.., ".Item");
 		else if (topic.Ends("[]")) topic = topic.ReplaceAt(^2.., ".Item");
-		else if (topic.Starts("Au.timer") && topic.Ends(false, "after", "every") > 0) topic += "_1"; //the filename has this suffix because of the instance method After/Every
+		else if (topic.Contains("timer")) topic = topic.RxReplace(@"\btimer2?\.(after|every)\b\K", "_1"); //the filename has this suffix because of the instance method After/Every
 		
 		var url = AuHelpBaseUrl;
 		if (!url.Ends('/')) url += "/";
-		if (!topic.NE()) url = url + (topic.Contains('/') ? null : (topic.Starts("Au.") ? "api/" : "api/Au.")) + topic + (topic.Ends('/') || topic.Contains(".html") ? null : ".html");
+		if (!topic.NE()) url = url
+				+ (topic.Contains('/') ? null : (topic.Starts("Au.") ? "api/" : "api/Au."))
+				+ topic
+				+ (topic.Ends(".html") || topic.Ends('/') ? null : ".html")
+				+ fragment;
 		return url;
 	}
 	
 	/// <summary>
-	/// URL of the LibreAutomate documentation website (default <c>"https://www.libreautomate.com/"</c>) or local documentation (like <c>"http://127.0.0.1:4555/"</c>).
+	/// <c>s.Starts(false, "Au.", "articles/", "editor/", "cookbook/", "api/") > 0</c>
 	/// </summary>
-	public static string AuHelpBaseUrl { get; set; } = AuHelpBaseUrlDefault_;
+	internal static bool IsAuHelp_(string s) => s.Starts(false, "Au.", "articles/", "editor/", "cookbook/", "api/") > 0;
 	
-	internal const string AuHelpBaseUrlDefault_ = "https://www.libreautomate.com/";
+	/// <summary>
+	/// URL of the LibreAutomate documentation website: <c>"https://www.libreautomate.com/"</c>.
+	/// </summary>
+	public static string AuHelpBaseUrl => "https://www.libreautomate.com/";
+
+	internal static event Action<AuHelpEventArgs_> AuHelpEvent_;
+	
+	internal class AuHelpEventArgs_ : CancelEventArgs {
+		public string Url { get; set; }
+	}
 }

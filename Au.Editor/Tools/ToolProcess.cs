@@ -66,14 +66,16 @@ static class ToolProcess {
 				catch (Exception ex) { Debug_.Print(ex); }
 			});
 			
-			if (!wMain.Is0)
+			if (!wMain.Is0) {
+				var w = s_wTool.Hwnd();
 				timer2.every(200, _ => { //exit when main window closed
 					if (!wMain.IsAlive) {
-						s_wTool.Dispatcher.InvokeAsync(() => s_wTool.Close());
-						if (wait.until(-2, () => !s_wTool.IsLoaded)) 500.ms();
+						w.Close(noWait: true);
+						if (wait.until(-2, () => !w.IsAlive)) 500.ms();
 						Api.ExitProcess(0); //Environment.Exit not always works when main thread is hung
 					}
 				});
+			}
 		});
 		
 		if (args[0] is "Dwnd") {

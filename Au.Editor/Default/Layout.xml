@@ -24,48 +24,48 @@ captionAt - any except stack. Not used if in tab.
 state, flags - any.
 active - tab.
 -->
-<stack o="v">
-	<stack o="h">
-		<toolbar name="Menu" />
-		<toolbar name="Help" z="100" />
-		<toolbar name="Tools" />
-		<toolbar name="Custom1" z="100*" />
-	</stack>
-	<stack o="h" z="600*" s="1">
-		<stack o="v" z="200">
-			<toolbar name="File" />
-			<tab z="320*" s="1" captionAt="Top">
-				<panel name="Files" captionAt="Top" />
-				<panel name="Outline" captionAt="Top" />
-				<panel name="How to" captionAt="Top" />
-			</tab>
-			<panel name="Open" z="80" />
-			<panel name="Tasks" z="50" />
-			<tab z="150" captionAt="Top">
-				<panel name="Find" captionAt="Top" />
-				<panel name="Bookmarks" captionAt="Top" />
-				<panel name="Breakpoints" captionAt="Top" state="1" />
-			</tab>
+<stack o="h">
+	<stack o="v" z="800*">
+		<stack o="h">
+			<toolbar name="Menu" />
+			<toolbar name="Tools" />
+			<toolbar name="Custom1" z="100*" />
 		</stack>
-		<stack o="v" z="600*">
-			<stack o="h">
-				<toolbar name="Run" />
-				<toolbar name="Edit" />
-				<toolbar name="Custom2" z="100*" />
+		<stack o="h" z="600*" s="1">
+			<stack o="v" z="200">
+				<toolbar name="File" />
+				<tab z="320*" s="1" captionAt="Top">
+					<panel name="Files" captionAt="Top" />
+					<panel name="Outline" captionAt="Top" />
+				</tab>
+				<panel name="Open" z="80" />
+				<tab z="150" captionAt="Top">
+					<panel name="Find" captionAt="Top" />
+					<panel name="Bookmarks" captionAt="Top" />
+					<panel name="Breakpoints" captionAt="Top" />
+				</tab>
 			</stack>
-			<stack o="h" z="400*" s="1">
+			<stack o="v" z="600*">
+				<stack o="h">
+					<toolbar name="Run" />
+					<toolbar name="Edit" />
+					<toolbar name="Custom2" z="100*" />
+				</stack>
 				<document name="documents" z="500*" captionAt="Right" />
-				<panel name="Debug" z="250" captionAt="Top" state="1" />
+				<tab z="150">
+					<panel name="Output" />
+					<panel name="Found" />
+					<panel name="Mouse" />
+					<panel name="Read" />
+				</tab>
 			</stack>
-			<!--<tab z="400*" s="1" captionAt="Top">
-				<document name="documents" />
-			</tab>-->
-			<tab z="150">
-				<panel name="Output" />
-				<panel name="Mouse" />
-				<panel name="Found" />
-				<panel name="Read" />
-			</tab>
 		</stack>
+	</stack>
+	<stack o="v" z="220">
+		<tab z="1000*" captionAt="Top">
+			<panel name="Help" captionAt="Top" />
+			<panel name="Debug" captionAt="Top" />
+		</tab>
+		<panel name="Tasks" z="80" captionAt="Right" />
 	</stack>
 </stack>

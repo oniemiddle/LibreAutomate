@@ -1,8 +1,8 @@
-/// At first need to <help wnd.find>find<> the window and create a <see cref="wnd"/> variable.
+/// At first need to <see cref="wnd.find">find<> the window and create a <see cref="wnd"/> variable.
 
 var w = wnd.find(1, "*- Notepad", "Notepad");
 
-/// Then type the variable name and <.c>.<> (dot) and select a function from the list. If need help, click the function name in the code editor and press <mono>F1<>.
+/// Then type the variable name and `.` (dot) and select a function from the list. If need help, click the function name in the code editor and press `F1`.
 
 /// Close the found window.
 

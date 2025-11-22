@@ -1,12 +1,18 @@
-## Version 1.15.0 (2025-)
+# Version 1.15.0 (2025-)
 
-### Editor
+## Editor
 
-Documentation prepared for AI-based search.
+LA documentation prepared for AI tools.
+
+Panel **Cookbook** renamed to **Help**, and added all LA documentation. The simple text search replaced with much better semantic search that uses AI and searches in all LA documentation.
+
+In **Options** added tab **AI** for selecting AI models and setting API keys.
 
 New features in the **Icons** tool:
 - Use AI to find icons by name or/and image.
 - Can display bigger icons. Look in the **Options** expander.
+
+MCP server. Provides LA documentation for local AI tools such as Copilot in Visual Studio. TODO: link to article "AI features".
 
 Improved UI element capturing (tool **Find UI element**) in some apps and modes.
 
@@ -26,14 +32,13 @@ Quickly hide toolbar buttons using the context menu (in LA window).
 
 Several small improvements.
 
-Fixed bugs:
-- .
+Fixed some bugs.
 
-#### Breaking changes
+### Breaking changes
 
 Changed namespaces in `Au.Editor` project. Edit your `editorExtension` scripts that use its internal classes (unlikely).
 
-### Library
+## Library
 Updated PCRE regex library to v10.46.
 
 New classes:

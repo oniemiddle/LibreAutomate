@@ -293,16 +293,12 @@ class CiErrors {
 			if (d.Severity == DiagnosticSeverity.Error) {
 				//print.it(ec, d.Id);
 				if (_semo == null) continue;
-				if (_MissingUsingError.IsMissingUsingError(ec, out bool extMethod)) {
+				if (_MissingUsingError.IsMissingUsingError(ec, out bool extMethod) || ec == ErrorCode.ERR_DottedTypeNameNotFoundInNS /*Namespace.NotFound*/) {
 					if (ec == ecPrev && !extMethod) continue; //probably "not found 'AbcAttribute'" followed by "not found 'Abc'"
 					ecPrev = ec;
 					_UsingsEtc(x, v, doc, extMethod);
 				} else {
 					switch (ec) {
-					case ErrorCode.ERR_DottedTypeNameNotFoundInNS: //using Namespace.NotFound;
-						ecPrev = ec;
-						x.Hyperlink("^r", "\nAdd assembly reference or class file...");
-						break;
 					case ErrorCode.ERR_UnimplementedInterfaceMember or ErrorCode.ERR_UnimplementedAbstractMethod:
 						Debug.Assert(implPos == -1 || implPos == v.start);
 						implPos = v.start;
@@ -452,6 +448,8 @@ class CiErrors {
 	}
 	
 	void _UsingsEtc(CiText x, in (Diagnostic d, int start, int end) v, SciCode doc, bool extMethod) {
+		var d = v.d;
+		var ec = (ErrorCode)d.Code;
 		var mu = new _MissingUsingError(doc.aaaText, v.start, v.end, extMethod, _semo);
 		List<_MissingUsingError> amu = null;
 		_MissingUsingError.AddToList(ref amu, mu);
@@ -474,7 +472,9 @@ class CiErrors {
 			}
 		} else {
 			x.Hyperlink("^r", "\nAdd assembly reference or class file...");
-			if (!(mu.isEM | mu.isGeneric | mu.isAttribute)) x.Hyperlink("^A" + mu.name, "\nFind Windows API...");
+			x.Hyperlink("^n", "\nAdd NuGet package...");
+			if (!(mu.isEM | mu.isGeneric | mu.isAttribute || ec == ErrorCode.ERR_DottedTypeNameNotFoundInNS || _semo.GetEnclosingSymbol(v.start) is null or INamespaceSymbol))
+				x.Hyperlink("^A" + mu.name, "\nFind Windows API...");
 		}
 	}
 	
@@ -495,6 +495,8 @@ class CiErrors {
 			new DWinapi(s[2..]).Show();
 		} else if (action == 'r') { //Add reference
 			Menus.File.Properties();
+		} else if (action == 'n') { //Add NuGet package
+			DNuget.ShowSingle();
 		} else if (action == 'i') { //implement interface or abstract class
 			GenerateCode.ImplementInterfaceOrAbstractClass(s.ToInt(3));
 		} else if (action == '<') { //output tag

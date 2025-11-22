@@ -512,7 +512,7 @@ More info in app help topic "Code editor".
 		//public static void Active_triggers() { TriggersAndToolbars.ShowActiveTriggers(); }
 		
 		[Command]
-		public static void Other_triggers() { TriggersAndToolbars.Edit(@"Triggers\Other triggers.cs"); PanelCookbook.OpenRecipe("Other triggers"); }
+		public static void Other_triggers() { TriggersAndToolbars.Edit(@"Triggers\Other triggers.cs"); PanelHelp.OpenRecipe("Other triggers"); }
 		
 		[Command(separator = true)]
 		public static void Toolbars() { TriggersAndToolbars.GoToToolbars(); }
@@ -540,7 +540,7 @@ More info in app help topic "Code editor".
 		public static void Find_triggers() { TriggersAndToolbars.AllTriggersMenu(App.Model.CurrentFile); }
 		
 		[Command]
-		public static void Triggers_list_info() { PanelCookbook.OpenRecipe("Show triggers"); }
+		public static void Triggers_list_info() { PanelHelp.OpenRecipe("Show triggers"); }
 		
 		[Command(separator = true, image = "*RemixIcon.TerminalLine" + blue)]
 		public static class Script_launchers {
@@ -647,14 +647,11 @@ More info in app help topic "Code editor".
 	
 	[Command(target = "")]
 	public static class Help {
-		[Command(image = "*Modern.Home" + darkYellow)]
-		public static void Website() { run.itSafe(HelpUtil.AuHelpBaseUrlDefault_); }
+		[Command(image = EdIcons.Help)]
+		public static void LA_docs() { Panels.Help.MenuCommand(); }
 		
-		[Command(image = "*BoxIcons.RegularLibrary" + darkYellow)]
-		public static void Library_help() { HelpUtil.AuHelp("api/"); }
-		
-		[Command("C# help", image = "*Modern.LanguageCsharp" + darkYellow)]
-		public static void CSharp_help() { run.itSafe("https://learn.microsoft.com/en-us/dotnet/csharp/"); }
+		[Command("C# docs", image = "*Modern.LanguageCsharp" + darkYellow)]
+		public static void CSharp_docs() { run.itSafe("https://learn.microsoft.com/en-us/dotnet/csharp/"); }
 		
 		[Command(keys = "F1", image = "*Unicons.MapMarkerQuestion" + darkYellow)]
 		public static void Context_help() {
@@ -667,8 +664,8 @@ More info in app help topic "Code editor".
 			}
 		}
 		
-		[Command("Online/local...")]
-		public static void Help_mode() { DOptions.AaShow(DOptions.EPage.Other); }
+		[Command(image = "*Modern.Home" + darkYellow)]
+		public static void Website() { run.itSafe("https://www.libreautomate.com/"); }
 		
 		[Command(image = "*Material.Forum" + darkYellow)]
 		public static void Forum() { run.itSafe("https://www.libreautomate.com/forum/"); }

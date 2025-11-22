@@ -153,8 +153,8 @@ public unsafe partial class KScintilla : HwndHost {
 	//static PrintMsgOptions s_pmo = new(Api.WM_TIMER, Api.WM_MOUSEMOVE, Api.WM_SETCURSOR, Api.WM_NCHITTEST, Api.WM_PAINT, Api.WM_IME_SETCONTEXT, Api.WM_IME_NOTIFY);
 	
 	nint _WndProc(wnd w, int msg, nint wp, nint lp) {
-		//if (Name == "Recipe_text") WndUtil.PrintMsg(w, msg, wp, lp);
-		//if(Name == "Recipe_text") WndUtil.PrintMsg(_w, msg, wp, lp, s_pmo);
+		//if (Name == "x") WndUtil.PrintMsg(w, msg, wp, lp);
+		//if(Name == "x") WndUtil.PrintMsg(_w, msg, wp, lp, s_pmo);
 		
 		switch (msg) {
 		case Api.WM_SETFOCUS:

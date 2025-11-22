@@ -4,9 +4,9 @@ uid: command_line
 
 # Command line of `Au.Editor.exe`
 
-- `/v` - show the main window when started, regardless of program settings.
-- `/a` - indicates that the program started automatically and therefore must ignore **Options > Program > Visible if not auto-started**. Used by **Options > Program > Start with Windows**.
-- `/reload` - if the program is running, reload current workspace.
+- `/v` - show the main window when started, regardless of app settings.
+- `/a` - indicates that the app started automatically and therefore must ignore **Options > App > Visible if not auto-started**. Used by **Options > App > Start with Windows**.
+- `/reload` - if the app is running, reload current workspace.
 - `/n` (the first argument) - don't restart as administrator when started not as administrator. See [UAC](xref:uac).
 - `"script name or relative path in current workspace"` - run the script. Can be followed by script's command line arguments (the *args* variable).
 - `"full path of a file or folder"` - import it into the current workspace (shows a dialog). Can be multiple files, like `"file1" "file2" "file3"`.

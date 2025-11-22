@@ -6,7 +6,7 @@
     <s n="init.cs" i="361" />
     <c n="global.cs" i="359" />
   </d>
-  <s n="Introduction, finding info.cs" i="3" />
+  <s n="Documentation.cs" i="388" />
   <d n="C# language" i="4">
     <s n="C# introduction.cs" i="25" />
     <s n="Comments, disabled code.cs" i="35" />
@@ -215,6 +215,6 @@
     <s n="PowerShell, VBScript, Python.cs" i="103" />
     <s n="Use C# compiler at run time.cs" i="346" />
     <s n="Editor extension - modify UI.cs" i="351" />
+    <s n="Frequently asked questions.cs" i="387" />
   </d>
-  <s n="Frequently asked questions.cs" i="91" />
 </files>

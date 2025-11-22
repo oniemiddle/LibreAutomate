@@ -2,11 +2,11 @@
 uid: program_settings
 ---
 
-# Program settings and the Options dialog
+# App settings and the Options dialog
 
-## Program settings
+## App settings
 
-Most program settings are saved in files in folder `Documents\LibreAutomate\.settings`. They are user-specific.
+Most app settings are saved in files in folder `Documents\LibreAutomate\.settings`. They are user-specific.
 
 Workspace settings are saved in the workspace folder. Default workspace: `Documents\LibreAutomate\Main`. A workspace is a collection of scripts and other files; you manage them in the **Files** panel.
 
@@ -16,18 +16,18 @@ See also: [PiP session](xref:pip_session)
 
 ## Options dialog
 
-### Program
+### App
 
 #### Start with Windows
-Run this program at Windows startup. This setting is saved in the Registry.
+Run this app at Windows startup. This setting is saved in the Registry.
 
 #### Start hidden; let X hide
-Don't show the main window when the program started. To show the window, you can click the tray icon or run the program again. When you close the window, the program does not exit; just hides the window.
+Don't show the main window when the app starts. To show the window, you can click the tray icon or run the app again. When you close the window, the app process does not exit; just hides the window.
 
-If unchecked, shows the window at startup. The program exits when you close the window.
+If unchecked, shows the window at startup. The app process exits when you close the window.
 
 #### Visible if not auto-started
-Apply the **Start hidden** part of the above setting only if the program started with command line `/a`. Note: `/a` is used by **Start with Windows**.
+Apply the **Start hidden** part of the above setting only if the app started with command line `/a`. Note: `/a` is used by **Start with Windows**.
 
 #### Check for updates
 Every day connect to `libreautomate.com` to get program version info. If a new version available, print it in the output panel.
@@ -36,7 +36,7 @@ Every day connect to `libreautomate.com` to get program version info. If a new v
 These settings are workspace-specific. Security: the scripts will not run on other computers, unless the user settings file copied there too.
 
 #### Startup scripts
-List of scripts to run when this program started and/or loaded this workspace. 
+List of scripts to run when this app started and/or loaded this workspace. 
 The format is CSV. A delay can be specified in second column. Example:
 
 ```
@@ -49,7 +49,7 @@ Another script with delay.cs, 300ms
 ```
 
 #### Hide/ignore files and folders
-List of ignored files and folders. Matching files/folders are not displayed in the **Files** panel, and the program ignores them (cannot find, compile, etc). Line format: wildcard, not case-sensitive; use `//Line` for comments. Compared is file path in workspace (like `\Folder\File.ext`). The synchronization with the filesystem occurs whenever the program becomes active (active window).
+List of ignored files and folders. Matching files/folders are not displayed in the **Files** panel, and the app ignores them (cannot find, compile, etc). Line format: wildcard, not case-sensitive; use `//Line` for comments. Compared is file path in workspace (like `\Folder\File.ext`). The synchronization with the filesystem occurs whenever the app becomes active (active window).
 
 ```
 Example:
@@ -71,7 +71,7 @@ Select a predefined set of code editor font/colors, aka *theme*.
 
 Default themes are read-only. Changes to a default theme are saved as a separate theme "Theme \[customized\]"; it's a csv file in the user settings folder. Changes are saved when you click **OK** or **Apply**.
 
-You can add more theme files to the program's default themes folder. For example copy a customized theme file and rename.
+You can add more theme files to the default themes folder of the app. For example copy a customized theme file and rename.
 
 ### Code editor
 Code formatting and intellisense options.
@@ -84,14 +84,18 @@ Initial code of new scripts and class files. Can be empty.
 
 ### Other
 #### Documentation
-Which version of documentation to use. If **Local**, the program downloads the documentation of the installed program version from its website to `C:\ProgramData\LibreAutomate\docs` and uses it. If **Online**, the program uses the online documentation; it is of the latest program version, which may be not the same as your installed program version.
+Which version of documentation to use and where to display.
+- **Local** - documentation installed with the app. Displays articles in the **Read** panel.
+- **Online** - online documentation. Displays articles in the web browser. The documentation is of the latest program version, which may be not the same as your installed program version.
+
+In any case, the **Help** panel displays the table of contents of the local documentation.
 
 #### Internet search URL
-The Internet search URL used by this program. The program will append the query string. Default: `https://www.google.com/search?q=`.
+The Internet search URL used by this app, without the search string. Default: `https://www.google.com/search?q=`.
 
 #### Use minimal .NET SDK
 What .NET SDK to use for NuGet and Publish:
-- Checked - use a minimal SDK that contains .NET SDK files used by the above features. The program automatically installs/updates it when need. Location: subfolder `SDK`.
+- Checked - use a minimal SDK that contains .NET SDK files used by the above features. The app automatically installs/updates it when need. Location: subfolder `SDK`.
 - Unchecked - use the full .NET SDK, which must be installed manually.
 - Indeterminate (default) - use the full SDK if installed, else the minimal.
 
@@ -101,10 +105,10 @@ If unchecked, prints only if role is `exeProgram` or `classLibrary`.
 If 3-rd state, prints when executing the **Compile** command, but not when compiling implicitly (for example before launching the script).
 
 ### OS
-These are Windows settings, not settings of this program. They are applied to all programs. This program will not restore them when uninstalling.
+These are Windows settings, not settings of this app. They are applied to all programs. This app will not restore them when uninstalling.
 
 #### Key/mouse hook timeout
-Max time in milliseconds given for hook procedures. If this time exceeded, the hook does not work well, and after several times is disabled. This setting is important for this program, because small values can make triggers and some other its features unreliable. Default 300 ms, max 1000 ms, recommended 1000 ms.
+Max time in milliseconds given for hook procedures. If this time exceeded, the hook does not work well, and after several times is disabled. This setting is important for this app, because small values can make triggers and some other its features unreliable. Default 300 ms, max 1000 ms, recommended 1000 ms.
 
 #### Disable "lock active window"
 The Windows "lock active window" feature, also known as "foreground window timeout", does not allow apps to activate windows after keyboard/mouse input etc. If scripts sometimes fail to activate windows, try to check this.

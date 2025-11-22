@@ -325,7 +325,7 @@ static class CommandLine {
 			InsertCode.Statements(System.Text.Json.JsonSerializer.Deserialize<InsertCode.InsertCodeParams>(s));
 			return 1;
 		case 18:
-			PanelCookbook.OpenRecipe(s);
+			PanelHelp.OpenRecipe(s);
 			return 1;
 		case 19:
 			return PathInfo.FromWindow((wnd)s.ToInt()) is {  } pathInfo ? WndCopyData.Return<char>(pathInfo.FormatCode(PathCode.Run), wparam) : 0;

@@ -22,14 +22,14 @@ See also: [script.runInPip](), [script.isInPip](), [miscInfo.isChildSession]()
 A PiP session runs under the same Windows user account as the main session, so programs in both sessions use the same user files and settings.
 
 Only these LibreAutomate settings are separate:
-- **Program > Start hidden**, **Visible if**, **Check for updates**
+- **App > Start hidden**, **Visible if**, **Check for updates**
 - **Workspace > Startup scripts**, **Auto-backup**
 - Hotkeys (all in the **Hotkeys** page)
 - Window positions (main window, tool windows)
 - Bookmarks, breakpoints, expanded folders, open files, folding.
 
 Ignored in a PiP session started by LibreAutomate:
-- **Program > Start with Windows** (in PiP always starts)
+- **App > Start with Windows** (in PiP always starts)
 
 While LibreAutomate is running in both PiP and main session:
 - Don't change other settings, panel/toolbar layout, snippets.

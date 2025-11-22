@@ -5,7 +5,7 @@ namespace LA;
 //note: used in ToolLand too.
 
 /// <summary>
-/// Program settings.
+/// Application settings.
 /// folders.ThisAppDocuments + @".settings\Settings.json"
 /// </summary>
 record AppSettings : JSettings {
@@ -40,8 +40,6 @@ record AppSettings : JSettings {
 		_NE(ref session.user) ??= Guid.NewGuid().ToString();
 		session.hotkeys ??= new();
 		(font_output ??= new()).Normalize("Consolas", 9);
-		(font_recipeText ??= new()).Normalize("Calibri", 10.5);
-		(font_recipeCode ??= new()).Normalize("Consolas", 9);
 		(font_find ??= new()).Normalize("Consolas", 9);
 	}
 	
@@ -147,7 +145,7 @@ record AppSettings : JSettings {
 			if (size == 0) size = _defSize; else size = Math.Clamp(size, 6, 30);
 		}
 	}
-	public font_t font_output, font_recipeText, font_recipeCode, font_find;
+	public font_t font_output, font_find;
 	
 	//Options > Templates
 	public int templ_use;
@@ -155,7 +153,7 @@ record AppSettings : JSettings {
 	
 	//Options > Other
 	public string internetSearchUrl { get => field ?? "https://www.google.com/search?q="; set { field = value.NullIfEmpty_(); } }
-	public bool localDocumentation;
+	public bool doc_web;
 	public bool? comp_printCompiled = false;
 	
 	//code editor
@@ -191,9 +189,6 @@ record AppSettings : JSettings {
 	
 	//panel Open
 	public byte openFiles_flags;
-	
-	//panel Recipe
-	public sbyte recipe_zoom;
 	
 	//panel Mouse
 	public bool mouse_singleLine;

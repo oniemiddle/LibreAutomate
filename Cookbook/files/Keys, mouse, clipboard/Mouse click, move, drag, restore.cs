@@ -1,7 +1,7 @@
 /// Most mouse functions are in class <see cref="mouse"/>. To create mouse-click code can be used:
 /// - Menu <b>Code > Input recorder<>. It also can record other actions: wheel, drag, move.
 /// - Menu <b>Code > Find UI element<>. Also <b>Code > Find image<> and <b>Code > Find OCR text<>.
-/// - Hotkey <mono>Ctrl+Shift+Q<>.
+/// - Hotkey `Ctrl+Shift+Q`.
 
 /// Click at x=10, y=20 in the client area of Notepad window.
 
@@ -33,7 +33,7 @@ mouse.restore();
 var wNotepad = wnd.find(0, @"*- Notepad", "Notepad").Activate();
 mouse.drag(wNotepad, 34, 8, 54, 0);
 
-/// <mono>Ctrl<>+drag file <.c>abc<> to folder <.c>Backup<> in File Explorer (folder window name <b>Test<>).
+/// `Ctrl`+drag file `abc` to folder `Backup` in File Explorer (folder window name <b>Test<>).
 
 var wExplorer = wnd.find(1, "Test", "CabinetWClass").Activate();
 var e1 = wExplorer.Elm["LISTITEM", "abc", "class=DirectUIHWND"].Find(1);

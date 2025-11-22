@@ -28,7 +28,7 @@ partial class MainWindow : Window {
 		
 		if (App.Settings.wndpos.main == null) {
 			Width = 1000;
-			Height = 700;
+			Height = 750;
 			WindowStartupLocation = WindowStartupLocation.CenterScreen;
 			//and will EnsureInScreen
 		}
@@ -39,7 +39,7 @@ partial class MainWindow : Window {
 		App.Commands = new KMenuCommands(typeof(Menus), Panels.Menu);
 		
 		App.Commands.OnCustomizingError = (c, s, ex) => print.it($"<>Customization error in <+DCustomize>{c.Name}<>: {s}. {ex?.ToStringWithoutStack()}");
-		var atb = new ToolBar[7] { Panels.THelp, Panels.TTools, Panels.TFile, Panels.TRun, Panels.TEdit, Panels.TCustom1, Panels.TCustom2 };
+		var atb = new ToolBar[6] { Panels.TTools, Panels.TFile, Panels.TRun, Panels.TEdit, Panels.TCustom1, Panels.TCustom2 };
 		App.Commands.InitToolbarsAndCustomize(folders.ThisAppBS + @"Default\Commands.xml", AppSettings.DirBS + "Commands.xml", atb);
 		
 		if (App.Commands[nameof(Menus.File.New)].FindMenuButtonInToolbar(Panels.TFile) is { } bNew)

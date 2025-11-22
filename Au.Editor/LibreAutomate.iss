@@ -49,6 +49,7 @@ Source: "Au.Controls.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Au.Net4.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "AxMSTSCLib.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "MSTSCLib.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "NuGet.*.dll"; DestDir: "{app}"; Flags: ignoreversion
 
 Source: "64\Au.AppHost.exe"; DestDir: "{app}\64"; Flags: ignoreversion
 Source: "64\ARM\Au.AppHost.exe"; DestDir: "{app}\64\ARM"; Flags: ignoreversion
@@ -80,17 +81,20 @@ Source: "Templates\files\*"; DestDir: "{app}\Templates\files"; Flags: ignorevers
 Source: "Templates\files.xml"; DestDir: "{app}\Templates"; Flags: ignoreversion
 
 Source: "doc.db"; DestDir: "{app}"; Flags: ignoreversion
+Source: "doc-ai.db"; DestDir: "{app}"; Flags: ignoreversion
+Source: "doc-html.db"; DestDir: "{app}"; Flags: ignoreversion
+Source: "icons.db"; DestDir: "{app}"; Flags: ignoreversion
 Source: "ref.db"; DestDir: "{app}"; Flags: ignoreversion
 Source: "winapi.db"; DestDir: "{app}"; Flags: ignoreversion
-Source: "icons.db"; DestDir: "{app}"; Flags: ignoreversion
-Source: "cookbook.db"; DestDir: "{app}"; Flags: ignoreversion
 
 Source: "default.exe.manifest"; DestDir: "{app}"; Flags: ignoreversion
+Source: "toc.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "doc-ai-toc.yml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "xrefmap.yml"; DestDir: "{app}"; Flags: ignoreversion
 #endif
 
 //CONSIDER: don't include big not frequently updated files. Auto-download on demand.
-//	All .db except cookbook, maybe Roslyn folder. Makes smaller: 40 MB -> 5 MB.
+//	Most .db, maybe Roslyn folder. Makes smaller: 40 MB -> 5 MB.
 
 [Dirs]
 Name: "{commonappdata}\LibreAutomate"; Flags: uninsalwaysuninstall; Permissions: authusers-modify

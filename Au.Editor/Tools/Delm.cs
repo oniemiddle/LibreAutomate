@@ -1635,7 +1635,7 @@ new elmFinder || 5
 					if (test && ReferenceEquals(action, _testedAction)) _FormatCode();
 				} else if (s1.Starts('?')) {
 					if (s1 == "?table") {
-						LA.PanelCookbook.OpenRecipe("Extract table*UI*");
+						LA.PanelHelp.OpenRecipe("Extract table*UI*");
 						action = _ActionFind("FindAll, table");
 					}
 				}

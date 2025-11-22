@@ -8,7 +8,7 @@ To automate something, you create a script. Click the **New** button on the tool
 
 C# is a programming language, one of the most popular. You can find a C# tutorial in the Cookbook and many info on the internet, for example [here](https://learn.microsoft.com/en-us/dotnet/csharp/).
 
-When you click the **Run** button, the program at first compiles the script if not already compiled. Cannot run if the C# code contains errors.
+When you click the **Run** button, LibreAutomate at first compiles the script if not already compiled. Cannot run if the C# code contains errors.
 
 Each script task is executed in a separate process, unless its role is `editorExtension`.
 
@@ -34,6 +34,6 @@ If role is `miniProgram` (default), the script is executed in `Au.Task.exe` proc
 
 If role is `exeProgram`, the editor program creates an exe program in a separate folder, and also copies used dlls etc there. Launches it when you click **Run** etc. You can also run it from File Explorer etc, and copy to other computers. It's an independent program; don't need LibreAutomate to execute it. [More info](xref:publish).
 
-If role is `editorExtension`, the script is executed in editor process (`Au.Editor.exe`). It starts in the UI thread, and can create own thread(s). Must be programmed carefully, else the editor process may hang, crash, become slow, etc. You can't stop the script with the **End task** button; it must be programmed to exit itself. This feature is intended to create editor extensions (see Cookbook recipe "Editor extension"), run `preBuild`/`postBuild` scripts, and sometimes for other purposes when you want to execute some code in editor process. The assembly file is in folder `.compiled`.
+If role is `editorExtension`, the script is executed in editor process (`Au.Editor.exe`). It starts in the UI thread, and can create own thread(s). Must be programmed carefully, else the editor process may hang, crash, become slow, etc. You can't stop the script with the **End task** button; it must be programmed to exit itself. This feature is intended to create editor extensions (see Cookbook article "Editor extension"), run `preBuild`/`postBuild` scripts, and sometimes for other purposes when you want to execute some code in editor process. The assembly file is in folder `.compiled`.
 
 The editor program compiles the script before launching it, but only if need, for example if the compiled assembly file is missing or after editing the C# file.

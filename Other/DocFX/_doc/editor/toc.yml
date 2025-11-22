@@ -1,5 +1,5 @@
-- name: Program
-  href: Program.md
+- name: Application
+  href: Application.md
 
 - name: Code editor
   href: Code editor.md
@@ -16,8 +16,8 @@
 - name: Menu commands
   href: Menu commands.md
 
-- name: Program settings
-  href: Program settings.md
+- name: Settings
+  href: Settings.md
 
 - name: Command line
   href: Command line.md

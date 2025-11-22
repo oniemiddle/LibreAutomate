@@ -1,15 +1,17 @@
 /*/
-noWarnings CS8632;
-testInternal Au.Editor,Au,Microsoft.CodeAnalysis,Microsoft.CodeAnalysis.CSharp,Microsoft.CodeAnalysis.Features,Microsoft.CodeAnalysis.CSharp.Features,Microsoft.CodeAnalysis.Workspaces,Microsoft.CodeAnalysis.CSharp.Workspaces;
-r Au.Editor.dll;
-r Roslyn\Microsoft.CodeAnalysis.dll;
-r Roslyn\Microsoft.CodeAnalysis.CSharp.dll;
-r Roslyn\Microsoft.CodeAnalysis.Features.dll;
-r Roslyn\Microsoft.CodeAnalysis.CSharp.Features.dll;
-r Roslyn\Microsoft.CodeAnalysis.Workspaces.dll;
-r Roslyn\Microsoft.CodeAnalysis.CSharp.Workspaces.dll;
-nuget -\Markdig;
-nuget -\WeCantSpell.Hunspell;
+define AUDOCS
+noWarnings CS8632
+testInternal Au.Editor,Au,Microsoft.CodeAnalysis,Microsoft.CodeAnalysis.CSharp,Microsoft.CodeAnalysis.Features,Microsoft.CodeAnalysis.CSharp.Features,Microsoft.CodeAnalysis.Workspaces,Microsoft.CodeAnalysis.CSharp.Workspaces
+pr AuDocsLib.cs
+r Au.Editor.dll
+r Roslyn\Microsoft.CodeAnalysis.dll
+r Roslyn\Microsoft.CodeAnalysis.CSharp.dll
+r Roslyn\Microsoft.CodeAnalysis.Features.dll
+r Roslyn\Microsoft.CodeAnalysis.CSharp.Features.dll
+r Roslyn\Microsoft.CodeAnalysis.Workspaces.dll /alias=CAW
+r Roslyn\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+nuget -\Markdig
+nuget -\WeCantSpell.Hunspell
 /*/
 
 //args = new[] { "/upload" };
@@ -17,6 +19,9 @@ var siteDir = @"C:\Temp\Au\DocFX\site";
 
 try {
 	if (args.Length == 0) {
+		LA.App.Settings = new(); //need internetSearchUrl
+		
+		//ADL.AuDocsShared.Test();
 		_Build();
 	} else if (args[0] == "/upload") {
 		AuDocs.CompressAndUpload(siteDir);
@@ -51,7 +56,7 @@ void _Build() {
 		AuDocs.Cookbook(docDir);
 		print.it("DONE cookbook");
 		
-		script.run("LA menu doc.cs");
+		script.runWait("LA menu doc.cs");
 	}
 	
 	var d = new AuDocs();
@@ -83,7 +88,14 @@ void _Build() {
 	if (postprocess) {
 		d.Postprocess(siteDirTemp, siteDir);
 		print.it("DONE postprocessing");
-		if (!testSmall) print.it($"<><script Au docs.cs|/upload>Upload Au docs...<>");
+		
+		if (!testSmall) {
+			script.runWait("LA docs toc.json.cs");
+			script.runWait("LA docs to DB.cs");
+			print.it("DONE LA docs scripts");
+			
+			print.it($"<><script Au docs.cs|/upload>Upload Au docs...<>");
+		}
 	}
 	
 	print.it((perf.ms - time0) / 1000d);

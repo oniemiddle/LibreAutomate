@@ -2,6 +2,9 @@ using Au.Controls;
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Input;
+using System.Xml.Linq;
+using System.Xml.XPath;
+using System.Windows.Media;
 
 namespace LA;
 
@@ -11,39 +14,46 @@ static class Panels {
 	public static PanelEdit Editor;
 	public static PanelFiles Files;
 	public static PanelOutline Outline;
-	public static PanelCookbook Cookbook;
+	public static PanelHelp Help;
 	public static PanelOpen Open;
 	public static PanelTasks Tasks;
 	public static PanelOutput Output;
 	public static PanelFind Find;
 	public static PanelFound Found;
 	public static PanelMouse Mouse;
-	public static PanelRecipe Recipe;
+	public static PanelRead Read;
 	public static PanelBookmarks Bookmarks;
 	public static PanelBreakpoints Breakpoints;
 	public static PanelDebug Debug;
 	//menu and toolbars
 	public static Menu Menu;
-	public static ToolBar TFile, TEdit, TRun, TTools, THelp, TCustom1, TCustom2;
+	public static ToolBar TFile, TEdit, TRun, TTools, TCustom1, TCustom2;
 	
 	public static void LoadAndCreateToolbars() {
 		var pm = PanelManager = new KPanels();
 		
-		//FUTURE: later remove this code. Now may need to delete old custom Layout.xml.
 		var customLayoutPath = AppSettings.DirBS + "Layout.xml";
 		if (filesystem.exists(customLayoutPath).File) {
 			try {
-				var s2 = filesystem.loadText(customLayoutPath);
-				//print.it(s2);
-				if (!s2.Contains("<panel name=\"Outline\"")) { //v0.4 added several new panels etc, and users would not know the best place for them, or even how to move
+				var x = XmlUtil.LoadElem(customLayoutPath);
+				if (x.XPathSelectElement("//panel[@name='Outline']") == null) { //v0.4 added several new panels etc, and users would not know the best place for them, or even how to move
 					filesystem.delete(customLayoutPath, FDFlags.RecycleBin);
-					bool silent = s2.RxIsMatch(@"<document name=""documents"" ?/>\s*</tab>"); //very old and incompatible
-					if (!silent) print.it("Info: The window layout has been reset, because several new panels have been added in this app version.\r\n\tIf you want to undo it: 1. Exit the program. 2. Restore file Layout.xml from the Recycle Bin (replace the existing file). 3. Run the program. 4. Move panels from the bottom of the window to a better place.");
-					//rejected: show Yes/No dialog. Let users at first see the new default layout, then they can undo.
-				} else if (!s2.Contains("<panel name=\"How to\"")) { //in v1.15 renamed some panels
-					s2 = s2.Replace("<panel name=\"Cookbook\"", "<panel name=\"How to\"");
-					s2 = s2.Replace("<panel name=\"Recipe\"", "<panel name=\"Read\"");
-					filesystem.saveText(customLayoutPath, s2);
+					print.it("Info: The window layout has been reset, because several new panels have been added in this app version.\r\n\tIf you want to undo it: 1. Exit the program. 2. Restore file Layout.xml from the Recycle Bin (replace the existing file). 3. Run the program. 4. Move panels from the bottom of the window to a better place.");
+				} else if (x.XPathSelectElement("//panel[@name='Help']") == null) { //in v1.15 renamed some panels
+					x.XPathSelectElement("//toolbar[@name='Help']")?.Remove();
+					x.XPathSelectElement("//panel[@name='Cookbook']")?.SetAttributeValue("name", "Help");
+					x.XPathSelectElement("//panel[@name='Recipe']")?.SetAttributeValue("name", "Read");
+					x.SaveElem(customLayoutPath);
+					
+					//also remove the Help toolbar from toolbar customizations
+					var customCommandsPath = AppSettings.DirBS + "Commands.xml";
+					if (filesystem.exists(customCommandsPath).File) {
+						var xc = XmlUtil.LoadElem(customCommandsPath);
+						if (xc.XPathSelectElement("//Help") is { } x1) {
+							x1.Remove();
+							xc.Save(customCommandsPath);
+						}
+					}
 				}
 			}
 			catch (Exception e1) { Debug_.Print(e1); }
@@ -66,10 +76,6 @@ static class Panels {
 		TEdit = _CreateToolbar("Edit");
 		TRun = _CreateToolbar("Run");
 		TTools = _CreateToolbar("Tools");
-		THelp = _CreateToolbar("Help", dp => {
-			//dp.Children.Add(TBoxHelp = new TextBox { Height = 20, Margin = new Thickness(3, 1, 0, 2) }); //FUTURE
-			return Dock.Right;
-		});
 		TCustom1 = _CreateToolbar("Custom1");
 		TCustom2 = _CreateToolbar("Custom2");
 	}
@@ -104,7 +110,7 @@ static class Panels {
 		
 		pm["Files"].Content = (Files = new()).P;
 		_AddDontFocus("Outline", (Outline = new()).P);
-		pm["How to"].Content = (Cookbook = new()).P;
+		pm["Help"].Content = (Help = new()).P;
 		_AddDontFocus("Debug", (Debug = new()).P);
 		_AddDontFocus("Open", (Open = new()).P);
 		_AddDontFocus("Tasks", (Tasks = new()).P);
@@ -114,7 +120,7 @@ static class Panels {
 		_AddDontFocus("Output", (Output = new()).P);
 		_AddDontFocus("Mouse", (Mouse = new()).P);
 		_AddDontFocus("Found", (Found = new()).P);
-		_AddDontFocus("Read", (Recipe = new()).P);
+		_AddDontFocus("Read", (Read = new()).P);
 		
 		void _AddDontFocus(string panel, FrameworkElement content) {
 			var p = pm[panel];

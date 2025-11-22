@@ -12,13 +12,13 @@ A snippet can show a menu of sub-snippets. Use it to group similar snippets toge
 
 Snippet properties:
 - **Name** - is displayed in the completion list. Also it is the text shortcut. If ends with `Surround`, the snippet is available only for surround.
-- **Context** - where the snippet can be used. Read more below. If not specified, the program auto-detects it from snippet code.
+- **Context** - where the snippet can be used. Read more below. If not specified, the app auto-detects it from snippet code.
 - **Info** - short text displayed in the completion list item flyout (info window). Also menu item text; use `&` for keyboard shortcuts.
 - **Info+** - text displayed at the bottom of the flyout.
 - **Print** - text to print in the output panel when inserting the snippet. Can contain [output tags](xref:output_tags) if starts with `<>`.
 - **using** - namespaces to add as `using` directives if need. Example: `System.Windows; System.Windows.Controls`.
 - **Meta** - file properties to add as `/*/ meta comments /*/` if need. Example: `c A.cs; nuget -\B`.
-- **\${VAR}** - `${VAR}` variable type and default name, like `Au.popupMenu,m`. When inserting the snippet, the program looks for a local variable of the specified type, and replaces `${VAR}` in snippet code with the variable name, or with the default name if not found. To see how it works, in code editor insert `menuSnippet` and then `menuItemSnippet` (it contains `${VAR}`).
+- **\${VAR}** - `${VAR}` variable type and default name, like `Au.popupMenu,m`. When inserting the snippet, the app looks for a local variable of the specified type, and replaces `${VAR}` in snippet code with the variable name, or with the default name if not found. To see how it works, in code editor insert `menuSnippet` and then `menuItemSnippet` (it contains `${VAR}`).
 - **Code** - snippet code.
 
 Snippet code can contain fields and variables, like in [VSCode](https://code.visualstudio.com/docs/editor/userdefinedsnippets).
@@ -54,6 +54,6 @@ Context specifies where in code the snippet can be used (appears in the completi
 - **Line** - at the start of a line. For example, `#directive` snippets have context `Any|Line`.
 - **Any** - anywhere.
 
-The program loads all snippet files with names that end with `Snippets.xml` from the program settings folder in the Documents folder. You can add/delete snippets files there. You can edit them in an XML editor too.
+The app loads all snippet files with names that end with `Snippets.xml` from the app settings folder in the Documents folder. You can add/delete snippets files there. You can edit them in an XML editor too.
 
 Default snippets are read-only, but you can clone a default snippet (right click, copy, paste) and edit the clone. If both snippets are checked and have the same name, the clone will be the first in the completion list.

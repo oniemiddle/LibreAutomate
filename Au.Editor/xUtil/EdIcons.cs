@@ -16,7 +16,8 @@ static class EdIcons {
 		Paste = "*Material.ContentPaste" + brown,
 		References = "*Material.MapMarkerMultiple" + blue,
 		Regex = "*FileIcons.Regex @12" + blue,
-		AiSearch = "*FontAwesome.SearchSolid #0060F0 %,7,7,-1; *RemixIcon.GeminiFill #0060F0 %4,-1,-1,4" + blue
+		Help = "*Lucide.CircleHelp" + darkYellow,
+		AiSearch = $"*FontAwesome.SearchSolid %,7,7,-1{blue}; *RemixIcon.GeminiFill %4,-1,-1,4{blue}"
 		;
 	
 	public const string

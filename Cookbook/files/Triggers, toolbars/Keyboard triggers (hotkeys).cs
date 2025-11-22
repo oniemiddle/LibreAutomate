@@ -1,18 +1,18 @@
-/// To execute some code or run a script, can be used keyboard <help Au.Triggers.ActionTriggers>triggers<> (hotkeys). Examples: <mono>F9<>, <mono>Ctrl+K<>, <mono>Ctrl+Shift+Alt+H<>.
+/// To execute some code or run a script, can be used keyboard <see cref="Au.Triggers.ActionTriggers">triggers<> (hotkeys). Examples: `F9`, `Ctrl+K`, `Ctrl+Shift+Alt+H`.
 /// 
-/// To add a trigger can be used snippet <.x>triggerSnippet<> or menu <b>TT > New trigger<>. Add triggers in function <.x>HotkeyTriggers<> in file <.c>Hotkey triggers<>.
+/// To add a trigger can be used snippet <.x>triggerSnippet<> or menu <b>TT > New trigger<>. Add triggers in function <.x>HotkeyTriggers<> in file `Hotkey triggers`.
 ///
 /// To open a triggers file for editing can be used the <b>TT<> menu.
 /// 
 /// Click the <b>Run<> button to apply changes after editing.
 ///
-/// You'll find hotkey code examples in file <.c>Hotkey triggers<>.
+/// You'll find hotkey code examples in file `Hotkey triggers`.
 ///
 /// Tips:
 /// - To get code for "run script" or "run/open file or URL" you can drag and drop scripts, files and links to the code editor.
-/// - To show hotkey info tools: let the text cursor be in the hotkey string. Then press <mono>Ctrl+Shift+Space<>, or invoke the <b>Keys<> window from the <b>Code<> menu or toolbar.
-/// - To quickly insert code <.c>Triggers.Of.Window(...)<>, use the quick capturing hotkey (default <mono>Ctrl+Shift+Q<>).
+/// - To show hotkey info tools: let the text cursor be in the hotkey string. Then press `Ctrl+Shift+Space`, or invoke the <b>Keys<> window from the <b>Code<> menu or toolbar.
+/// - To quickly insert code `Triggers.Of.Window(...)`, use the quick capturing hotkey (default `Ctrl+Shift+Q`).
 /// 
 /// See also recipe <+recipe>Triggers and toolbars<>.
 ///
-/// Also triggers can be used in any script. For example in an <.c>.exe<> program that runs without the editor. <help Au.Triggers.ActionTriggers>Examples<>.
+/// Also triggers can be used in any script. For example in an `.exe` program that runs without the editor. <see cref="Au.Triggers.ActionTriggers">Examples<>.

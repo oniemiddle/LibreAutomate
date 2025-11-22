@@ -3,20 +3,20 @@
 /// 2. Modify the Registry. It remaps keys. Look for software that can do it.
 /// 3. Create and install a custom keyboard layout. It remaps characters. Use Microsoft Keyboard Layout Creator or similar software.
 /// 
-/// The rest of this recipe is about the first way (keyboard triggers). Assume the codes are in file <.c>Hotkey triggers<>.
+/// The rest of this recipe is about the first way (keyboard triggers). Assume the codes are in file `Hotkey triggers`.
 /// Note: to remap keys use <.x>keys.more.sendKey<> or <.x>keys.sendL<>, not <.x>keys.send<>.
 
 using Au.Triggers;
 
-/// Disable key <mono>CapsLock<> when pressed without modifiers (<mono>Ctrl<> etc).
+/// Disable key `CapsLock` when pressed without modifiers (`Ctrl` etc).
 
 hk["CapsLock"] = o => {  };
 
-/// Remap key <mono>Insert<> to <mono>Apps<>. With <.c>?+<> also remaps <mono>Ctrl+Insert<> etc.
+/// Remap key `Insert` to `Apps`. With `?+` also remaps `Ctrl+Insert` etc.
 
 hk["?+Ins"] = o => keys.more.sendKey(KKey.Apps);
 
-/// Remap numeric keypad keys to characters when <mono>NumLock<> inactive. Lowercase or uppercase, depending on <mono>Shift<> and <mono>CapsLock<>.
+/// Remap numeric keypad keys to characters when `NumLock` inactive. Lowercase or uppercase, depending on `Shift` and `CapsLock`.
 
 var flags1 = TKFlags.ExtendedNo | TKFlags.NoModOff;
 hk["Shift?+Home", flags1] = o => _RemapToChar(o, 'ą'); // 1

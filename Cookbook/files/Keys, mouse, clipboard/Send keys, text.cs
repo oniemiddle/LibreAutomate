@@ -1,4 +1,4 @@
-/// To quickly insert <see cref="keys.send"/> code, use snippet <.x>kkKeysSendSnippet<>: type <.c>kk<> and select from the list. Or click toolbar button <b>Keys<> or <b>Input recorder<>.
+/// To quickly insert <see cref="keys.send"/> code, use snippet <.x>kkKeysSendSnippet<>: type `kk` and select from the list. Or click toolbar button <b>Keys<> or <b>Input recorder<>.
 
 var w = wnd.find(1, "*- Notepad", "Notepad").Activate();
 keys.send("Alt+E P");
@@ -31,17 +31,17 @@ keys.send("_**20"); //character * 20 times
 keys.send("Alt*down E P Alt*up");
 keys.send("Alt+(E P)"); //the same
 
-/// <mono>Ctrl<>+click.
+/// `Ctrl`+click.
 
 Action click = () => mouse.click();
 keys.send("Ctrl+", click);
 
-/// Send key raw/fast. <help keys.more.sendKey>More info<>.
+/// Send key raw/fast. <see cref="keys.more.sendKey">More info<>.
 
 keys.more.sendKey(KKey.A); //press A
 keys.more.sendKey(KKey.Ctrl, true); //Ctrl down
 keys.more.sendKey(KKey.Ctrl, false); //Ctrl up
 
-/// Turn off <mono>CapsLock<>.
+/// Turn off `CapsLock`.
 
 if (keys.isCapsLock) keys.more.sendKey(KKey.CapsLock);

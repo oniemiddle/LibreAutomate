@@ -71,9 +71,6 @@ All attributes are optional. The Example command contains all.
 		<Options separator="" />
 		<Icons />
 	</Tools>
-	<Help>
-		
-	</Help>
 	<Custom1>
 
 	</Custom1>

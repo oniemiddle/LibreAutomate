@@ -15,7 +15,7 @@ static class GitBinaryFiles {
 		var laDir = Environment.CurrentDirectory + @"\_\";
 
 		(string dir, string files, bool subdirs)[] enumFiles = [
-			(null, "*.db", false),
+				(null, "*.db", false),
 				("Roslyn", "*.dll", false),
 				("Debugger", "**m *.dll||*.exe", true),
 				(@"..\Other\BuildEvents\.tools", "ResourceHacker.exe", false),
@@ -24,7 +24,7 @@ static class GitBinaryFiles {
 		List<FEFile> aFiles = new();
 		foreach (var v in enumFiles) {
 			foreach (var f in filesystem.enumFiles(laDir + v.dir, v.files, (v.subdirs ? FEFlags.AllDescendants : 0) | FEFlags.UseRawPath)) {
-				if (f.Name.Eqi("cookbook.db")) continue; //changes too frequently. And don't need; will use files from ..\Cookbook dir.
+				//if (f.Name.Like("doc-*.db")) continue; //BAD: changes too frequently
 				aFiles.Add(f);
 			}
 		}

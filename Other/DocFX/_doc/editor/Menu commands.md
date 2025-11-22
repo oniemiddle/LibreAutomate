@@ -228,11 +228,10 @@ uid: menu_commands
     - Wrap lines  (option)
     - White space  (option)
 - Help
-  - Website
-  - Library help
-  - C# help
+  - LA docs
+  - C# docs
   - Context help
-  - Online/local...
+  - Website
   - Forum
   - Email
   - Donate

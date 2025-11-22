@@ -1,1 +1,1 @@
-/// See <help editor/Publish>Creating .exe programs<>.
+/// See <help editor/Creating exe programs>Creating exe programs<>.

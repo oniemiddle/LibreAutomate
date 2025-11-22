@@ -111,7 +111,7 @@ Whenever the mouse dwells on a symbol etc in the editor, a tooltip displays some
 Errors are detected in editor, as well as when compiling the code. Code parts with errors have red squiggly underlines, warnings green. A tooltip shows error/warning description. Also can contain links to fix the error, for example add a missing `using namespace` or Windows API declaration.
 
 ### XML documentation comments
-Editor gets data for quick info, parameter info and other info about symbols from their assemblies and XML documentation comments. You can write XML documentation comments for your functions and types; look for how to on the internet. Documentation of the automation library and .NET is installed with the program. Documentation of other assemblies comes from their `assembly.dll` + `assembly.xml` files.
+Editor gets data for quick info, parameter info and other info about symbols from their assemblies and XML documentation comments. You can write XML documentation comments for your functions and types; look for how to on the internet. Documentation of the automation library and .NET is installed with the app. Documentation of other assemblies comes from their `assembly.dll` + `assembly.xml` files.
 
 Editor also helps to write XML documentation comments. Adds empty summary and parameters when you type `///` above a class, method etc. Adds `///` on `Enter`, shows a list of tags, autocompletes tags, color-highlights tags, text and `see` references.
 
@@ -212,7 +212,7 @@ Press `Tab` or `Shift+Tab` to indent or unindent all selected lines. It adds or 
 The **Code** and **Edit** menus contain tools for creating code to find a window, UI element or image, for inserting parts of regular expression or keys string, generating interface/abstract implementation methods, and more.
 
 ### Find Windows API and insert declarations
-The program comes with a database of Windows API declarations, and helps to find and insert them. More info: menu **Code > Windows API**, click **[?]**.
+The app comes with a database of Windows API declarations, and helps to find and insert them. More info: menu **Code > Windows API**, click **[?]**.
 
 ### Drag and drop files to insert path
 You can drag and drop files from File Explorer etc to the code editor. It inserts code with file path. Links too.
@@ -223,7 +223,7 @@ You can also drag and drop scripts etc from the Files panel.
 To focus the code editor control without changing selection: middle-click.
 
 ### WPF window preview
-The program does not have a dialog window editor/designer, but it's easy to create windows in code, using class [wpfBuilder](). The program can automatically show/update the window while you edit its code, if it contains code like this:
+The app does not have a dialog window editor/designer, but it's easy to create windows in code, using class [wpfBuilder](). The app can automatically show/update the window while you edit its code, if it contains code like this:
 
 ```csharp
 #if WPF_PREVIEW
@@ -235,7 +235,7 @@ This code must be after building the window but before showing it ([wpfBuilder.S
 
 To activate this feature for current document, check toolbar button **WPF preview** or menu **Edit > View > WPF preview**.
 
-How it works: If **WPF preview** is checked and current script contains `#if WPF_PREVIEW`, the program launches/restarts the script whenever you make changes in its code, unless there are errors. The script runs like when clicked the **Run** button, with these changes:
+How it works: If **WPF preview** is checked and current script contains `#if WPF_PREVIEW`, the app launches/restarts the script whenever you make changes in its code, unless there are errors. The script runs like when clicked the **Run** button, with these changes:
 - Defined `WPF_PREVIEW`. In script you use `#if WPF_PREVIEW` to include preview-specific code. Or use [script.isWpfPreview]().
 - Function **Preview** shows the window without activating. Also changes some its properties. Ends the process when the window closed.
 - Some `/*/ properties /*/` are ignored: `role`, `ifRunning`, `uac`, `platform`, `console`, `optimize`, `outputPath`, `preBuild`, `postBuild`, `xmlDoc`.

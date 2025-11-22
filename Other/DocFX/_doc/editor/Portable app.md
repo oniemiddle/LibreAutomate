@@ -13,11 +13,11 @@ The tool copies LibreAutomate program files, .NET runtime, current workspace (sc
 ## Run
 Run `Au.Editor.exe` (it may be displayed as `LibreAutomate`).
 
-The portable program can run on any Windows 7/8/10/11 64-bit computer. Don't need to install .NET runtime.
+The portable app can run on any Windows 7/8/10/11 64-bit computer. Don't need to install .NET runtime.
 
-The portable program does not have the "always run as administrator" feature, but you can right-click and select **Run as administrator**. See [UAC](xref:uac).
+The portable app does not have the "always run as administrator" feature, but you can right-click and select **Run as administrator**. See [UAC](xref:uac).
 
-The portable program does not write files outside of its folder. And does not write to the Registry.
+The portable app does not write files outside of its folder. And does not write to the Registry.
 
 LibreAutomate uses these special folders: [folders.ThisAppDocuments](), [folders.ThisAppDataLocal](), [folders.ThisAppTemp](). In portable mode these folders are in subfolder `data` of the portable program folder.
 

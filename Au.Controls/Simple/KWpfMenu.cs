@@ -24,12 +24,11 @@ namespace Au.Controls;
 /// m.Show(this); //or m.IsOpen=true;
 /// ]]></code>
 /// </example>
-public class KWpfMenu : ContextMenu
-{
+public class KWpfMenu : ContextMenu {
 	///
 	public KWpfMenu() {
 	}
-
+	
 	/// <summary>
 	/// Creates new <see cref="MenuItem"/> and adds to the menu. Returns it.
 	/// </summary>
@@ -66,7 +65,7 @@ public class KWpfMenu : ContextMenu
 		ItemAdded?.Invoke(item);
 		return item;
 	}
-
+	
 	/// <summary>
 	/// Creates new <see cref="MenuItem"/> and adds to the menu.
 	/// </summary>
@@ -102,12 +101,12 @@ public class KWpfMenu : ContextMenu
 			if (!enabled) v.IsEnabled = false;
 		}
 	}
-
+	
 	/// <summary>
 	/// Adds separator.
 	/// </summary>
 	public void Separator() { CurrentAddMenu.Items.Add(new Separator()); }
-
+	
 	/// <summary>
 	/// Creates new <see cref="MenuItem"/> for a submenu and adds to the menu.
 	/// </summary>
@@ -124,31 +123,31 @@ public class KWpfMenu : ContextMenu
 		return new UsingEndAction(() => _submenuStack.Pop());
 		//CONSIDER: copy some properties of current menu. Or maybe WPF copies automatically, need to test.
 	}
-
+	
 	Stack<MenuItem> _submenuStack = new();
 	//bool _AddingSubmenuItems => _submenuStack.Count > 0;
-
+	
 	/// <summary>
 	/// Gets <see cref="ItemsControl"/> of the menu or submenu where new items currently would be added.
 	/// </summary>
 	public ItemsControl CurrentAddMenu => _submenuStack.Count > 0 ? _submenuStack.Peek() : this;
-
+	
 	/// <summary>
 	/// Gets the last added <see cref="MenuItem"/>.
 	/// </summary>
 	public MenuItem Last { get; private set; }
-
+	
 	/// <summary>
 	/// Called when added a non-separator item.
 	/// </summary>
 	public Action<MenuItem> ItemAdded { get; set; }
-
+	
 	/// <summary>
 	/// Whether to handle exceptions in item action code. If false (default), handles exceptions and on exception calls <see cref="print.warning"/>.
 	/// Applied to menu items added afterwards.
 	/// </summary>
 	public bool ActionException { get; set; }
-
+	
 	/// <summary>
 	/// Sets <see cref="ContextMenu.PlacementTarget"/> = <i>owner</i> and <see cref="ContextMenu.IsOpen"/> = true.
 	/// </summary>
@@ -163,9 +162,9 @@ public class KWpfMenu : ContextMenu
 			Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
 		}
 		PlacementTarget = owner;
-
+		
 		//tested: VisualTreeHelper.SetRootDpi does not work.
-
+		
 		//workaround for: if focused is a native control in a HwndHost, it remains focused, and menu keyboard does not work normally.
 		//	Temporarily remove native focus from the control.
 		//	Also tried to redirect key messages with a hook, but it does not work for arrow keys.
@@ -174,29 +173,29 @@ public class KWpfMenu : ContextMenu
 		if (owner is HwndHost hh && hh.IsFocused && Api.GetFocus() == (wnd)hh.Handle && FocusManager.GetFocusScope(hh) is UIElement fs) {
 			fs.Focus();
 		}
-
+		
 		IsOpen = true;
-
+		
 		if (modal) {
 			_dispFrame = new DispatcherFrame();
 			Dispatcher.PushFrame(_dispFrame);
 		}
 	}
 	DispatcherFrame _dispFrame;
-
+	
 	void _EndModal() {
 		if (_dispFrame != null) {
 			_dispFrame.Continue = false;
 			_dispFrame = null;
 		}
 	}
-
+	
 	///
 	protected override void OnClosed(RoutedEventArgs e) {
 		_EndModal();
 		base.OnClosed(e);
 	}
-
+	
 	internal static object MenuItemIcon_(object icon) {
 		if (icon != null) {
 			try {
@@ -220,7 +219,7 @@ public class KWpfMenu : ContextMenu
 		return null;
 		//rejected: cache, like popupMenu.
 	}
-
+	
 	/// <summary>
 	/// Creates and shows popup menu where items use ids instead of actions.
 	/// Returns selected item id, or 0 if canceled.
@@ -268,25 +267,24 @@ public class KWpfMenu : ContextMenu
 		//	Dispatcher.PushFrame(dispFrame);
 		return result;
 	}
-
-	class _MenuItem : MenuItem
-	{
+	
+	class _MenuItem : MenuItem {
 		KWpfMenu _m;
 		public Action<WpfMenuActionArgs> action;
 		public bool actionException;
-
+		
 		public _MenuItem(KWpfMenu m) { _m = m; }
-
+		
 		protected override void OnClick() {
 			base.OnClick(); //must be first, because changes IsChecked (if IsCheckable)
-
+			
 			_m._EndModal(); //workaround for: OnClosed called with 160 ms delay. Same with native message loop.
 			if (action != null) {
 				try { action(new WpfMenuActionArgs(this)); }
 				catch (Exception ex) when (!actionException) { print.warning(ex); }
 			}
 		}
-
+		
 		protected override void OnPreviewMouseUp(MouseButtonEventArgs e) {
 			switch (e.ChangedButton) {
 			//case MouseButton.Right:
@@ -308,16 +306,15 @@ public class KWpfMenu : ContextMenu
 /// <summary>
 /// Arguments for <see cref="KWpfMenu"/> item actions.
 /// </summary>
-public class WpfMenuActionArgs
-{
+public class WpfMenuActionArgs {
 	///
 	public WpfMenuActionArgs(MenuItem item) { Item = item; }
-
+	
 	/// <summary>
 	/// The menu item object.
 	/// </summary>
 	public MenuItem Item { get; }
-
+	
 	///
 	public override string ToString() {
 		var d = Item.Dispatcher;

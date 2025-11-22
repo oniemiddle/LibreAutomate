@@ -1,4 +1,4 @@
-/// Function <help Au.Types.ExtString.Like>string.Like<> compares strings using wildcard characters <.c>*<> and <.c>?<>.
+/// Function <see cref="Au.Types.ExtString.Like">string.Like<> compares strings using wildcard characters `*` and `?`.
 
 string s = "file.txt";
 if (s.Like("*.txt")) print.it("s ends with .txt");
@@ -17,7 +17,7 @@ print.it(w2);
 var w3 = wnd.find("**m *Notepad||*Chrome"); //ends with Notepad or Chrome
 print.it(w3);
 
-/// To create such functions use class <help>wildex<>.
+/// To create such functions use class <see cref="wildex"/>.
 
 int Find(string[] names, string name) {
 	wildex wild = name;

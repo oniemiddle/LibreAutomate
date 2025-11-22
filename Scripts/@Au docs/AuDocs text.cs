@@ -75,6 +75,13 @@ partial class AuDocs {
 	}
 	
 	public void Postprocess(string siteDirTemp, string siteDir) {
+		ADL.AuDocsShared.ResolveAuApiLink = s => {
+			foreach (var ns in _auNamespaces) {
+				if (filesystem.exists(siteDirTemp + "/api/" + ns + s + ".html", true).File) return "/api/" + ns + s + ".html";
+			}
+			return null;
+		};
+		
 		filesystem.delete(siteDir);
 		filesystem.createDirectory(siteDir);
 		var files = filesystem.enumFiles(siteDirTemp, flags: FEFlags.AllDescendants | FEFlags.NeedRelativePaths | FEFlags.UseRawPath).ToArray();
@@ -90,7 +97,7 @@ partial class AuDocs {
 				if (name.Eqi(@"\xrefmap.yml")) _XrefMap(f.FullPath);
 			}
 		});
-		_CreateCodeCss(siteDir);
+		filesystem.saveText(siteDir + @"\styles\code.css", ADL.AuDocsShared.CreateCodeCss());
 	}
 	
 	void _PostprocessFile(FEFile f, string file2, string siteDirTemp) {
@@ -187,62 +194,10 @@ partial class AuDocs {
 			//second part of the damaged spaces workaround
 			s = s.Replace('\u202F', ' ');
 		} else {
-			//in .md we use this for links to our API: [Class]() or [Class.Member]().
-			//	DocFX converts it to <a href="">Class</a> etc without warning.
-			//	Now convert it to a working link.
-			nr = s.RxReplace(@"<a href="""">(.+?)</a>", m => {
-				var k = m[1].Value;
-				string href = _ResolveLink(k);
-				if (href == null && k.LastIndexOf('.') is var i && i > 0) href = _ResolveLink(k[..i]); //enum member
-				if (href == null) { print.it($"cannot resolve link: [{k}]()"); return m.Value; }
-				return $@"<a href=""{href}"">{k}</a>";
-				
-				string _ResolveLink(string k) {
-					foreach (var ns in _auNamespaces) {
-						if (filesystem.exists(siteDirTemp + "/api/" + ns + k + ".html", true).File) return "/api/" + ns + k + ".html";
-					}
-					return null;
-				}
-			}, out s);
-			
-			//in .md we use this for Google search links: [text](google:) or [text](google:urlencoded+google+query).
-			//	To search only in microsoft.com (.NET/Windows API etc): [text](ms:) or [text](ms:urlencoded+google+query).
-			//	The colon is to avoid DocFX warnings.
-			//	Now convert it to a google search link.
-			nr = s.RxReplace(@"<a href=""(ms|google):([^""]+)?"">(.+?)</a>", m => {
-				string linkText = m[3].Value;
-				string q = m[2].Value ?? WebUtility.UrlEncode(WebUtility.HtmlDecode(linkText));
-				string site = m.Subject[m[1].Start] is 'm' ? "site:microsoft.com+" : null;
-				return $@"<a href=""https://www.google.com/search?q={site}{q}"">{linkText}</a>";
-			}, out s);
-			if (s.Contains("<google>")) print.warning("<google> in .md files not supported. Use [text](google:) or [text](google:urlencoded+google+query)");
-			if (s.Contains("<ms>")) print.warning("<ms> in .md files not supported. Use [text](ms:) or [text](ms:urlencoded+google+query)");
+			s = ADL.AuDocsShared.PostprocessHtmlNonApi(name, s);
 		}
 		
-		//javascript renderTables() replacement, to avoid it at run time. Also remove class table-striped.
-		nr = s.RxReplace(@"(?s)<table(>.+?</table>)", @"<div class=""table-responsive""><table class=""table table-bordered table-condensed""$1</div>", out s);
-		
-		//the same for renderAlerts
-		nr = s.RxReplace(@"<div class=""(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\b",
-			o => {
-				string k = "info"; switch (o[1].Value[0]) { case 'W': k = "warning"; break; case 'I': case 'C': k = "danger"; break; }
-				return o.Value + " alert alert-" + k;
-			},
-			out s);
-		
-		nr = s.RxReplace(@"<p>\s+", "<p>", out s); //<p>\n makes new line before. This is in notes only.
-		
-		_rxCss ??= new("""(?m)(\h*)(\Q<link rel="stylesheet" href="../styles/main.css">\E)""");
-		//if(!_rxCss.IsMatch(s)) print.it(f.Name);
-		s = _rxCss.Replace(s, "$1$2\n$1<link rel=\"stylesheet\" href=\"../styles/code.css\">", 1);
-		
-		_rxCode2 ??= new("""(?s)<code class="lang-[^"]*">(.+?)</code>""");
-		s = _rxCode2.Replace(s, m => _Code(m[1].Value, isApi ? 1 : 2)); //syntax in api, and ```code``` in conceptual
-		
-		if (isApi) {
-			_rxCode ??= new("""(?<=<pre>)%%(.+?)%%(?=</pre>)""");
-			s = _rxCode.Replace(s, m => _Code(m[1].Value, 0)); //<code> in api
-		}
+		s = ADL.AuDocsShared.PostprocessHtmlCommon(s, isApi);
 		
 #if DISQUS
 		//TODO3: Now shows Disqus content when page loaded (if small) or scrolled to the bottom. Should show only when clicked <h2>User comments</h2>.
@@ -280,8 +235,6 @@ partial class AuDocs {
 		//print.it(s);
 		filesystem.saveText(file2, s);
 	}
-	
-	regexp _rxCode, _rxCode2, _rxCss;
 	
 	static void _ProcessJs(string file, string file2) {
 		var s = filesystem.loadText(file);

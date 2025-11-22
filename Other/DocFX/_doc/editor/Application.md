@@ -1,14 +1,14 @@
 ---
-uid: Program
+uid: Application
 ---
 
 # LibreAutomate
 
-The program is an integrated scripting environment for creating and executing automation scripts using its automation library and C# programming language.
+The application is an integrated scripting environment for creating and executing automation scripts using its automation library and C# programming language.
 
 ![window](../images/window.png "Editor window")
 
-In the main window: code editor, several panels, toolbars and menu bar. Also there is a tray icon. The main window can be hidden, it depends on program settings.
+In the main window: code editor, several panels, toolbars and menu bar. Also there is a tray icon. The main window can be hidden (it depends on app settings).
 
 ## Code editor
 Here you edit automation scripts and other text files.
@@ -51,7 +51,7 @@ The collection of files and folders is a *workspace*. It is a folder on disk. In
 - File `settings.json` - workspace settings.
 - File `bookmarks.csv` - saved bookmarks.
 - Folder `.state` contains code editor states for files, such as folding, markers and current position.
-- The `.xxx` folders are created and used by the program for various purposes.
+- The `.xxx` folders are created and used by the app for various purposes.
 - Folders `exe` and `dll` - default folders for files created when compiling code files with role `exeProgram` or `classLibrary`.
 
 ### Open
@@ -73,7 +73,7 @@ Right-click an edit field - context menu. Middle-click - clear text; if empty - 
 Results of **Find in files**, **Find file**, **Find references** and some other commands.
 
 ### Output
-The program writes various info here. For example script compilation errors. Scripts use [print.it]() for it.
+The app writes various info here. For example script compilation errors. Scripts use [print.it]() for it.
 
 Right-click - context menu. Middle-click - clear.
 
@@ -83,8 +83,11 @@ Mouse x y, window name/class/program, control id/class/name, menu item id.
 ### Outline
 Helps to find types, functions, fields, namespaces and regions in current C# code file.
 
-### Cookbook, Recipe
-Code examples and info.
+### Help
+Documentation - table of contents.
+
+### Read
+Documentation - article.
 
 ### Bookmarks
 List of bookmarks.

@@ -92,11 +92,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="NuGet.Configuration" Version="6.14.0" />
-	  <PackageReference Include="NuGet.Versioning" Version="6.14.0" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Resource Include="resources\ci\Class.xaml" />
 		<Resource Include="resources\ci\Constant.xaml" />
 		<Resource Include="resources\ci\Delegate.xaml" />
@@ -167,18 +162,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Properties\Settings.Designer.cs">
-	    <DesignTimeSharedInput>True</DesignTimeSharedInput>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Settings.settings</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Update="Properties\Settings.settings">
-	    <Generator>SettingsSingleFileGenerator</Generator>
-	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-	  </None>
+	  <PackageReference Include="NuGet.Configuration" Version="6.14.0" />
+	  <PackageReference Include="NuGet.Versioning" Version="6.14.0" />
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">

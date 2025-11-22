@@ -29,7 +29,7 @@ public static class KExtWpf {
 	/// Adds KTextBox that can be used with KCheckBox in a propertygrid row. Or alone in a grid or stack row.
 	/// Sets multiline with limited height. If in grid, sets padding/margin for propertygrid.
 	/// </summary>
-	public static wpfBuilder xAddText<TTBox>(this wpfBuilder b, out TTBox t, string text = null) where TTBox: KTextBox, new() {
+	public static wpfBuilder xAddText<TTBox>(this wpfBuilder b, out TTBox t, string text = null) where TTBox : KTextBox, new() {
 		b.Add(out t, text).Multiline(..55, wrap: TextWrapping.NoWrap);
 		if (b.Panel is Grid) b.Padding(new Thickness(0, 0, 0, 1)).Margin(left: 4);
 		return b;
@@ -43,7 +43,7 @@ public static class KExtWpf {
 	/// <param name="text">Textbox text.</param>
 	/// <param name="noR">Don't add new row.</param>
 	/// <param name="check">Checkbox state.</param>
-	public static KCheckTextBox xAddCheckText<TTBox>(this wpfBuilder b, string name, string text = null, bool noR = false, bool check = false) where TTBox: KTextBox, new() {
+	public static KCheckTextBox xAddCheckText<TTBox>(this wpfBuilder b, string name, string text = null, bool noR = false, bool check = false) where TTBox : KTextBox, new() {
 		xAddCheck(b, out KCheckBox c, name, noR, check);
 		var m = c.Margin; if (m.Top <= 1) c.Margin = m with { Top = m.Top + 1 };
 		xAddText(b, out TTBox t, text);
@@ -63,7 +63,7 @@ public static class KExtWpf {
 	/// <param name="name">Checkbox text.</param>
 	/// <param name="text">Textbox text.</param>
 	/// <param name="check">Checkbox state.</param>
-	public static KCheckTextBox xAddCheckTextDropdown<TTBox>(this wpfBuilder b, string name, string text = null, bool check = false) where TTBox: KTextBox, new() {
+	public static KCheckTextBox xAddCheckTextDropdown<TTBox>(this wpfBuilder b, string name, string text = null, bool check = false) where TTBox : KTextBox, new() {
 		xAddCheck(b, out KCheckBox c, name, check: check);
 		xAddText(b, out TTBox t, text);
 		b.And(14).Add(out Button k, "▾").Padding(new Thickness(0)).Border(); //tested: ok on Win7
@@ -425,5 +425,54 @@ public static class KExtWpf {
 	public static void xAddDocked(this DockPanel t, UIElement e, Dock dock) {
 		DockPanel.SetDock(e, dock);
 		t.Children.Add(e);
+	}
+	
+	/// <summary>
+	/// Adds standard <c>Cut Copy Paste</c> items to the <c>ContextMenu</c> of this <c>TextBox</c>.
+	/// On <c>ContextMenuOpening</c> enables/disables items depending on the state of the <c>TextBox</c> control and clipboard.
+	/// Creates/sets new context menu if it's <c>null</c>.
+	/// </summary>
+	/// <returns>The context menu.</returns>
+	public static ContextMenu xAddCutCopyPasteToContextMenu(this TextBox t, bool addClear, bool setStateNow) {
+		var m = t.ContextMenu ??= new();
+		
+		var cut = m.xAdd("Cut", "Ctrl+X", (_, _) => t.Cut(), false);
+		var copy = m.xAdd("Copy", "Ctrl+C", (_, _) => t.Copy(), false);
+		var paste = m.xAdd("Paste", "Ctrl+V", (_, _) => t.Paste(), false);
+		if (addClear) m.xAdd("Clear", "M-click", (_, _) => t.Clear());
+		
+		t.ContextMenuOpening += _t_ContextMenuOpening;
+		if (setStateNow) _t_ContextMenuOpening(null, null);
+		
+		void _t_ContextMenuOpening(object sender, ContextMenuEventArgs e) {
+			cut.IsEnabled = t.SelectionLength > 0 && !t.IsReadOnly;
+			copy.IsEnabled = t.SelectionLength > 0;
+			paste.IsEnabled = !t.IsReadOnly && Clipboard.ContainsText();
+		}
+		
+		return m;
+	}
+	
+	/// <summary>
+	/// Adds new menu item.
+	/// </summary>
+	/// <param name="t"></param>
+	/// <param name="name"></param>
+	/// <param name="hotkey"></param>
+	/// <param name="click"></param>
+	/// <param name="enabled"></param>
+	/// <returns></returns>
+	public static MenuItem xAdd(this ContextMenu t, string name, string hotkey, RoutedEventHandler click, bool enabled = true) {
+		var k = new MenuItem { Header = name, InputGestureText = hotkey, IsEnabled = enabled };
+		k.Click += click;
+		t.Items.Add(k);
+		return k;
+	}
+	
+	/// <summary>
+	/// Adds new separator.
+	/// </summary>
+	public static void xAddSeparator(this ContextMenu t) {
+		t.Items.Add(new Separator());
 	}
 }

@@ -12,7 +12,7 @@ partial class AuDocs {
 	}
 	
 	static void _Compress(string siteDir, string tarDir) {
-		var sevenZip = folders.Editor + @"32\7za.exe";
+		var sevenZip = folders.ThisAppBS + @"32\7za.exe";
 		
 		var tar = tarDir + @"\site.tar";
 		filesystem.delete(tar);

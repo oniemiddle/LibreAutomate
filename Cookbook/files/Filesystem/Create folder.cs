@@ -8,7 +8,7 @@ filesystem.createDirectoryFor(@"C:\Test\Folder\file.txt"); //creates C:\Test\Fol
 
 /// If need custom security permissions, there are several ways:
 /// - Use a folder that has these security settings as a template.
-/// - Run <google><.c>icacls or cacls<><> with <see cref="run.console"/>.
+/// - Run <google>`icacls or cacls`<> with <see cref="run.console"/>.
 /// - Use <.x>DirectoryInfo.SetAccessControl<> and <.x>System.Security.AccessControl.DirectorySecurity<>.
 
 filesystem.createDirectory(@"C:\Test\Folder", @"C:\Template folder");

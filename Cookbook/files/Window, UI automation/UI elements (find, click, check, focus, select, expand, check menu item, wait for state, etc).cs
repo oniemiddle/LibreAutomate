@@ -1,4 +1,4 @@
-/// To create code to find a UI element, use this tool: menu <b>Code > Find UI element<> (hotkey <mono>Ctrl+Shift+E<>). It also can create action code, for example to click the element.
+/// To create code to find a UI element, use this tool: menu <b>Code > Find UI element<> (hotkey `Ctrl+Shift+E`). It also can create action code, for example to click the element.
 
 //click button "Properties" in a folder window; then wait 1 s
 var w1 = wnd.find(1, cn: "CabinetWClass").Activate();
@@ -36,7 +36,7 @@ var w5 = wnd.find(1, "Font", "#32770").Activate();
 var e5 = w5.Elm["COMBOBOX", "Script:"].Find(1);
 e5.ComboSelect("Baltic");
 
-/// To select a menu item, need to find and click each intermediate menu item. However usually it's better to use hotkeys and <mono>Alt<>+keys.
+/// To select a menu item, need to find and click each intermediate menu item. However usually it's better to use hotkeys and `Alt`+keys.
 
 //hotkey and Alt+keys
 wnd.find(0, "*- Notepad", "Notepad").Activate();
@@ -79,7 +79,7 @@ print.it("---");
 var aAll = eList.Elm.FindAll();
 print.it(aAll);
 
-/// You can find more <.x>elm<> functions in the popup list that appears when you type <.c>.<> (dot) after a variable name or <.c>elm<>.
+/// You can find more <.x>elm<> functions in the popup list that appears when you type `.` (dot) after a variable name or `elm`.
 
 var em = elm.fromMouse(); //popup list when typed "elm."
 string role = em.Role; //popup list when typed "em."

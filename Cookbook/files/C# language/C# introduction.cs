@@ -2,11 +2,11 @@
 /// 
 /// You don't need to learn C# to start creating automation scripts. Use the input recorder and other tools in the <b>Code<> menu. But with some C# knowledge you can do much more.
 /// 
-/// This script displays string <.c>"example"<> in the program's <b>Output<> panel. It calls function <.x>it<> of class <.x>print<>.
+/// This script displays string `"example"` in the program's <b>Output<> panel. It calls function <.x>it<> of class <.x>print<>.
 
 print.it("example");
 
-/// This script contains 2 statements. The <.c>//green text<> is comments.
+/// This script contains 2 statements. The `//green text` is comments.
 
 var s = "Some text."; //create variable s
 dialog.show("Example", s); //show message box
@@ -40,9 +40,9 @@ void Example(string s, int i) {
 /// - The blue words are <google>C# keywords<>.
 /// - Other words are <google C# identifiers>identifiers<> (names of types, functions, variables, etc).
 /// - Keywords and identifiers are case-sensitive.
-/// - Every statement ends with <.c>;<> (semicolon). Unless it starts a block of code enclosed in <.c>{ }<>.
-/// - Function arguments are enclosed in <.c>( )<> and separated with <.c>,<> (comma).
-/// - Blocks of code are enclosed in <.c>{ }<>.
+/// - Every statement ends with `;` (semicolon). Unless it starts a block of code enclosed in `{ }`.
+/// - Function arguments are enclosed in `( )` and separated with `,` (comma).
+/// - Blocks of code are enclosed in `{ }`.
 /// 
 /// C# does not care about the type and amount of whitespace (spaces, tabs, newlines) between statements, arguments, etc. Example:
 

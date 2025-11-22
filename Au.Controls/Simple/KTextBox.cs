@@ -25,12 +25,12 @@ public class KTextBox : TextBox {
 		}
 	}
 	bool _small;
-
+	
 	protected override void OnGotKeyboardFocus(KeyboardFocusChangedEventArgs e) {
 		if (_small) HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
 		base.OnGotKeyboardFocus(e);
 	}
-
+	
 	protected override void OnLostKeyboardFocus(KeyboardFocusChangedEventArgs e) {
 		if (_small) HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled;
 		base.OnLostKeyboardFocus(e);
@@ -51,6 +51,13 @@ public class KTextBox : TextBox {
 			Clear();
 		}
 		base.OnMouseDown(e);
+	}
+	
+	protected override void OnContextMenuOpening(ContextMenuEventArgs e) {
+		if (ContextMenu == null) {
+			this.xAddCutCopyPasteToContextMenu(addClear: true, setStateNow: true);
+		}
+		base.OnContextMenuOpening(e);
 	}
 }
 

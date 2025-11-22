@@ -24,9 +24,9 @@ print.it(dt, r.left); //call function it which is defined in type print. Pass dt
 /// Generic types have names like <.x><_>List<T></_></.x>. They can be used in several ways:
 /// - Replace <.x>T<> with a type name, like <.x><_>List<string></_></.x>. Examples in recipe <+recipe Collections - array>collections<>.
 /// - If a parameter is of type <.x>T<>, can be used argument of any supported type.
-/// - If an <.k>out<> parameter is of type <.x>T<>, argument code can be like <.c>out string s<>.
+/// - If an <.k>out<> parameter is of type <.x>T<>, argument code can be like `out string s`.
 ///
-/// If a value-type variable is declared like <.c>int? i<>, you can assign it <.k>null<>, which could mean "no value". Often used for optional parameters.
+/// If a value-type variable is declared like `int? i`, you can assign it <.k>null<>, which could mean "no value". Often used for optional parameters.
 
 void Func1(bool? b = null) {
 	if (b == null) print.it("null");
@@ -34,7 +34,7 @@ void Func1(bool? b = null) {
 	else print.it(b.Value);
 }
 
-/// Variables of reference types always can have value <.k>null<>. If a function parameter or return type is like <.c>string?<>, it is just a hint that the function supports <.k>null<>.
+/// Variables of reference types always can have value <.k>null<>. If a function parameter or return type is like `string?`, it is just a hint that the function supports <.k>null<>.
 ///
 /// Tuples contain several fields (variables) of possibly different types. Often used to returns multiple values from a function, like in the <+recipe>Functions<> recipe.
 

@@ -12,8 +12,8 @@ Some features of the automation library:
 - The library can be used in other programs too. [More info](https://www.libreautomate.com/api/index.html), [NuGet](https://www.nuget.org/packages/LibreAutomate).
 - Uses .NET 9.
 
-Some features of the script editor program:
-- The scripting language is C#. The program is a good way to learn it.
+Some features of the script editor app:
+- The scripting language is C#. The app is a good way to learn it.
 - C# code editor with intellisense. Script manager, cookbook, debugger.
 - Tools for recording keyboard/mouse and selecting UI objects such as buttons, links and images.
 - Also you can use .NET and other libraries. Tools and databases for NuGet, Windows API, icons.

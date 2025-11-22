@@ -2867,7 +2867,8 @@ public unsafe partial struct wnd : IEquatable<wnd>, IComparable<wnd> {
 	public bool Close(bool noWait = false, bool useXButton = false) {
 		if (!IsAlive) return true;
 		
-		int msg = Api.WM_CLOSE; int wparam = 0; if (useXButton) { msg = Api.WM_SYSCOMMAND; wparam = Api.SC_CLOSE; }
+		int msg = Api.WM_CLOSE; int wparam = 0;
+		if (useXButton) { msg = Api.WM_SYSCOMMAND; wparam = Api.SC_CLOSE; }
 		
 		if (IsOfThisThread) {
 			if (noWait) Post(msg, wparam);
