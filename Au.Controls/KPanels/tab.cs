@@ -17,18 +17,18 @@ public partial class KPanels {
 		void _InitTabControl() {
 			var tc = _tab.tc;
 			tc.Style = s_styleTabControl;
-			if (_pm.CaptionBrush != Brushes.LightSteelBlue) {
+			if (_pm.HeaderBrush != Brushes.LightSteelBlue) {
 				tc.ApplyTemplate();
-				if (VisualTreeHelper.GetChild(tc, 0) is Grid tg) tg.Background = _pm.CaptionBrush; //note: tc must have a parent.
+				if (VisualTreeHelper.GetChild(tc, 0) is Grid tg) tg.Background = _pm.HeaderBrush; //note: tc must have a parent.
 			}
 			tc.Padding = default;
-			tc.TabStripPlacement = _captionAt;
+			tc.TabStripPlacement = _headerAt;
 			tc.SizeChanged += (_, e) => {
 				switch (tc.TabStripPlacement) { case Dock.Top: case Dock.Bottom: return; }
 				bool bigger = e.NewSize.Height > e.PreviousSize.Height;
 				if (bigger != _tab.isVerticalHeader) _VerticalTabHeader(e.NewSize.Height);
 			};
-			tc.ContextMenuOpening += _CaptionContextMenu;
+			tc.ContextMenuOpening += _HeaderContextMenu;
 			tc.PreviewMouseDown += _OnMouseDown;
 			tc.SelectionChanged += (o, e) => {
 				if (e.Source != o) return; //eg a descendant ComboBox

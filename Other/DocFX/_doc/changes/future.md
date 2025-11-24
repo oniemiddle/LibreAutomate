@@ -4,15 +4,17 @@
 
 LA documentation prepared for AI tools.
 
-Panel **Cookbook** renamed to **Help**, and added all LA documentation. The simple text search replaced with much better semantic search that uses AI and searches in all LA documentation.
+Full LA documentation integrated into the LA window. Panels **Cookbook** and **Recipe** renamed to **Help** and **Read**.
+
+AI-based semantic search in LA documentation. It gives much better results. You can copy the results, and paste in an AI chat (ChatGPT, Gemini, etc) to get accurate answer.
 
 In **Options** added tab **AI** for selecting AI models and setting API keys.
+
+MCP server. Provides LA documentation for local AI tools such as Copilot in Visual Studio. TODO: link to article "AI features".
 
 New features in the **Icons** tool:
 - Use AI to find icons by name or/and image.
 - Can display bigger icons. Look in the **Options** expander.
-
-MCP server. Provides LA documentation for local AI tools such as Copilot in Visual Studio. TODO: link to article "AI features".
 
 Improved UI element capturing (tool **Find UI element**) in some apps and modes.
 

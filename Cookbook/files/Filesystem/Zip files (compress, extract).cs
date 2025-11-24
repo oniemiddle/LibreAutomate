@@ -71,7 +71,7 @@ using (var z = ZipFile.OpenRead(zipFile)) {
 	}
 }
 
-/// If need other compression formats or more features, look for a zip library on the internet, for example in <google>NuGet<>. More info in recipe <+recipe>.NET, NuGet, other libraries<>.
+/// If need other compression formats or more features, look for a zip library on the internet, for example in <google>NuGet<>. More info in recipe <+recipe>Using .NET, NuGet, other libraries<>.
 /// 
 /// Also you can find command line programs on the internet, or even already have them installed.
 

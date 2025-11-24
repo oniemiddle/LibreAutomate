@@ -10,9 +10,9 @@ foreach (var d in c.RootDirectory.EnumerateDirectories()) print.it(d.FullName);
 //or
 foreach (var d in filesystem.enumDirectories(c.Name)) print.it(d.FullPath);
 
-/// Get drive name of this program, and its type (fixed/removable/network).
+/// Get home drive name and its type (fixed/removable/network).
 
-print.it(folders.ThisAppDriveBS, folders.thisAppDriveType);
+print.it(folders.ThisAppDriveBS, new DriveInfo(folders.ThisAppDriveBS).DriveType);
 
 /// Get a removable drive by index or name.
 

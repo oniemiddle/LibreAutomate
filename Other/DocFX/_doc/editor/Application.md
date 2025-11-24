@@ -111,7 +111,7 @@ Gray when triggers are disabled.
 
 Panels and toolbars can be resized with splitters, moved to another place, grouped in stacks and tab groups, docked, floating, hidden.
 
-Each panel, tab group and toolbar has a caption bar. Right-click it to show a customization menu. Also use the menu to show hidden panels. Double-click the bar to toggle floating/docked state; drag to make floating; middle-click to hide.
+Each panel, tab group and toolbar has a header bar. Right-click it to show a customization menu. Also use the menu to show hidden panels. Double-click the bar to toggle floating/docked state; drag to make floating; middle-click to hide.
 
 The splitters between panels have a right-click menu to set splitter width and float/dock/move that stack of panels.
 

@@ -22,13 +22,13 @@ class PanelHelp {
 	List<_Item> _aiResults;
 	bool _showingResults;
 	bool _openingItem;
-	internal (Button back, Button forward, Button openInBrowser, Button copyForAiChat) buttons_;
+	internal (Button aiSearch, Button copyResults, ToolBarTray toolbar, Button back, Button forward, Button openInBrowser) buttons_;
 	
 	public PanelHelp() {
 		P = new();
 		P.UiaSetName("Help panel");
 		
-		var b = new wpfBuilder(P).Columns(-1, 0, 0).Brush(SystemColors.ControlBrush);
+		var b = new wpfBuilder(P).Columns(-1, 0, 2).Brush(SystemColors.ControlBrush);
 		
 		b.R.Add(out _search).Tooltip("Find documentation.\n\nMiddle-click to clear.").UiaName("Find documentation"); //rejected: watermark
 		_search.TextChanged += (_, _) => _SearchInNameOnSearchTextChanged();
@@ -36,17 +36,16 @@ class PanelHelp {
 		
 		b.Options(modifyPadding: false, margin: new());
 		
-		b.xAddButtonIcon(EdIcons.AiSearch, _ => _AiSearch(), "AI search\n\nEnter").Margin(right: 3);
+		b.xAddButtonIcon(out buttons_.aiSearch, EdIcons.AiSearch, _ => _AiSearch(), "AI search\n\nEnter");
+		b.And(0).xAddButtonIcon(out buttons_.copyResults, "*Material.ContentCopy" + EdIcons.black, _CopyResultsForAiChat, "Copy results for AI chat\n\nYou can paste it in ChatGPT, Gemini, etc.\nThen the AI can answer your question better.\nPaste it anywhere in your message.").Hidden(null);
 		
 		_tv = new() { Name = "Help_TOC", SingleClickActivate = true, HotTrack = true, BackgroundColor = 0xf0f8e8, SmallIndent = true };
 		b.Row(-1).Add(_tv);
 		
-		var tb = b.R.xAddToolBar();
-		tb.UiaSetName("Debug_toolbar");
-		buttons_.back = tb.AddButton("*EvaIcons.ArrowBack" + EdIcons.black, null, "Back", enabled: false);
-		buttons_.forward = tb.AddButton("*EvaIcons.ArrowForward" + EdIcons.black, null, "Forward", enabled: false);
-		buttons_.openInBrowser = tb.AddButton("*Modern.Browser" + EdIcons.black, null, "Open in web browser", enabled: false);
-		buttons_.copyForAiChat = tb.AddButton("*Material.ContentCopy" + EdIcons.black, _CopyResultsForAiChat, "Copy results for AI chat", enabled: false);
+		var tb = b.R.xAddToolBar(hideOverflow: true);
+		buttons_.toolbar = tb.Parent as ToolBarTray;
+		buttons_.toolbar.Visibility = Visibility.Collapsed; //will add buttons and show when creating web browser control
+		tb.UiaSetName("Help_navigation_toolbar");
 		
 		b.End();
 		
@@ -112,6 +111,8 @@ class PanelHelp {
 			_tv.SetItems(_root.Children());
 		}
 		catch (Exception e1) { print.it(e1); }
+		
+		//_Test();
 	}
 	
 	void _OpenItem(_Item item, bool select) {
@@ -139,17 +140,21 @@ class PanelHelp {
 		}
 		
 		var s1 = item.docKind switch { _DocKind.Cookbook => "cookbook/", _DocKind.Editor => "editor/", _DocKind.Article => "articles/", _ => "api/" };
-		var href = item.docKind == _DocKind.Cookbook ? Uri.EscapeDataString(item.name.Replace("C#", "CSharp").Replace(".", "dot-")) + ".html" : item.href; //SYNC: cookbook replace name
+		var href = item.docKind == _DocKind.Cookbook ? Uri.EscapeDataString(item.name) + ".html" : item.href;
 		HelpUtil.AuHelp($"{s1}{href}"); //opens in the Read panel or in the web browser, depending on user settings
 	}
 	
 	void _SearchInNameOnSearchTextChanged() {
-		_aiResults = null;
+		if (_aiResults != null) {
+			_aiResults = null;
+			buttons_.aiSearch.Visibility = Visibility.Visible;
+			buttons_.copyResults.Visibility = Visibility.Collapsed;
+		}
+		
 		var s = _search.Text.Trim();
 		if (s.Length < 2) {
 			_tv.SetItems(_root.Children());
 			_showingResults = false;
-			buttons_.copyForAiChat.IsEnabled = false;
 			if (!_openingItem && _selectedItem != null) {
 				_tv.Select(_selectedItem);
 			}
@@ -316,9 +321,9 @@ class PanelHelp {
 			
 			void _FindAdd(string s) {
 				if (s.Starts("[cookbook]")) {
-					s = s[11..].Replace("CSharp", "C#").Replace("dot-", "."); //SYNC: cookbook replace name
+					s = s[11..];
 					if (_FindRecipe(s, true) is { } r) {
-						a.Add(r);
+						a.Add(r.Clone());
 					} else {
 						Debug_.Print(s);
 					}
@@ -361,7 +366,8 @@ class PanelHelp {
 			_tv.SetItems(a);
 			_aiResults = a;
 			_showingResults = true;
-			buttons_.copyForAiChat.IsEnabled = a.Count > 0;
+			buttons_.aiSearch.Visibility = Visibility.Collapsed;
+			buttons_.copyResults.Visibility = Visibility.Visible;
 		}
 		catch (OperationCanceledException etc) { if (etc.InnerException is TimeoutException) print.it(etc.Message); }
 		catch (InvalidCredentialException) {
@@ -377,12 +383,84 @@ class PanelHelp {
 	}
 	CancellationTokenSource _ctsAiSearch;
 	
-	void _CopyResultsForAiChat(Button b) {
+	void _CopyResultsForAiChat(WBButtonClickArgs ba) {
 		if (!(_aiResults?.Count > 0)) return;
-		print.clear();
+		using var db = new sqlite(folders.ThisAppBS + "doc-ai.db", SLFlags.SQLITE_OPEN_READONLY);
+		var b = new StringBuilder($$"""
+
+
+--- Context ---
+
+Below are LibreAutomate documentation articles that likely contain information relevant to answer the user question.
+They are retrieved and ordered using AI embedding and reranker models.
+The search phrase was: {{_search.Text}}
+The user question is above or below this context data. If it's missing, assume the search phrase is the question.
+
+Articles are separated by `--- Article kind: KIND ---` lines, where KIND is one of:
+- API reference - library API member reference (method, class, etc)
+- library conceptual article - a library documentation article other than API member reference
+- cookbook - a how-to article with code examples
+- application help - LibreAutomate IDE documentation
+
+""");
+		foreach (var v_ in _aiResults) {
+			var v = v_.clonedFrom;
+			var name = v.name;
+			var dbName = v.docKind switch {
+				_DocKind.Cookbook => "[cookbook] " + name,
+				_DocKind.Editor => "[editor] " + name,
+				_DocKind.Article => "[articles] " + name,
+				_ => v.Level == 3 ? $"{v.Parent.name}.{name}" : $"{v.Parent.Parent.name}.{v.Parent.name}.{name}"
+			};
+			
+			if (!db.Get(out string text, "SELECT text FROM doc WHERE name=?", dbName)) { Debug_.Print(dbName); continue; }
+			var docKind = v.docKind switch { _DocKind.Cookbook => "cookbook", _DocKind.Editor => "application help", _DocKind.Article => "library conceptual article", _ => "API reference" };
+			b.AppendFormat("""
+
+
+--- Article kind: {0} ---
+
+{1}
+""", docKind, text);
+		}
+		b.Append("""
+
+
+--- End of context ---
+
+
+""");
 		
-		//TODO
+		//print.it(b.ToString());
+		clipboard.text = b.ToString();
 	}
+	
+	//#if DEBUG
+	//	void _Test() {
+	//		print.clear();
+	//		using var db = new sqlite(folders.ThisAppBS + "doc-ai.db", SLFlags.SQLITE_OPEN_READONLY);
+	//		//foreach (var v in _root.Children().ElementAt(2).Descendants().Where(o => o.Level > 2)) {
+	//		//	var s = v.Level == 3 ? $"{v.Parent.name}.{v.name}" : $"{v.Parent.Parent.name}.{v.Parent.name}.{v.name}";
+	//		//	//print.it(s);
+	//		//	if (!db.Get(out string text, "SELECT text FROM doc WHERE name=?", s)) { Debug_.Print(s); } //fields are not included in the DB for AI
+	//		//}
+	//		//foreach (var v in _root.Children().ElementAt(1).Descendants().Where(o => o.Level > 2 && !o.dir)) {
+	//		//	var s = "[cookbook] " + v.name;
+	//		//	//print.it(s);
+	//		//	if (!db.Get(out string text, "SELECT text FROM doc WHERE name=?", s)) { Debug_.Print(s); } //very small articles are not included in the DB for AI
+	//		//}
+	//		//foreach (var v in _root.Children().ElementAt(3).Descendants().Where(o => o.Level > 2 && !o.dir)) {
+	//		//	var s = "[articles] " + v.name;
+	//		//	//print.it(s);
+	//		//	if (!db.Get(out string text, "SELECT text FROM doc WHERE name=?", s)) { Debug_.Print(s); }
+	//		//}
+	//		//foreach (var v in _root.Children().ElementAt(4).Descendants().Where(o => o.Level > 2 && !o.dir)) {
+	//		//	var s = "[editor] " + v.name;
+	//		//	//print.it(s);
+	//		//	if (!db.Get(out string text, "SELECT text FROM doc WHERE name=?", s)) { Debug_.Print(s); }
+	//		//}
+	//	}
+	//#endif
 	
 	/// <summary>
 	/// Finds and opens a recipe.

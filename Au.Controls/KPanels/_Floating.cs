@@ -138,7 +138,7 @@ public partial class KPanels {
 									}
 								}
 							}
-						} else if (!_node._IsStack) { //activate if clicked not panel caption and not tab header
+						} else if (!_node._IsStack) { //activate if clicked not panel header and not tab header
 							FrameworkElement e;
 							if (_node._IsTab) e = (_node._tab.tc.SelectedItem as TabItem)?.Content as FrameworkElement;
 							else e = _node._leaf.content;

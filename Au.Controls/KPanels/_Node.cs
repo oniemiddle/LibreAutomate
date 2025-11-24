@@ -18,7 +18,7 @@ public partial class KPanels {
 		readonly LeafType _leafType;
 		int _index; //index in parent stack or tab. Grid row/column index is _index*2, because at _index*2-1 is splitter if _index>0.
 		GridLength _dockedSize;
-		Dock _captionAt;
+		Dock _headerAt;
 		_DockState _state, _savedDockState;
 		_Floating _floatWindow;
 		string _floatSavedRect;
@@ -26,7 +26,7 @@ public partial class KPanels {
 		//_Flags _flags;
 		bool _dontSave;
 		
-		static readonly Brush s_toolbarCaptionBrush = SystemColors.ControlBrush;
+		static readonly Brush s_toolbarHeaderBrush = SystemColors.ControlBrush;
 		const int c_minSize = 4;
 		const int c_defaultSplitterSize = 4;
 		
@@ -43,8 +43,8 @@ public partial class KPanels {
 		class _LeafFields {
 			public _DockPanelWithBorder panel;
 			public FrameworkElement content; //app sets it = any element
-			public FrameworkElement caption; //TextBlock if panel/userdocument, Rectangle if toolbar/documentplaceholder. null if in tab.
-			public string name; //used by the indexer to find it, also as caption/tabitem text
+			public FrameworkElement header; //TextBlock if panel/userdocument, Rectangle if toolbar/documentplaceholder. null if in tab.
+			public string name; //used by the indexer to find it, also as header/tabitem text
 			public bool addedLater; //added with AddSibling
 			public bool canClose; //AddSibling(canClose). Adds context menu item "Close".
 			public bool isExtension; //AddSibling(isExtension). Saves.
@@ -104,7 +104,7 @@ public partial class KPanels {
 					_floatSavedRect = x.Attr("floatRect");
 					x.Attr(out _windowStyle, "window");
 				}
-				if (!_IsStack) x.Attr(out _captionAt, "captionAt");
+				if (!_IsStack) x.Attr(out _headerAt, "headerAt");
 				
 				if (_ParentIsStack) {
 					_dockedSize = _GridLengthFromString(x.Attr("z")); //height in vertical stack or width in horizontal stack
@@ -143,7 +143,7 @@ public partial class KPanels {
 					if (ds == _DockState.Float) (aFloat ??= new()).Add(v);
 					else if (ds != 0) v._SetDockState(ds);
 				}
-				if (nVisible == 0 && firstHidden != null) { //if all non-stack hidden, unhide one, else user cannot unhide any because there are no captions to show the context menu
+				if (nVisible == 0 && firstHidden != null) { //if all non-stack hidden, unhide one, else user cannot unhide any because there are no headers to show the context menu
 					firstHidden._SetDockState(0);
 				}
 				if (aFloat != null) {
@@ -151,7 +151,12 @@ public partial class KPanels {
 					eh = (_, e) => {
 						if (e.NewValue is bool visible && visible) {
 							_stack.grid.IsVisibleChanged -= eh;
-							_stack.grid.Dispatcher.InvokeAsync(() => { foreach (var v in aFloat) v._SetDockState(_DockState.Float); });
+							_stack.grid.Dispatcher.InvokeAsync(() => {
+								foreach (var v in aFloat) {
+									if (v._state == _DockState.Hide) { v._state |= _DockState.Float; continue; } //hidden after loading
+									v._SetDockState(_DockState.Float);
+								}
+							});
 						}
 					};
 					_stack.grid.IsVisibleChanged += eh;
@@ -204,7 +209,7 @@ public partial class KPanels {
 			} else {
 				_ReplaceInStack(target);
 				if (isTab) {
-					_captionAt = target._captionAt;
+					_headerAt = target._headerAt;
 					_InitTabControl();
 				}
 			}
@@ -265,7 +270,7 @@ public partial class KPanels {
 					if (i > 0) x.WriteAttributeString("active", i.ToString());
 				}
 				
-				if (_captionAt != 0) x.WriteAttributeString("captionAt", _captionAt.ToString());
+				if (_headerAt != 0) x.WriteAttributeString("headerAt", _headerAt.ToString());
 				if (!_IsDocument) {
 					if (_state != 0) x.WriteAttributeString("state", ((int)_state).ToString());
 					_floatWindow?.Save();
@@ -338,15 +343,15 @@ public partial class KPanels {
 		/// <summary>
 		/// true if _IsPanel or (_IsDocument and _leaf.addedLater).
 		/// </summary>
-		bool _CanHaveCaptionWithText => _IsPanel || (_IsDocument && _leaf.addedLater);
+		bool _CanHaveHeaderWithText => _IsPanel || (_IsDocument && _leaf.addedLater);
 		
-		void _SetCaptionAt(Dock ca, bool firstTime = false) {
+		void _SetHeaderAt(Dock ca, bool firstTime = false) {
 			//if (_ParentIsTab) {
-			//	Parent._SetCaptionAt(ca, firstTime);
+			//	Parent._SetHeaderAt(ca, firstTime);
 			//	return;
 			//}
-			Dock old = firstTime ? Dock.Top : _captionAt;
-			_captionAt = ca;
+			Dock old = firstTime ? Dock.Top : _headerAt;
+			_headerAt = ca;
 			if (_IsTab) {
 				var tc = _tab.tc;
 				if (ca == tc.TabStripPlacement) return;
@@ -356,35 +361,35 @@ public partial class KPanels {
 				}
 				tc.TabStripPlacement = ca;
 				_VerticalTabHeader();
-			} else if (_leaf.caption != null) {
-				DockPanel.SetDock(_leaf.caption, ca);
+			} else if (_leaf.header != null) {
+				DockPanel.SetDock(_leaf.header, ca);
 				if (_leaf.content != null) _SetToolbarOrientation();
-				if (ca == old || !_CanHaveCaptionWithText) return;
+				if (ca == old || !_CanHaveHeaderWithText) return;
 				if (ca == Dock.Top || ca == Dock.Bottom) {
-					if (old == Dock.Left || old == Dock.Right) _leaf.caption.LayoutTransform = null;
+					if (old == Dock.Left || old == Dock.Right) _leaf.header.LayoutTransform = null;
 				} else {
-					_leaf.caption.LayoutTransform = new RotateTransform(ca == Dock.Left ? 270d : 90d);
+					_leaf.header.LayoutTransform = new RotateTransform(ca == Dock.Left ? 270d : 90d);
 				}
 			}
 		}
 		
-		void _AddRemoveCaptionAndBorder() {
+		void _AddRemoveHeaderAndBorder() {
 			if (!_IsLeaf) return;
 			if (_ParentIsTab && !_state.Has(_DockState.Float)) {
-				if (_leaf.caption != null) {
-					_leaf.panel.Children.Remove(_leaf.caption);
-					_leaf.caption = null;
+				if (_leaf.header != null) {
+					_leaf.panel.Children.Remove(_leaf.header);
+					_leaf.header = null;
 					
 					_leaf.panel.BorderThickness = default;
 				}
 			} else {
-				if (_leaf.caption == null) {
-					if (_CanHaveCaptionWithText) {
-						_leaf.caption = new TextBlock {
+				if (_leaf.header == null) {
+					if (_CanHaveHeaderWithText) {
+						_leaf.header = new TextBlock {
 							Text = Name,
 							TextAlignment = TextAlignment.Center,
 							Padding = new Thickness(2, 1, 2, 3),
-							Background = _pm.CaptionBrush,
+							Background = _pm.HeaderBrush,
 							Foreground = Brushes.Black,
 							TextTrimming = TextTrimming.CharacterEllipsis
 						};
@@ -392,19 +397,19 @@ public partial class KPanels {
 						var c = new Rectangle {
 							MinHeight = 5,
 							MinWidth = 5,
-							Fill = s_toolbarCaptionBrush,
+							Fill = s_toolbarHeaderBrush,
 							//note: without Fill there are no events
 						};
-						c.MouseEnter += (_, _) => c.Fill = _pm.CaptionBrush;
-						c.MouseLeave += (_, _) => c.Fill = s_toolbarCaptionBrush;
-						_leaf.caption = c;
+						c.MouseEnter += (_, _) => c.Fill = _pm.HeaderBrush;
+						c.MouseLeave += (_, _) => c.Fill = s_toolbarHeaderBrush;
+						_leaf.header = c;
 					} else { //document placeholder
 						var c = new Rectangle {
-							//MinHeight = 5, MinWidth = 5, //rejected. Let be 0 (no caption). User could accidentally undock when trying to scroll.
-							//	Not tested captionless with tabbed documents. Then probably this code not used because _CanHaveCaptionWithText true.
-							Fill = _pm.CaptionBrush,
+							//MinHeight = 5, MinWidth = 5, //rejected. Let be 0 (no header). User could accidentally undock when trying to scroll.
+							//	Not tested headerless with tabbed documents. Then probably this code not used because _CanHaveHeaderWithText true.
+							Fill = _pm.HeaderBrush,
 						};
-						_leaf.caption = c;
+						_leaf.header = c;
 						
 						_leaf.panel.LastChildFill = false;
 						bool hasDoc = false;
@@ -413,10 +418,10 @@ public partial class KPanels {
 							if (has != hasDoc) _leaf.panel.LastChildFill = hasDoc = has;
 						};
 					}
-					_leaf.panel.Children.Insert(0, _leaf.caption);
-					_SetCaptionAt(_captionAt, true);
-					_leaf.caption.ContextMenuOpening += _CaptionContextMenu;
-					_leaf.caption.MouseDown += _OnMouseDown;
+					_leaf.panel.Children.Insert(0, _leaf.header);
+					_SetHeaderAt(_headerAt, true);
+					_leaf.header.ContextMenuOpening += _HeaderContextMenu;
+					_leaf.header.MouseDown += _OnMouseDown;
 					
 					if (_pm.BorderBrush != null && !_IsToolbar) {
 						_leaf.panel.BorderBrush = _pm.BorderBrush;
@@ -428,7 +433,7 @@ public partial class KPanels {
 		
 		void _SetToolbarOrientation() {
 			if (_IsToolbar && _leaf.content is ToolBarTray t) {
-				var ori = _captionAt == Dock.Top || _captionAt == Dock.Bottom ? Orientation.Vertical : Orientation.Horizontal;
+				var ori = _headerAt == Dock.Top || _headerAt == Dock.Bottom ? Orientation.Vertical : Orientation.Horizontal;
 				if (t.Orientation != ori) t.Orientation = ori;
 			}
 		}
@@ -497,7 +502,7 @@ public partial class KPanels {
 			if (name == null) throw new ArgumentException();
 			_Dictionary.Remove(_leaf.name);
 			_Dictionary.Add(_leaf.name = name, this);
-			if (_leaf.caption is TextBlock t) t.Text = name;
+			if (_leaf.header is TextBlock t) t.Text = name;
 			if (_ParentIsTab) {
 				(Parent._tab.tc.Items[_index] as TabItem).Header = name;
 				Parent._VerticalTabHeader(onMove: true);

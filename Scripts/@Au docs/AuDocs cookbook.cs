@@ -5,7 +5,7 @@ partial class AuDocs {
 	
 	public static void Cookbook(string docDir) {
 		var sbToc = new StringBuilder();
-		List<(string name, string nameMd, string path)> aFiles = new();
+		List<(string name, string path)> aFiles = new();
 		
 		string dirTo = @"C:\Temp\Au\DocFX\cookbook", dirToLink = docDir + @"\cookbook";
 		if (filesystem.exists(dirTo)) filesystem.delete(Directory.GetFiles(dirTo));
@@ -31,9 +31,8 @@ partial class AuDocs {
 					if (tag != "s") continue;
 					var cspath = path + "\\" + name;
 					name = name[..^3];
-					var nameMd = AuDocsShared.RecipeNameToFilenameWithoutExt(name) + ".md";
-					sbToc.Append('#', level).AppendFormat(" [{0}]({1})\r\n", name, nameMd);
-					aFiles.Add((name, nameMd, cspath));
+					sbToc.Append('#', level).AppendFormat(" [{0}](/cookbook/{1})\r\n", name, Uri.EscapeDataString(name) + ".html");
+					aFiles.Add((name, cspath));
 				}
 			}
 		}
@@ -45,7 +44,7 @@ partial class AuDocs {
 This is an online copy of the LibreAutomate cookbook.
 """);
 		
-		foreach (var (name, nameMd, path) in aFiles) {
+		foreach (var (name, path) in aFiles) {
 			var code = filesystem.loadText(path);
 			bool test = false;
 			//test = name == "test";
@@ -57,7 +56,7 @@ This is an online copy of the LibreAutomate cookbook.
 			
 			var md = AuDocsShared.RecipeCodeToMd(name, code, test);
 			if (test) print.it(md);
-			filesystem.saveText($@"{dirTo}\{nameMd}", md);
+			filesystem.saveText($@"{dirTo}\{name}.md", md);
 		}
 	}
 }

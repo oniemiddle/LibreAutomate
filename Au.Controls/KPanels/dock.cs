@@ -13,13 +13,13 @@ public partial class KPanels {
 		[Flags]
 		enum _WindowStyle { Topmost = 1, Unowned = 2, }
 		
-		void _CaptionContextMenu(object sender, ContextMenuEventArgs e) {
+		void _HeaderContextMenu(object sender, ContextMenuEventArgs e) {
 			if (!_IsGoodMouseEvent(sender, e, out var target)) return;
 			e.Handled = true;
-			target._CaptionContextMenu(this);
+			target._HeaderContextMenu(this);
 		}
 		
-		void _CaptionContextMenu(_Node thisOrParentTab) {
+		void _HeaderContextMenu(_Node thisOrParentTab) {
 			if (_IsDocument && !_leaf.addedLater) return;
 			var m = new popupMenu();
 			
@@ -30,14 +30,14 @@ public partial class KPanels {
 			if (_state.Has(_DockState.Float)) _DockStateItem(0, "Dock\tD-click");
 			else _DockStateItem(_DockState.Float, "Float\tD-click, drag");
 			
-			m.Submenu("Caption at", m => {
-				_CaptionAtItem(Dock.Left);
-				_CaptionAtItem(Dock.Top);
-				_CaptionAtItem(Dock.Right);
-				_CaptionAtItem(Dock.Bottom);
+			m.Submenu("Header at", m => {
+				_HeaderAtItem(Dock.Left);
+				_HeaderAtItem(Dock.Top);
+				_HeaderAtItem(Dock.Right);
+				_HeaderAtItem(Dock.Bottom);
 				
-				void _CaptionAtItem(Dock ca) {
-					m.AddRadio(ca.ToString(), ca == thisOrParentTab._captionAt, o => thisOrParentTab._SetCaptionAt(ca));
+				void _HeaderAtItem(Dock ca) {
+					m.AddRadio(ca.ToString(), ca == thisOrParentTab._headerAt, o => thisOrParentTab._SetHeaderAt(ca));
 				}
 			});
 			
@@ -197,7 +197,7 @@ public partial class KPanels {
 			}
 			
 			if (state == 0) { //dock; was hidden or floating
-				_AddRemoveCaptionAndBorder();
+				_AddRemoveHeaderAndBorder();
 				if (_ParentIsTab) _ShowHideInTab(true);
 				else _ShowHideInStack(true);
 			} else {
@@ -206,7 +206,7 @@ public partial class KPanels {
 					else _ShowHideInStack(false);
 				}
 				
-				_AddRemoveCaptionAndBorder();
+				_AddRemoveHeaderAndBorder();
 				
 				if (state == _DockState.Float) {
 					_floatWindow.Content = _elem;
@@ -301,7 +301,7 @@ public partial class KPanels {
 											if (visible = _GetRectInScreen(n, out var r)) {
 												r.Inflate(-osd.Thickness, -osd.Thickness);
 												if (k.how is _HowToMove.BeforeTarget or _HowToMove.AfterTarget) {
-													bool vert = n._ParentIsTab ? n.Parent._captionAt is Dock.Left or Dock.Right : n.Parent._stack.isVertical;
+													bool vert = n._ParentIsTab ? n.Parent._headerAt is Dock.Left or Dock.Right : n.Parent._stack.isVertical;
 													if (k.how == _HowToMove.BeforeTarget) {
 														if (vert) r.bottom = r.top + r.Height / 2; else r.right = r.left + r.Width / 2;
 													} else {
@@ -407,7 +407,7 @@ public partial class KPanels {
 			_RemoveParentIfNeedAfterMovingOrDeleting(oldParent);
 			
 			if (how <= _HowToMove.NewStack && _IsDocument && oldParent._IsTab && !_ParentIsTab) {
-				_captionAt = oldParent._captionAt;
+				_headerAt = oldParent._headerAt;
 				new _Node(this, isTab: true);
 				_AddToTab(moving: false);
 			}
@@ -420,7 +420,7 @@ public partial class KPanels {
 			_index = target._index + (after ? 1 : 0);
 			if (_ParentIsTab) {
 				_AddToTab(moving: true);
-				_AddRemoveCaptionAndBorder();
+				_AddRemoveHeaderAndBorder();
 				//if(select) Parent._tab.tc.SelectedIndex = _index;
 			} else {
 				if (!(_dockedSize.IsAuto && _IsToolbarsNode)) _dockedSize = new GridLength(100, GridUnitType.Star);
@@ -435,7 +435,7 @@ public partial class KPanels {
 			_index = 0;
 			if (_ParentIsTab) {
 				_AddToTab(moving: true);
-				_AddRemoveCaptionAndBorder();
+				_AddRemoveHeaderAndBorder();
 				Parent._tab.tc.SelectedIndex = _index;
 			} else {
 				if (!(_dockedSize.IsAuto && _IsToolbarsNode)) _dockedSize = new GridLength(100, GridUnitType.Star);

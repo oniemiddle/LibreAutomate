@@ -67,7 +67,9 @@ void _AddOtherFiles() {
 		object data = pathname.getExtension(f.Name) switch { ".css" => filesystem.loadText(path), ".eot" => filesystem.loadBytes(path), _ => null };
 		
 		if (f.Name == "docfx.vendor.min.css") { //fix the hidden scrollbar issue
-			data = ((string)data).RxReplace("""@-ms-viewport\s*\{\s*width: device-width\s*}""", "", 1);
+			var s1 = (string)data;
+			if (0 == s1.RxReplace("""@-ms-viewport\s*\{\s*width:\s*device-width\s*}""", "", out s1, 1)) throw null;
+			data = s1;
 		}
 		
 		if (data != null) _AddRow($"styles/{f.Name}", data);

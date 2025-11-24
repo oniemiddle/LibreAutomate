@@ -841,7 +841,7 @@ public unsafe partial struct wnd : IEquatable<wnd>, IComparable<wnd> {
 			NoGetWindow = 2,
 			
 			/// <summary>
-			/// Don't activate if has <ms>WS_EX_NOACTIVATE</ms> style or is toolwindow without caption, unless cloaked.
+			/// Don't activate if has <ms>WS_EX_NOACTIVATE</ms> style or is toolwindow without title bar, unless cloaked.
 			/// Then just calls <see cref="ZorderTop"/>, which in most cases does not work (inactive window).
 			/// </summary>
 			IgnoreIfNoActivateStyleEtc = 4,

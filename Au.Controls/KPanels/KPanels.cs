@@ -140,7 +140,7 @@ public partial class KPanels {
 					if (inTab && by.Parent.Name != "tab") {
 						var tab = new XElement("tab", x);
 						if (by.Attribute("z") is { } a1) { a1.Remove(); tab.SetAttributeValue("z", a1.Value); }
-						if (by.Attribute("captionAt") is { } a2) tab.SetAttributeValue("captionAt", a2.Value);
+						if (by.Attribute("headerAt") is { } a2) tab.SetAttributeValue("headerAt", a2.Value);
 						by.AddAfterSelf(tab);
 						by.Remove();
 						tab.AddFirst(by);
@@ -158,9 +158,9 @@ public partial class KPanels {
 				} else {
 					x.SetAttributeValue("z", 50); //note: set even if was no "z", because maybe was in a tab
 					rootStack.Add(x);
-					sAppend = "at the bottom of the window. Right-click its caption and move it to a better place.";
+					sAppend = "at the bottom of the window. Right-click its header and move it to a better place.";
 				}
-				string sAppend2 = x.Attr(out int state, "state") && 0 != (state & 1) ? "\r\n\tNow it's hidden. To show, right-click any panel caption." : null;
+				string sAppend2 = x.Attr(out int state, "state") && 0 != (state & 1) ? "\r\n\tNow it's hidden. To show, right-click any panel header." : null;
 				print.it($"<>New {x.Name} in this app version: <b>{x.Attr("name")}<>.\r\n\tIt's {sAppend}{sAppend2}");
 			}
 		}
@@ -224,7 +224,7 @@ public partial class KPanels {
 		if (where == null) {
 			where = _rootStack.LastChild as ILeaf;
 			after = true;
-			print.it($"Info: added new {(toolbar ? "toolbar" : "panel")} {name}. It is at the bottom of the window. Right-click its caption and move it to a better place.");
+			print.it($"Info: added new {(toolbar ? "toolbar" : "panel")} {name}. It is at the bottom of the window. Right-click its header and move it to a better place.");
 		}
 		return where.AddSibling(after, toolbar ? LeafType.Toolbar : LeafType.Panel, name, canClose: false, isExtension: true);
 	}
@@ -240,10 +240,10 @@ public partial class KPanels {
 	//}
 	
 	/// <summary>
-	/// Background brush of panel/document caption and tab strip. Default Brushes.LightSteelBlue.
+	/// Background brush of panel/document header and tab strip. Default Brushes.LightSteelBlue.
 	/// Set before <see cref="Load"/>.
 	/// </summary>
-	public Brush CaptionBrush { get; set; } = Brushes.LightSteelBlue;
+	public Brush HeaderBrush { get; set; } = Brushes.LightSteelBlue;
 	
 	//rejected. Looks ugly when different color, unless white.
 	///// <summary>

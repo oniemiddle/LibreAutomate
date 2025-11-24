@@ -168,7 +168,6 @@ public static class AuDocsShared {
 			case "help":
 				//print.it(name, attr);
 				if (attr.Contains('/')) { //info: <help> is used only for "articles\x" and "editor\x"
-					attr = RecipeNameToFilenameWithoutExt(attr);
 					if (!filesystem.exists(folders.ThisAppBS + @"..\Other\DocFX\_doc\" + attr + ".md")) break;
 					return $"<a href=\"/{UrlEscapePath(attr)}.html\">{s}</a>";
 				}
@@ -212,8 +211,7 @@ public static class AuDocsShared {
 			var xr = XmlUtil.LoadElem(folders.ThisAppBS + @"..\Cookbook\files.xml");
 			_aFR = xr.Descendants("s").Select(x => {
 				var name = x.Attr("n")[..^3];
-				var filenameHtml = RecipeNameToFilenameWithoutExt(name) + ".html";
-				return (name, filenameHtml);
+				return (name, name + ".html");
 			}).ToArray();
 		}
 		foreach (var v in _aFR) if (v.name.Like(s, true)) return v.filenameHtml;
@@ -240,8 +238,6 @@ public static class AuDocsShared {
 		}
 		return null;
 	}
-	
-	public static string RecipeNameToFilenameWithoutExt(string name) => name.Replace("C#", "CSharp").Replace(".", "dot-"); //SYNC: cookbook replace name
 	
 	/// <summary>
 	/// Splits a recipe source code into text and code parts.

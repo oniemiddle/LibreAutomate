@@ -476,7 +476,7 @@ public partial class toolbar {
 			
 			if (_zordered) _zorderRetry = 0; else if (_zorderRetry == 0) _zorderRetry = 5; else _zorderRetry--;
 			
-			//never mind: when clicked owner's caption, we receive 2 hook events and need to ZorderAbove 2 times. Speed is OK, but flickers more often.
+			//never mind: when clicked owner's title bar, we receive 2 hook events and need to ZorderAbove 2 times. Speed is OK, but flickers more often.
 			//	When we ZorderAbove on mouse down, Windows also zorders the window on mouse up, and then we receive second event.
 			//	Possible workarounds:
 			//	1. Temporarily make wt nativaly owned by _ow.w. Restore after 500 ms. But fails with higher UAC IL windows and appstore windows.

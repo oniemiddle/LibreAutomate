@@ -15,7 +15,7 @@
 //Rejected: single hook server in editor process. It would mitigate some of these problems. Tested. Much code and little benefit.
 
 //For window triggers we use winevent hooks. They use less CPU for IPC.
-//	Tested: renaming a captionless toolwindow every 1-2 ms in loop:
+//	Tested: renaming a toolwindow with no title bar every 1-2 ms in loop:
 //		CPU usage with no winevent hooks is 4%. With 1 hook - 7%. With 10 hooks in different processes - 7%.
 
 namespace Au.Triggers;

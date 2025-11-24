@@ -40,7 +40,7 @@ public partial class KPanels
 		//}
 
 		/// <summary>
-		/// Adds elements of this to parent stack. Creates splitter if need, adds row/column, sets element properties (caption etc).
+		/// Adds elements of this to parent stack. Creates splitter if need, adds row/column, sets element properties (header etc).
 		/// </summary>
 		/// <param name="moving">Called when moving this. Inserts, shifts sibling indices, etc. If false, adds as last item in stack.</param>
 		/// <param name="splitterSize"></param>
@@ -67,7 +67,7 @@ public partial class KPanels
 					else if (next._SplitterSize < c_defaultSplitterSize) next._SplitterSize = c_defaultSplitterSize;
 				}
 			}
-			_AddRemoveCaptionAndBorder();
+			_AddRemoveHeaderAndBorder();
 		}
 
 		/// <summary>
@@ -91,8 +91,8 @@ public partial class KPanels
 			if (pstack.isVertical) Grid.SetRow(_elem, i); else Grid.SetColumn(_elem, i);
 			g.Children.Remove(target._elem);
 			g.Children.Add(_elem);
-			_AddRemoveCaptionAndBorder();
-			target._AddRemoveCaptionAndBorder();
+			_AddRemoveHeaderAndBorder();
+			target._AddRemoveHeaderAndBorder();
 		}
 
 		/// <summary>

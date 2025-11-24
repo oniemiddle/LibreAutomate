@@ -548,7 +548,7 @@ public partial struct wnd {
 			} else if (osVersion.minWin8) {
 				if ((exStyle & WSE.NOREDIRECTIONBITMAP) != 0 && !w.HasStyle(WS.CAPTION)) {
 					if (!allDesktops && (exStyle & WSE.TOPMOST) != 0) return false; //skip store apps
-					if (shellWindow.GetThreadProcessId(out var pidShell) != 0 && w.GetThreadProcessId(out var pid) != 0 && pid == pidShell) return false; //skip captionless shell windows
+					if (shellWindow.GetThreadProcessId(out var pidShell) != 0 && w.GetThreadProcessId(out var pid) != 0 && pid == pidShell) return false; //skip shell windows with no title bar
 				}
 				//On Win8 impossible to get next window like Alt+Tab.
 				//	All store apps are topmost, covering non-topmost desktop windows.

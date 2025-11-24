@@ -14,8 +14,8 @@ class InfoWindow : KPopup {
 	_InfoBox _c, _c2;
 
 	/// <param name="split">If not 0, sets <b>Control1.Width</b>=<i>split</i> and adds <b>Control2</b>.</param>
-	/// <param name="caption">With caption.</param>
-	public InfoWindow(int split, bool caption = true) : base(caption ? WS.THICKFRAME | WS.POPUP | WS.CAPTION | WS.SYSMENU : WS.THICKFRAME | WS.POPUP) {
+	/// <param name="titleBar">With title bar.</param>
+	public InfoWindow(int split, bool titleBar = true) : base(titleBar ? WS.THICKFRAME | WS.POPUP | WS.CAPTION | WS.SYSMENU : WS.THICKFRAME | WS.POPUP) {
 		Content = _panel = new();
 		_panel.Children.Add(_c = new());
 		if (split > 0) {

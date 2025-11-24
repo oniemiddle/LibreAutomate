@@ -550,7 +550,7 @@ public static class mouse {
 			bool _CheckWindowFromPoint() {
 				var wfp = wnd.fromXY(p, WXYFlags.NeedWindow);
 				if (wfp == wTL) return true;
-				//forgive if same thread and no caption. Eg a tooltip that disappears and relays the click to its owner window. But not if wTL is disabled.
+				//forgive if same thread and no title bar. Eg a tooltip that disappears and relays the click to its owner window. But not if wTL is disabled.
 				if (wTL.IsEnabled(false) && wfp.ThreadId == wTL.ThreadId && !wfp.HasStyle(WS.CAPTION)) return true;
 				return false;
 			}

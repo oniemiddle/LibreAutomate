@@ -43,6 +43,12 @@ static class Panels {
 					x.XPathSelectElement("//toolbar[@name='Help']")?.Remove();
 					x.XPathSelectElement("//panel[@name='Cookbook']")?.SetAttributeValue("name", "Help");
 					x.XPathSelectElement("//panel[@name='Recipe']")?.SetAttributeValue("name", "Read");
+					
+					//also renamed some attributes
+					foreach (var v in x.Descendants()) {
+						if (v.Attribute("captionAt") is { } k) { v.SetAttributeValue("headerAt", k.Value); k.Remove(); }
+					}
+					
 					x.SaveElem(customLayoutPath);
 					
 					//also remove the Help toolbar from toolbar customizations
@@ -106,6 +112,16 @@ static class Panels {
 	public static void CreatePanels() {
 		var pm = PanelManager;
 		
+		KPanels.ILeaf _AddDontFocus(string panel, FrameworkElement content) {
+			var p = pm[panel];
+			p.Content = content;
+			p.DontFocusTab = () => {
+				var doc = Panels.Editor.ActiveDoc;
+				if (doc != null) doc.Focus(); else Keyboard.ClearFocus();
+			};
+			return p;
+		}
+		
 		pm["documents"].Content = (Editor = new()).P;
 		
 		pm["Files"].Content = (Files = new()).P;
@@ -120,15 +136,7 @@ static class Panels {
 		_AddDontFocus("Output", (Output = new()).P);
 		_AddDontFocus("Mouse", (Mouse = new()).P);
 		_AddDontFocus("Found", (Found = new()).P);
-		_AddDontFocus("Read", (Read = new()).P);
-		
-		void _AddDontFocus(string panel, FrameworkElement content) {
-			var p = pm[panel];
-			p.Content = content;
-			p.DontFocusTab = () => {
-				var doc = Panels.Editor.ActiveDoc;
-				if (doc != null) doc.Focus(); else Keyboard.ClearFocus();
-			};
-		}
+		var pRead = _AddDontFocus("Read", (Read = new()).P);
+		pRead.Visible = false;
 	}
 }

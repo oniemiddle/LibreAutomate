@@ -503,17 +503,16 @@ public unsafe class SciTags {
 					//if(!_userLinkTags.ContainsKey(new string((sbyte*)tag, 0, tagLen))) goto ge; //no, it makes slower and creates garbage. Also would need to look in the static dictionary too. It's not so important to check now because we use '+' prefix.
 					linkTag = true;
 					break;
-				} else if (ch == '.' && _userStyles?.TryGetValue(new string((sbyte*)tag, 0, tagLen), out style) == true) {
+				} else if (ch == '.' && _FindUserStyle(new(tag, tagLen), out style) == true) {
 					break;
 				}
 				goto ge;
 			}
 			
 			if (linkTag) {
-				if (_linkStyle != null) style = new TagStyle(_linkStyle);
-				else {
-					style.Color = 0x0080FF;
-					style.Underline = true;
+				if (!(ch == '+' && _FindUserStyle(new(tag, tagLen), out style))) {
+					if (DefaultLinkStyle != null) style = new TagStyle(DefaultLinkStyle);
+					else { style.Color = 0x0080FF; style.Underline = true; }
 				}
 				style.Hotspot = true;
 			}
@@ -673,15 +672,7 @@ public unsafe class SciTags {
 		}
 	}
 	
-	public void SetLinkStyle(UserDefinedStyle style, (bool use, ColorInt color)? activeColor = null, bool? activeUnderline = null) {
-		_linkStyle = style;
-		if (activeColor != null) {
-			var v = activeColor.Value;
-			_c.Call(SCI_SETHOTSPOTACTIVEFORE, v.use, v.color.ToBGR());
-		}
-		if (activeUnderline != null) _c.Call(SCI_SETHOTSPOTACTIVEUNDERLINE, activeUnderline.Value);
-	}
-	UserDefinedStyle _linkStyle;
+	public UserDefinedStyle DefaultLinkStyle { get; set; }
 	
 	readonly Dictionary<string, Action<string>> _userLinkTags = new();
 	static readonly ConcurrentDictionary<string, Action<string>> s_userLinkTags = new();
@@ -700,12 +691,14 @@ public unsafe class SciTags {
 	/// It's string parameter contains tag's attribute (if "&lt;name "attribute"&gt;TEXT&lt;&gt;) or link text (if "&lt;name&gt;TEXT&lt;&gt;).
 	/// The function is called in control's thread. The mouse button is already released. It is safe to do anything with the control, eg replace text.
 	/// </param>
+	/// <param name="style">Style for this link tag. If null, uses <see cref="DefaultLinkStyle"/>.</param>
 	/// <remarks>
 	/// Call this function when control handle is already created. Until that <see cref="KScintilla.AaTags"/> returns null.
 	/// </remarks>
 	/// <seealso cref="AddCommonLinkTag"/>
-	public void AddLinkTag(string name, Action<string> a) {
+	public void AddLinkTag(string name, Action<string> a, UserDefinedStyle style = null) {
 		_userLinkTags[name] = a;
+		if (style != null) _AddUserStyle(name, style);
 	}
 	
 	public bool HasLinkTag(string name) => _userLinkTags.ContainsKey(name);
@@ -713,17 +706,7 @@ public unsafe class SciTags {
 	/// <summary>
 	/// Adds (registers) a user-defined link tag for all controls.
 	/// </summary>
-	/// <param name="name">
-	/// Tag name, like "+myTag".
-	/// Must start with '+'. Other characters must be 'a'-'z', 'A'-'Z'. Case-sensitive.
-	/// Or can be one of predefined link tags, if you want to override or implement it (some are not implemented by the control).
-	/// If already exists, replaces the delegate.
-	/// </param>
-	/// <param name="a">
-	/// A delegate of a callback function (probably you'll use a lambda) that is called on link click.
-	/// It's string parameter contains tag's attribute (if "&lt;name "attribute"&gt;TEXT&lt;&gt;) or link text (if "&lt;name&gt;TEXT&lt;&gt;).
-	/// The function is called in control's thread. The mouse button is already released. It is safe to do anything with the control, eg replace text.
-	/// </param>
+	/// <inheritdoc cref="AddLinkTag" path="/param"/>
 	/// <seealso cref="AddLinkTag"/>
 	public static void AddCommonLinkTag(string name, Action<string> a) {
 		s_userLinkTags[name] = a;
@@ -743,14 +726,32 @@ public unsafe class SciTags {
 	/// <exception cref="InvalidOperationException">Trying to add more than 100 styles.</exception>
 	/// <remarks>
 	/// Call this function when control handle is already created. Until that <see cref="KScintilla.AaTags"/> returns null.
+	/// 
+	/// Does nothing if the style is already added.
 	/// </remarks>
 	public void AddStyleTag(string name, UserDefinedStyle style) {
+		if (!name.Starts('.')) throw new ArgumentException();
+		_AddUserStyle(name, style);
+	}
+	
+	public void _AddUserStyle(string name, UserDefinedStyle style) {
 		_userStyles ??= new();
 		if (_userStyles.Count >= 100) throw new InvalidOperationException();
-		if (!name.Starts('.')) throw new ArgumentException();
-		_userStyles.Add(name, new TagStyle(style));
+		var u8 = name.ToUTF8();
+		if (!_FindUserStyle(u8, out _)) _userStyles.Add((u8, new(style)));
 	}
-	Dictionary<string, TagStyle> _userStyles;
+	List<(byte[] name, TagStyle style)> _userStyles;
+	
+	[MethodImpl(MethodImplOptions.AggressiveOptimization)]
+	bool _FindUserStyle(RByte tag, out TagStyle ts) {
+		if (_userStyles is { } a) {
+			foreach (ref var v in a.AsSpan()) {
+				if (v.name.SequenceEqual(tag)) { ts = v.style; return true; }
+			}
+		}
+		ts = default;
+		return false;
+	}
 	
 	public Func<string, byte[]> CodeStylesProvider;
 	

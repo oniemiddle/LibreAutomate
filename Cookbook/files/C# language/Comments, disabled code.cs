@@ -18,7 +18,7 @@ print.it(1 /*another comment*/);
 
 /// <google C# XML documentation comments>XML documentation comments<> start with `///`.
 
-/// Comments specific to this program:
+/// LibreAutomate-specific comments:
 
 /*/ metacomments created by the Properties dialog /*/
 

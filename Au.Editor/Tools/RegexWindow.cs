@@ -15,11 +15,11 @@ class RegexWindow : InfoWindow { //KPopup
 			var c = i == 0 ? this.Control1 : this.Control2;
 			c.AaTags.AddStyleTag(".r", new() { textColor = 0xf08080 }); //red regex
 			c.AaTags.AddLinkTag("+p", o => CurrentTopic = o); //link to a local info topic
-			c.AaTags.SetLinkStyle(new() { textColor = 0x0080FF, underline = false }); //remove underline from links
 			c.Call(Sci.SCI_SETWRAPSTARTINDENT, 4);
 		}
 		this.Control2.AaTags.AddStyleTag(".h", new() { backColor = 0xC0E0C0, bold = true, eolFilled = true }); //topic header
-		this.Control2.AaTags.AddLinkTag("+a", o => TUtil.InsertTextIn(InsertInControl, o)); //link that inserts a regex token
+		this.Control2.AaTags.AddLinkTag("+a", o => TUtil.InsertTextIn(InsertInControl, o), new() { textColor = 0x0060E0, monospace = true }); //link that inserts a regex token
+		this.Control1.AaTags.DefaultLinkStyle = new() { textColor = 0x0080FF, underline = false }; //remove underline from links
 		
 		_SetTocText();
 		CurrentTopic = @"help";
@@ -449,7 +449,7 @@ A capturing group <.r>(...)<> can be reused in other parts of regular expression
 
 -- callouts --
 
-<.h><link https://www.pcre.org/current/doc/html/pcre2pattern.html#SEC31>Callouts<><>
+<.h><link https://www.pcre.org/current/doc/html/pcre2pattern.html#SEC29>Callouts<><>
 
 <+a>(?C)<>  -  callout (assumed number 0).
 <+a (?C`|`)>(?Cn)<>  -  callout with numerical data n.
@@ -460,7 +460,7 @@ A capturing group <.r>(...)<> can be reused in other parts of regular expression
 
 -- backtracking --
 
-<.h><link https://www.pcre.org/current/doc/html/pcre2pattern.html#SEC32>Backtracking control<><>
+<.h><link https://www.pcre.org/current/doc/html/pcre2pattern.html#SEC30>Backtracking control<><>
 
 All backtracking control verbs may be in the form <.r>(*VERB:NAME)<>. For <.r>(*MARK)<> the name is mandatory, for the others it is optional. <.r>(*SKIP)<> changes its behaviour if <.r>:NAME<> is present. The others just set a name for passing back to the caller, but this is not a name that <.r>(*SKIP)<> can see. The following act immediately they are reached:
 

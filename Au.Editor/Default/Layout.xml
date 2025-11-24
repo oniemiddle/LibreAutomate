@@ -4,23 +4,24 @@ All nodes can be docked (default), floating or hidden. Stacks are hidden only im
 Tags:
 stack - stack. Contains 2 or more nodes (stack, tab, leaf) and implicit splitters between them.
 tab - container for 1 or more leaf nodes displayed one at a time, with buttons to select the active node.
-panel - container for a control that often has child controls. Has caption with text, unless is in a tab.
-toolbar - container for a toolbar. Like panel, but caption is small without text, and behavior is slightly different.
-document - placeholder for real document nodes that are added/removed later. Like panel, but caption is small without text, and behavior is slightly different.
+panel - container for a control that often has child controls. Has header with text.
+toolbar - container for a toolbar. Like panel, but header is small without text, and behavior is slightly different.
+document - placeholder for real document nodes that are added/removed later. Like panel, but without header, and behavior is slightly different.
 Attributes:
-name - panel/toolbar/document name. Also panel caption or tab header text.
+name - name of the panel or toolbar. Displayed in the panel header.
 o - stack orientation: v vertical, h horizontal.
 z - node size (width in horizontal stack or height in vertical). Star-sized if like "100*". Default for toolbar and stack: auto-sized. For others must be specified, cannot be auto.
 s - splitter size. Default 4. Min 1. Every node in stack except the first has a splitter before it.
-captionAt - Left, Top, Right, Bottom. Default Left.
+headerAt - Left, Top, Right, Bottom. Default Left.
 state - flags: 1 hidden, 2 floating.
-flags - misc flags: 1 - splitter resizes the nearest node at each side instead of all star-sized nodes.
+flags - misc flags:
+	1 - splitter resizes the nearest node at each side instead of all star-sized nodes.
 active - 0-based index of active node in tab. Default 0.
 Attributes valid in:
 name - panel, toolbar, document.
 o - stack.
 z, s - any. Not used if in tab.
-captionAt - any except stack. Not used if in tab.
+headerAt - any except stack. Not used if in tab.
 state, flags - any.
 active - tab.
 -->
@@ -34,15 +35,14 @@ active - tab.
 		<stack o="h" z="600*" s="1">
 			<stack o="v" z="200">
 				<toolbar name="File" />
-				<tab z="320*" s="1" captionAt="Top">
-					<panel name="Files" captionAt="Top" />
-					<panel name="Outline" captionAt="Top" />
+				<tab z="320*" s="1" headerAt="Top">
+					<panel name="Files" headerAt="Top" />
+					<panel name="Outline" headerAt="Top" />
 				</tab>
 				<panel name="Open" z="80" />
-				<tab z="150" captionAt="Top">
-					<panel name="Find" captionAt="Top" />
-					<panel name="Bookmarks" captionAt="Top" />
-					<panel name="Breakpoints" captionAt="Top" />
+				<tab z="150" headerAt="Top">
+					<panel name="Find" headerAt="Top" />
+					<panel name="Bookmarks" headerAt="Top" />
 				</tab>
 			</stack>
 			<stack o="v" z="600*">
@@ -51,21 +51,26 @@ active - tab.
 					<toolbar name="Edit" />
 					<toolbar name="Custom2" z="100*" />
 				</stack>
-				<document name="documents" z="500*" captionAt="Right" />
+				<stack o="h" z="500*">
+					<document name="documents" z="300*" headerAt="Right" />
+					<panel name="Read" z="300*" state="1" />
+				</stack>
 				<tab z="150">
 					<panel name="Output" />
 					<panel name="Found" />
 					<panel name="Mouse" />
-					<panel name="Read" />
 				</tab>
 			</stack>
 		</stack>
 	</stack>
 	<stack o="v" z="220">
-		<tab z="1000*" captionAt="Top">
-			<panel name="Help" captionAt="Top" />
-			<panel name="Debug" captionAt="Top" />
+		<tab z="1000*" headerAt="Top">
+			<panel name="Help" headerAt="Top" />
+			<panel name="Debug" headerAt="Top" />
 		</tab>
-		<panel name="Tasks" z="80" captionAt="Right" />
+		<tab z="100" headerAt="Top">
+			<panel name="Tasks" headerAt="Top" />
+			<panel name="Breakpoints" headerAt="Top" />
+		</tab>
 	</stack>
 </stack>

@@ -114,7 +114,7 @@ public partial class KPanels {
 		
 		/// <summary>
 		/// Gets <b>DockPanel</b> that contains or will contain <see cref="ILeaf.Content"/>.
-		/// The first child is caption, and is <b>TextBlock</b> or <b>Rectangle</b>. The second child is <b>Content</b> (if set) or none.
+		/// The first child is header, and is <b>TextBlock</b> or <b>Rectangle</b>. The second child is <b>Content</b> (if set) or none.
 		/// </summary>
 		public DockPanel Panel => _panel;
 		

@@ -1,4 +1,4 @@
-/// <link https://learn.microsoft.com/en-us/dotnet/csharp/>C#<> is used to create script code in this program. It is one of the <google programming language popularity>most popular<> programming languages.
+/// <link https://learn.microsoft.com/en-us/dotnet/csharp/>C#<> is used to create script code in LibreAutomate. It is one of the <google programming language popularity>most popular<> programming languages.
 /// 
 /// You don't need to learn C# to start creating automation scripts. Use the input recorder and other tools in the <b>Code<> menu. But with some C# knowledge you can do much more.
 /// 

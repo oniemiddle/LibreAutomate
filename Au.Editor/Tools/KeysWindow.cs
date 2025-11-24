@@ -15,8 +15,7 @@ class KeysWindow : InfoWindow { //KPopup
 	
 	protected override void OnHandleCreated() {
 		var c = Control1;
-		c.AaTags.AddLinkTag("+a", o => _Insert(o)); //link that inserts a key etc
-		c.AaTags.SetLinkStyle(new() { textColor = 0x0080FF, underline = false }); //remove underline from links
+		c.AaTags.AddLinkTag("+a", o => _Insert(o), new() { textColor = 0x0060E0, monospace = true }); //link that inserts a key etc
 		c.AaNotify += _c_AaNotify;
 		c.Call(Sci.SCI_SETMOUSEDWELLTIME, 500);
 		

@@ -28,7 +28,7 @@ public unsafe class WTaskbarButton {
 		}
 		Api.FlashWindowEx(ref fi);
 		
-		//tested. FlashWindow is easier but does not work for taskbar button, only for caption when no taskbar button.
+		//tested. FlashWindow is easier but does not work for taskbar button, only for title bar when no taskbar button.
 	}
 	
 	/// <summary>

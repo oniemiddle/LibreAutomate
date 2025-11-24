@@ -27,7 +27,7 @@ partial class MainWindow : Window {
 		Title = App.AppName; //don't append document name etc
 		
 		if (App.Settings.wndpos.main == null) {
-			Width = 1000;
+			Width = 1200;
 			Height = 750;
 			WindowStartupLocation = WindowStartupLocation.CenterScreen;
 			//and will EnsureInScreen

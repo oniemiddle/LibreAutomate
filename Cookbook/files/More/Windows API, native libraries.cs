@@ -5,7 +5,7 @@
 /// - Undeclared API names in code are red-underlined. Click <b>Find Windows API...<> in the error tooltip.
 /// - Usually this is the best way. In code (at the end) type `nat` and select <.x>nativeApiSnippet<>. It adds class <.x>api<>. Then, wherever you want to use an API function etc, type `api.` and select it from the list; the declaration will be added to the <.x>api<> class.
 
-api.MessageBox(default, "Text", "Caption", api.MB_TOPMOST);
+api.MessageBox(default, "Text", "Title", api.MB_TOPMOST);
 
 #pragma warning disable 649, 169 //field never assigned/used
 unsafe class api : NativeApi {

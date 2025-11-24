@@ -13,7 +13,7 @@ public unsafe partial class KTreeView {
 		_tooltip?.Hide();
 		
 		int sbV = More.Dpi.ScrollbarV_(_dpi), sbH = More.Dpi.ScrollbarH_(_dpi);
-		var rw = _w.Rect; //never mind: minus border. We don't use border. OK even if used, if just 1-pixel border and no caption.
+		var rw = _w.Rect; //never mind: minus border. We don't use border.
 		int width = rw.Width, height = rw.Height;
 		if (width <= sbV || height <= sbH || _avi.NE_()) {
 			NativeScrollbar_.ShowVH(_vscroll, false, _hscroll, false);

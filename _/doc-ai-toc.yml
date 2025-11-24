@@ -967,6 +967,7 @@ articles:
 - Wait timeout
 - Wildcard expression
 editor:
+- Application
 - Class files, projects
 - Code editor
 - Command line
@@ -979,12 +980,12 @@ editor:
 - NuGet
 - PiP session
 - Portable app
-- Program settings
-- Program
 - Scripts
+- Settings
 - Snippets
 cookbook:
 - Autotext triggers, expand text
+- C# introduction
 - Callback functions, lambda, delegate, event
 - Check internet connection, ping
 - Clipboard copy, paste, set-get text etc
@@ -1001,7 +1002,6 @@ cookbook:
 - Convert to-from string
 - Create exe program
 - Create folder
-- CSharp introduction
 - CSV table
 - Databases
 - Date and time
@@ -1036,7 +1036,7 @@ cookbook:
 - Dialog - window size, position, other properties
 - Dialog - Window-based class
 - Display text and variables
-- dot-NET, NuGet, other libraries
+- Documentation
 - Editor extension - modify UI
 - Encrypt, hash
 - End script task, pause, exit
@@ -1066,7 +1066,6 @@ cookbook:
 - If key pressed, toggled
 - if-else, switch
 - Input box dialog
-- Introduction, finding info
 - JSON
 - Keyboard triggers (hotkeys)
 - Markdown
@@ -1132,7 +1131,8 @@ cookbook:
 - Trigger scopes (window, program)
 - Types (class, struct, generic, nullable, tuple)
 - UI elements (find, click, check, focus, select, expand, check menu item, wait for state, etc)
-- Use CSharp compiler at run time
+- Use C# compiler at run time
+- Using .NET, NuGet, other libraries
 - Variables, fields, built-in types
 - Wait for file
 - Wait for key, hotkey

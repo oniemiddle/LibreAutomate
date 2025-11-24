@@ -114,7 +114,6 @@
     <s n="Script class with Main().cs" i="261" />
     <s n="Multi-file scripts, projects.cs" i="259" />
     <s n="Shared classes and functions, libraries.cs" i="258" />
-    <s n="Create exe program.cs" i="188" />
   </d>
   <d n="Triggers, toolbars" i="17">
     <s n="Keyboard triggers (hotkeys).cs" i="160" />
@@ -207,7 +206,7 @@
     </d>
   </d>
   <d n="More" i="20">
-    <s n=".NET, NuGet, other libraries.cs" i="21" />
+    <s n="Using .NET, NuGet, other libraries.cs" i="389" />
     <s n="Windows API, native libraries.cs" i="22" />
     <s n="COM components and type libraries.cs" i="249" />
     <s n="Command line programs.cs" i="167" />

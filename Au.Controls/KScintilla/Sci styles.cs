@@ -128,9 +128,10 @@ public unsafe partial class KScintilla {
 	/// SCI_SETELEMENTCOLOUR.
 	/// </summary>
 	/// <param name="element">SC_ELEMENT_.</param>
-	/// <param name="color">Color. Can be with alpha.</param>
-	public void aaaSetElementColor(int element, ColorInt color) {
-		Call(SCI_SETELEMENTCOLOUR, element, color.ToBGR(zeroAlpha: false));
+	/// <param name="color">Color. Can be with alpha. If null, calls SCI_RESETELEMENTCOLOUR.</param>
+	public void aaaSetElementColor(int element, ColorInt? color) {
+		if (color.HasValue) Call(SCI_SETELEMENTCOLOUR, element, color.Value.ToBGR(zeroAlpha: false));
+		else Call(SCI_RESETELEMENTCOLOUR, element);
 	}
 	
 	/// <summary>

@@ -895,7 +895,7 @@ Move or resize precisely: start to move or resize but don't move the mouse. Inst
 	/// Toolbar width and height without non-client area when <see cref="AutoSize"/> <c>false</c>.
 	/// </summary>
 	/// <remarks>
-	/// Non-client area is border and caption when <see cref="Border"/> is <c>ThreeD</c>, <c>Thick</c>, <c>Caption</c> or <c>CaptionX</c>.
+	/// Non-client area is border and title bar when <see cref="Border"/> is <c>ThreeD</c>, <c>Thick</c>, <c>Caption</c> or <c>CaptionX</c>.
 	/// 
 	/// The unit of measurement depends on <see cref="DpiScaling"/>.
 	/// 
