@@ -10,7 +10,7 @@ AI-based semantic search in LA documentation. It gives much better results. You 
 
 In **Options** added tab **AI** for selecting AI models and setting API keys.
 
-MCP server. Provides LA documentation for local AI tools such as Copilot in Visual Studio. TODO: link to article "AI features".
+MCP server. Provides LA documentation for local AI tools such as Visual Studio Copilot.
 
 New features in the **Icons** tool:
 - Use AI to find icons by name or/and image.
@@ -65,3 +65,4 @@ Fixed bugs:
 - `script.restart` does not work.
 - `JSettings` can deadlock.
 - `WTaskbarButton` exception if used in multiple threads.
+- Owned floating toolbars remain topmost after the owner that was topmost becomes non-topmost.

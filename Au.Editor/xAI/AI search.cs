@@ -478,7 +478,7 @@ file class _EmStorageFile(string file) {
 		if (!App.IsAtHome) return;
 #endif
 		if (_TryGetZipName(model, hash) is not { } zipName) return;
-		print.it($"<><script AI upload.cs|{file}|{zipName}>Upload<> AI embedding vectors.");
+		print.it($"<><script Upload AI embeddings.cs|{file}|{zipName}>Upload<> AI embedding vectors.");
 	}
 }
 

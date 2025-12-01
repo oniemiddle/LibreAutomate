@@ -18,9 +18,13 @@ print.it(ts, ts.Days);
 var d2 = new DateTime(2022, 1, 20);
 if (d > d2) print.it("d is later than 2022-01-20");
 
-/// Convert to string.
+/// Convert to string. See <see cref="DateTime.ToString"/>.
+/// You can optionally specify string <google C# date time format strings>format<>.
 
 print.it(d.ToString());
+print.it(d.ToString("yyyy-MM-dd HH:mm"));
+print.it($"Today is {d:yyyy-MM-dd}. Time {d:HH:mm}.");
+print.it(DateTime.UtcNow.ToString("O"));
 print.it(d.ToLongDateString() + "; " + d.ToShortTimeString());
 
 /// Convert to localized string.
@@ -33,11 +37,6 @@ print.it(d.ToString("D", c) + "; " + d.ToString("t", c));
 /// To use localized text everywhere in the script by default, add this at the start of the script.
 
 process.thisProcessCultureIsInvariant = false;
-
-/// <google C# date time format>Format<> date-time string.
-
-print.it(d.ToString("yyyy-MM-dd HH:mm"));
-print.it($"Today is {d:yyyy-MM-dd}. Time {d:HH:mm}.");
 
 /// Convert string to <.x>DateTime<>.
 

@@ -263,6 +263,7 @@ class PanelHelp {
 			return;
 		}
 		var rrModel = AI.AiModel.GetModel<AI.AiRerankModel>(App.Settings.ai_modelRerank, displayName: true);
+		if (rrModel == null) AI.AiModel.RerankerModelWarning();
 		
 		try {
 			_ctsAiSearch?.Cancel();
@@ -277,7 +278,8 @@ class PanelHelp {
 			using var osd = osdText.showText("Searching.\nClick to cancel.", -1, new(r1.right, r1.bottom), showMode: OsdMode.ThisThread);
 			osd.Clicked += (_, _) => { _ctsAiSearch?.Cancel(); };
 			
-			int take = 15 + Math.Sqrt(query.Count(c => c <= ' ') + query.Count(c => c is ',' or '.' or ';') * 4).ToInt();
+			int takePlus = Math.Min(40, query.Count(c => c is <= ' ' or ',' or '.' or ';' or '?'));
+			int take = 15 + takePlus;
 			
 			var queryVector = await Task.Run(() => em.CreateEmbedding(query, cancel));
 			var topAll = em.GetTopMatches(queryVector, ems, rrModel == null ? 50 : 150);
@@ -307,7 +309,7 @@ class PanelHelp {
 					float firstScore = 0;
 					foreach (var v in ar) {
 						if (i == 0) firstScore = v.score;
-						if (i++ > take || firstScore - v.score > .3f || v.score < .45f) break;
+						if (i++ > take || firstScore - v.score > .3f || v.score < .4f) break;
 						_FindAdd(names[v.index]);
 					}
 				});
@@ -391,8 +393,8 @@ class PanelHelp {
 
 --- Context ---
 
-Below are LibreAutomate documentation articles that likely contain information relevant to answer the user question.
-They are retrieved and ordered using AI embedding and reranker models.
+Below are LibreAutomate documentation articles that likely contain information to answer the user question.
+They are retrieved and ordered using AI embedding.
 The search phrase was: {{_search.Text}}
 The user question is above or below this context data. If it's missing, assume the search phrase is the question.
 

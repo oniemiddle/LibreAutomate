@@ -13,7 +13,7 @@ class UacDragDrop {
 		
 		static AdminProcess s_inst;
 		
-		//Called with on=true when main form becomes visible.
+		//Called with on=true when main window becomes visible.
 		//Called with on=false when hidden or closed.
 		public static void Enable(bool on) {
 			if (on == (s_inst != null)) return;
@@ -31,8 +31,11 @@ class UacDragDrop {
 			
 			//use hook to detect when drag-drop started
 			_hook = new WinEventHook(EEvent.SYSTEM_CAPTURESTART, 0, d => {
+				//print.it("SYSTEM_CAPTURESTART", d.w, d.w.IsVisible, d.w.IsMessageOnly);
+				var isClass = d.w.ClassNameIs("CLIPBRDWNDCLASS", "DragWindow", "LiftedDMITCursorRecalculateClass");
+				if (isClass == 3) return; //probably related to the Windows feature "Drag Tray". It we just end drag mode, drag-drop does not work first time after Windows startup if the feature is not turned off.
 				_EndedDragMode();
-				if (0 == d.w.ClassNameIs("CLIPBRDWNDCLASS", "DragWindow")) return;
+				if (isClass == 0 && d.w.IsVisible) return; //all known inter-process drag-drop capturing windows are invisible; some also message-only.
 				_StartedDragMode();
 			}, flags: EHookFlags.SKIPOWNPROCESS);
 			

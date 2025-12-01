@@ -1,4 +1,7 @@
 //#define ADD_ALL_COMPACT_EMBEDDING_MODELS
+#if DEBUG
+#define ADD_CHAT_MODELS //currently not using chat models in LA, but likely in the future
+#endif
 
 using System.Text.Json.Nodes;
 using System.Security.Authentication;
@@ -14,21 +17,25 @@ abstract record class AiModel(string api, string url, string model, AMLimits lim
 	
 	static AiModel() {
 		Models = [
-			new ModelOpenaiEmbed(),
-#if ADD_ALL_COMPACT_EMBEDDING_MODELS
-			new ModelOpenaiEmbed2(),
-#endif
+//			new ModelOpenaiEmbed(), //don't add, because other models are much better
+//#if ADD_ALL_COMPACT_EMBEDDING_MODELS
+//			new ModelOpenaiEmbed2(),
+//#endif
+#if ADD_CHAT_MODELS
 			new ModelOpenaiChat("gpt-5"),
 			new ModelOpenaiChat("gpt-5-mini"),
 			//new ModelOpenaiCompletionsChat("gpt-5"),
 			//new ModelOpenaiCompletionsChat("gpt-5-mini"),
+#endif
 			
 			new ModelGeminiEmbed(),
 #if ADD_ALL_COMPACT_EMBEDDING_MODELS
 			new ModelGeminiEmbed2(),
 #endif
+#if ADD_CHAT_MODELS
 			new ModelGeminiChat("gemini-2.5-flash"),
 			new ModelGeminiChat("gemini-2.5-flash-lite"),
+#endif
 			
 			new ModelVoyageEmbed(),
 #if ADD_ALL_COMPACT_EMBEDDING_MODELS
@@ -37,19 +44,23 @@ abstract record class AiModel(string api, string url, string model, AMLimits lim
 			new ModelVoyageRerank("rerank-2.5"),
 			new ModelVoyageRerank("rerank-2.5-lite"),
 			
+#if ADD_CHAT_MODELS
 			new ModelClaudeChat("claude-opus-4-1"),
 			new ModelClaudeChat("claude-sonnet-4-0"),
 			
 			new ModelDeepseekChat(),
+#endif
 			
 #if MISTRAL
 			new ModelMistralEmbed(),
 #if ADD_ALL_COMPACT_EMBEDDING_MODELS
 			new ModelMistralEmbed2(),
 #endif
+#if ADD_CHAT_MODELS
 			new ModelMistralChat("mistral-medium-latest"),
 			new ModelMistralChat("mistral-large-latest"),
 			new ModelMistralChat("codestral-latest"),
+#endif
 #endif
 			
 #if COHERE
@@ -57,9 +68,11 @@ abstract record class AiModel(string api, string url, string model, AMLimits lim
 #if ADD_ALL_COMPACT_EMBEDDING_MODELS
 			new ModelCohereEmbed2(),
 #endif
+#if ADD_CHAT_MODELS
 			new ModelCohereChat("command-a-03-2025"),
 			new ModelCohereRerank("rerank-v3.5"),
 			new ModelCohereRerank("rerank-english-v3.0"),
+#endif
 #endif
 		];
 	}
@@ -78,6 +91,12 @@ abstract record class AiModel(string api, string url, string model, AMLimits lim
 	/// <param name="displayName"><i>model</i> is like <c>"API model"</c>.</param>
 	/// <returns>null if not <i>model</i> found.</returns>
 	public static T GetModel<T>(string model, bool displayName = false) where T : AiModel => Models.OfType<T>().FirstOrDefault(o => (displayName ? o.DisplayName : o.model) == model);
+	
+	public static void RerankerModelWarning() {
+		if (!s_onceWarning1) s_onceWarning1 = true; else return;
+		print.warning("Not using an AI reranker model for LA documentation search. The results will be not as good. Please go to Options > AI and select a reranker model.", -1);
+	}
+	static bool s_onceWarning1;
 	
 	#endregion
 	
@@ -107,13 +126,13 @@ abstract record class AiModel(string api, string url, string model, AMLimits lim
 	/// <exception cref="OperationCanceledException"></exception>
 	/// <exception cref="Exception"></exception>
 	public HttpResponseMessage Post(object data, IEnumerable<string> headers, CancellationToken cancel = default) {
-		if (!s_dpl.TryGetValue(api, out _ApiPostTimes ppt)) s_dpl.Add(api, ppt = new());
+		_ApiPostTimes ppt = s_dpl.GetOrAdd(api, o => new());
 		bool retried = false;
 		gRetry:
 		if (limits.requestPeriod > 0) {
 			long sleep = limits.requestPeriod - (Environment.TickCount64 - ppt.lastRequestTime);
 			if (sleep > 0) Task.Delay((int)sleep, cancel).GetAwaiter().GetResult();
-			ppt.lastRequestTime = Environment.TickCount;
+			ppt.lastRequestTime = Environment.TickCount64;
 		}
 		var r = internet.http.Send(internet.message(HttpMethod.Post, url, headers: headers, internet.jsonContent(data)), cancel);
 		if (r.IsSuccessStatusCode) return r;
@@ -139,7 +158,7 @@ abstract record class AiModel(string api, string url, string model, AMLimits lim
 		public long lastRequestTime;
 		public int waitRetryS = 10;
 	}
-	static Dictionary<string, _ApiPostTimes> s_dpl = [];
+	static ConcurrentDictionary<string, _ApiPostTimes> s_dpl = [];
 }
 
 abstract record class AiEmbeddingModel(string api, string url, string model, int dimensions, string emType, AMLimits limits)

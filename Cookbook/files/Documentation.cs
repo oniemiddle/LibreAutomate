@@ -12,7 +12,7 @@
 /// - Type a word or two. It instantly finds articles with the words in the name.
 /// - Type a search phrase or question, and click the <b>AI search</b> button or press <b>Enter</b>. It finds all relevant articles. You can copy the results, and paste in an AI chat (ChatGPT, Gemini, etc) to get accurate answer.
 /// 
-/// The AI search feature uses AI models selected in <b>Options > AI</b>. These models require an API key from an account you create on that AI company's website, and they cost only a few cents per month depending on usage.
+/// The <help editor/LA and AI>AI search<> feature uses AI models selected in <b>Options > AI</b>. These models require an API key from an account you create on that AI company's website, and they cost only a few cents per month depending on usage.
 
 /// You can also find classes/functions in the <help editor/Code editor>code editor<>. Type a name or press `Ctrl+Space` and select from the list. Then type `.` (dot) to find a member.
 

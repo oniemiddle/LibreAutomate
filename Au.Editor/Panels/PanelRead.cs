@@ -49,6 +49,7 @@ class PanelRead {
 			
 			string text = doc.aaaText;
 			if (text == prevText) return;
+			if (_IsCaretInPossiblyUnfinishedTag(doc, text)) return; //avoid printing debug info for invalid links etc
 			prevText = text;
 			
 			string refresh = null;
@@ -59,6 +60,16 @@ class PanelRead {
 			}
 			OpenDocUrl(DocsHttpServer.LocalBaseUri + "cookbook/preview.html" + refresh);
 		};
+		
+		bool _IsCaretInPossiblyUnfinishedTag(SciCode doc, string text) {
+			int i = doc.aaaCurrentPos16;
+			i = i == 0 ? -1 : text.LastIndexOfAny(['<', '>', '\n'], i - 1);
+			if (i > 0 && text[i] == '<' && text.Eq(text.LastIndexOf('\n', i) + 1, "///")) {
+				//print.it("tag");
+				return true;
+			}
+			return false;
+		}
 	}
 #endif
 	
@@ -285,8 +296,8 @@ class PanelRead {
 		
 		var m = new popupMenu();
 		
-		m["Back", disable: !_wb.CanGoBack] = o => { try { _wb.GoBack(); } catch { } };
-		m["Forward", disable: !_wb.CanGoForward] = o => { try { _wb.GoForward(); } catch { } };
+		m["Back\tAlt+Left", disable: !_wb.CanGoBack] = o => { try { _wb.GoBack(); } catch { } };
+		m["Forward\tAlt+Right", disable: !_wb.CanGoForward] = o => { try { _wb.GoForward(); } catch { } };
 		m["Open in web browser"] = o => { _OpenInWebBrowser(); };
 		m.Separator();
 		m[contextFlag == 2 ? "Copy code" : "Copy\tCtrl+C", disable: contextFlag is 0] = o => { try { clipboard.text = _SelectedText(); } catch { } };

@@ -91,10 +91,14 @@ void _Build() {
 		
 		if (!testSmall) {
 			script.runWait("LA docs toc.json.cs");
-			script.runWait("LA docs to DB.cs");
+			script.runWait("LA docs doc-html.db.cs");
 			print.it("DONE LA docs scripts");
 			
-			print.it($"<><script Au docs.cs|/upload>Upload Au docs...<>");
+			//print.it($"<><script Au docs.cs|/upload>Upload Au docs...<>");
+			print.it("""
+<>DONE. Now <script LA docs doc-ai.db.cs>create doc-ai.db<>.
+To upload the created website, click `Upload...` in the main toolbar.
+""");
 		}
 	}
 	

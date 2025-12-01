@@ -64,13 +64,16 @@ namespace Au {
 		/// </param>
 		/// <param name="flags"><google>sqlite3_open_v2</google> flags. Default: read-write, create file if does not exist (and parent directory).</param>
 		/// <param name="sql">
-		/// SQL to execute. For example, one or more ;-separated <c>PRAGMA</c> statements to configure the database connection. Or even <c>"CREATE TABLE IF NOT EXISTS ..."</c>.
+		/// SQL to execute. For example, one or more <c>;</c>-separated <c>PRAGMA</c> statements to configure the database connection. Or even <c>"CREATE TABLE IF NOT EXISTS ..."</c>.
 		/// This function also always executes <c>"PRAGMA foreign_keys=ON;PRAGMA secure_delete=ON;"</c>.
 		/// </param>
 		/// <exception cref="ArgumentException">Not full path.</exception>
 		/// <exception cref="SLException">Failed to open database or execute <i>sql</i>.</exception>
 		/// <remarks>
 		/// Calls <google>sqlite3_open_v2</google>.
+		/// 
+		/// Sets busy timeout 2000 ms.
+		/// 
 		/// <note>If a variable of this class is used by multiple threads, use <c>lock(variable) {  }</c> where need.</note>
 		/// </remarks>
 		public sqlite(string file, SLFlags flags = SLFlags.ReadWriteCreate, string sql = null) {
@@ -86,6 +89,7 @@ namespace Au {
 				Dispose();
 				throw new SLException(r, "sqlite3_open " + file);
 			}
+			SLApi.sqlite3_busy_timeout(_db, 2000);
 			Execute("PRAGMA foreign_keys=ON;PRAGMA secure_delete=ON;" + sql);
 		}
 		

@@ -1,3 +1,4 @@
+/// Generates article "Menu commands" from current LA UI (Panels.Menu).
 /// Executed by `Au docs.cs`.
 
 /*/ role editorExtension; testInternal Au.Editor; r Au.Editor.dll; r Au.Controls.dll; /*/

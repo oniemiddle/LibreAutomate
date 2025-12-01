@@ -1,3 +1,6 @@
+/// Creates toc.json from files created by script "Au docs". It will be used in LA Help panel.
+/// Executed by `Au docs.cs`.
+
 using System.Text.Json.Nodes;
 using System.Xml.Linq;
 

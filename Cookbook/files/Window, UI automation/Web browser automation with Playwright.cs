@@ -76,4 +76,4 @@ void _Run(string command, int console = 0) {
 	run.it("pwsh.exe", $"-NoLogo {(console == 2 ? "-NoExit" : "")} {(console == 0 ? "-w Hidden" : "")} \"{ps1}\" {command}");
 }
 
-/// Playwright also can be used with apps that use the WebView2 control. See <link>https://www.libreautomate.com/forum/showthread.php?tid=7826&pid=38514#pid38514<>
+/// Playwright also can be used with apps that use the WebView2 control. See <link>https://www.libreautomate.com/forum/showthread.php?tid=7826&pid=38514<>

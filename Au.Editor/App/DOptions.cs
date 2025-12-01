@@ -686,19 +686,22 @@ Example:
 			.Add(out KPasswordBox apiKey).Tooltip("API key or environment variable (if (X) checked).\nAPI keys are saved encrypted and can't be decrypted on other computers/accounts.").Hidden();
 		b.End();
 		
-		b.StartGrid().Columns(0, -1, 28);
-		b.xAddGroupSeparator("Models for documentation search and chat");
-		b.R.Add("Embedding", out ComboBox modelEmbed);
-		b.xAddControlHelpButton(_ => { dialog.show(null, $"Embedding model is used for semantic search.\n\nBest models for LibreAutomate documentation:\n1. Gemini\n2. Voyage", icon: DIcon.Info, owner: this); });
-		b.R.Add("Reranker", out ComboBox modelRerank);
-		b.xAddControlHelpButton(_ => { dialog.show(null, "Reranker model improves search results.", icon: DIcon.Info, owner: this); });
-		b.R.Add("Chat", out ComboBox modelChat).Span(1);
+		b.StartGrid().Columns(0, -1, -1);
+		b.R.xAddGroupSeparator("AI models for documentation search");
+		b.R.Add("Embedding", out ComboBox modelEmbed).Tooltip("Embedding model is the main component of semantic search").Span(1);
+		b.R.Add("Reranker", out ComboBox modelRerank).Tooltip("Reranker model improves search results").Span(1);
+		
+		//b.R.Add("Chat", out ComboBox modelChat).Span(1);
+		
 		//b.R.StartGrid<KGroupBox>("Chat model settings");
 		//b.End();
 		
 		//rejected. Currently using Voyage multimodal. It supports text and images.
 		//b.xAddGroupSeparator("Models for icon search in the Icons tool");
 		//b.R.Add("Search", out ComboBox modelIconSearch).Tooltip("AI embedding model for icon search");
+		
+		b.R.xAddGroupSeparator("MCP");
+		b.R.Add(out KCheckBox mcpDebug, "Print tool calls").Checked(App.Settings.ai_mcp_print);
 		
 		b.R.AddSeparator(false);
 		b.R.AddButton("...", _ => _MoreMenu()).Align(HorizontalAlignment.Left).Span(1);
@@ -738,7 +741,7 @@ Example:
 			
 			_InitModelCombo(modelEmbed, o => o is AI.AiEmbeddingModel { isCompact: false }, App.Settings.ai_modelEmbed);
 			_InitModelCombo(modelRerank, o => o is AI.AiRerankModel, App.Settings.ai_modelRerank, optional: true);
-			_InitModelCombo(modelChat, o => o is AI.AiChatModel, App.Settings.ai_modelChat);
+			//_InitModelCombo(modelChat, o => o is AI.AiChatModel, App.Settings.ai_modelChat);
 			//_InitModelCombo(modelIconSearch, o => o is AI.AiEmbeddingModel { isCompact: true }, App.Settings.ai_modelIconSearch);
 			
 			void _InitModelCombo(ComboBox c, Func<AI.AiModel, bool> predicate, string select, bool optional = false) {
@@ -759,23 +762,29 @@ Example:
 				
 				App.Settings.ai_modelEmbed = _GetModelCombo(modelEmbed);
 				App.Settings.ai_modelRerank = _GetModelCombo(modelRerank);
-				App.Settings.ai_modelChat = _GetModelCombo(modelChat);
+				//App.Settings.ai_modelChat = _GetModelCombo(modelChat);
 				//App.Settings.ai_modelIconSearch = _GetModelCombo(modelIconSearch);
 				
 				string _GetModelCombo(ComboBox c) => c.SelectedItem is string s && s != "none" ? s : null;
+				
+				App.Settings.ai_mcp_print = mcpDebug.IsChecked;
 			};
 		};
 		
 		void _MoreMenu() {
 			var m = new popupMenu();
 			m["Print all model configurations"] = o => { print.it(AI.AiModel.Models); };
-			m["How to add new model"] = o => { _AddCustomModel(); };
+			//m["How to add new model"] = o => { _AddCustomModel(); };
+			
 			var emFolder = folders.ThisAppDataCommon + $@"AI\Embedding";
 			if (filesystem.exists(emFolder).Directory) m["Open embedding vectors folder"] = o => { var s = run.itSafe(emFolder); };
 			
+			m.Separator();
+			m["Help"] = o => { HelpUtil.AuHelp("editor/LA and AI"); };
 			m.Show(owner: this);
 		}
-		
+
+#if !true
 		void _AddCustomModel() {
 			if (modelChat.SelectedIndex < 0 && modelChat.Items.Count > 0) modelChat.SelectedIndex = 0;
 			if (!(modelChat.SelectedItem is string mdn && AI.AiModel.Models.FirstOrDefault(o => o is AI.AiChatModel && o.DisplayName == mdn) is AI.AiChatModel m)) return;
@@ -801,8 +810,9 @@ Or clone an existing model configuration and change some properties. Example:
 				//note: can't auto-add to startup scripts now, because the final script name is unknown
 			});
 		}
+#endif
 	}
-	
+
 	void _Other() {
 		var b = _Page("Other");
 		b.R.Add("Documentation", out ComboBox localHelp).Items("Local docs of this app version, in Read panel|Online docs of the latest version, in web browser").Select(App.Settings.doc_web ? 1 : 0);

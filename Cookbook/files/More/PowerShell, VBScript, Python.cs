@@ -19,5 +19,5 @@ run.console("Cscript.exe", $"/e:VBScript /nologo \"{file2}\"");
 
 /// The same should work for JScript. Replace /e:VBScript with /e:JScript.
 
-/// To run Python code from C# and vice versa can be used <link http://pythonnet.github.io/>Python.NET<>. NuGet <+nuget>pythonnet<>. See <link https://www.libreautomate.com/forum/showthread.php?tid=7484&pid=36975#pid36975>example<>. Need to install <link https://www.python.org/downloads/>Python<>.
+/// To run Python code from C# and vice versa can be used <link http://pythonnet.github.io/>Python.NET<>. NuGet <+nuget>pythonnet<>. See <link https://www.libreautomate.com/forum/showthread.php?tid=7484&pid=36975>example<>. Need to install <link https://www.python.org/downloads/>Python<>.
 /// Another similar library - <link https://ironpython.net/>IronPython<>. NuGet <+nuget>IronPython<>.

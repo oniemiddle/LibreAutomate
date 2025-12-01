@@ -4,7 +4,6 @@
 using AxMSTSCLib;
 using MSTSCLib;
 using System.Windows.Forms;
-using System.IO.Pipes;
 using Microsoft.Win32;
 using System.Runtime.Loader;
 using wpfc = System.Windows.Controls;

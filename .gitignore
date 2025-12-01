@@ -218,7 +218,6 @@ ModelManifest.xml
 /_/*
 !/_/Default/
 !/_/Templates/
-!/_/*.yml
 !/_/*.manifest
 !/_/dotnet_ref_*.txt
 !/_/gitBinaryRestore.csv
@@ -247,4 +246,3 @@ ModelManifest.xml
 /Au/global.json
 .tools/
 /Other/DocFX/_doc/cookbook
-/_/xrefmap.yml

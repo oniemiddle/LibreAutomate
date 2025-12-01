@@ -40,11 +40,12 @@ Build solution in config Release, all platforms.
 
 Review menu Help -> About. May need to update C# version, .NET version, used libraries.
 
-Run script "Au docs" just to catch XML documentation errors and test how it works with current C#/.NET/DocFX versions etc.
-	Don't upload. Fix errors if need. More info in AuDocs.txt.
-	Review the generated local help.
+Run script "Au docs".
+	Fix errors if need. More info in AuDocs.txt.
+	Don't upload now.
+	It also runs other scripts that create files for local docs.
 
-Build solution if needed to edit in above steps.
+Create database for AI. To find the script: main toolbar > "Docs" menu. Also the "Au docs" script prints the link.
 
 May need to update some info in README.md for github. Eg the screenshot and "how to build".
 	When an image updated, github still shows the old cached. Workaround: in the image link append #x and change x for each image version. If using CloudFlare (currently not): before run script "Purge Cloudflare CDN cache".
@@ -66,12 +67,16 @@ Upload the setup file to https://www.libreautomate.com. For example with WinSCP.
 		Don't backup if changed only patch version. Simply replace.
 		Optional if using GitHub Releases.
 
-Run script "Au docs". Click the upload link.
+Upload the website created by script "Au docs". To find the script: main toolbar > "Docs" menu.
 
 Review web pages. Github too.
 
 Download and test the setup file.
 	Occasionally test it on all OS. Observe SmartScreen/antivirus behavior.
+
+Sometimes test whether others can build and run the repo.
+	Eg when some new files added to the `_` dir.
+	Generated or downloaded files in `_` dir/subdirs must be gitignored, unless very small non-binary. Instead specify them in `GitBinaryFiles.cs` in project `BuildEvents`.
 
 Test the setup file at virustotal.com. And separately other files (even data files).
 	Always will be several false positives. Even with an empty Inno Setup project. Never mind.

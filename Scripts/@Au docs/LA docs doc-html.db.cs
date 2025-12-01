@@ -1,3 +1,6 @@
+/// Creates doc-html.db from files created by script "Au docs". It will be used in LA Read panel.
+/// Executed by `Au docs.cs`.
+
 /*/ testInternal Au; nuget html\HtmlAgilityPack; /*/
 
 using HtmlAgilityPack; //tested: AngleSharp slower

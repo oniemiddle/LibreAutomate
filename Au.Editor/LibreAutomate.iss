@@ -1,4 +1,4 @@
-﻿#define MyAppName "LibreAutomate"
+#define MyAppName "LibreAutomate"
 #define MyAppNameShort "LibreAutomate"
 #define MyAppVersion "1.14.0"
 #define MyAppPublisher "Gintaras Didžgalvis"
@@ -89,7 +89,7 @@ Source: "winapi.db"; DestDir: "{app}"; Flags: ignoreversion
 
 Source: "default.exe.manifest"; DestDir: "{app}"; Flags: ignoreversion
 Source: "toc.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "doc-ai-toc.yml"; DestDir: "{app}"; Flags: ignoreversion
+Source: "toc-ai.yml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "xrefmap.yml"; DestDir: "{app}"; Flags: ignoreversion
 #endif
 

@@ -22,6 +22,10 @@ class CiErrors {
 	StartEnd _metaRange;
 	
 	public void Indicators(int start16, int end16, bool pasting = false, bool pastingSilent = false) {
+		//TODO: when pasting:
+		//- remove pasted usings that are in global.cs.
+		//- move pasted usings to the top if need.
+		
 		_semo = null;
 		
 		if (!CodeInfo.GetContextAndDocument(out var cd, 0, metaToo: true)) return;

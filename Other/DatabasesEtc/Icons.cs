@@ -1,6 +1,10 @@
 //In VS set this as startup project, and run. It creates file "icons-new.db" in "_" dir.
 //If everything OK: exit LA, delete "icons.db", rename "icons-new.db" -> "icons.db", run LA.
 
+//Also need to update and upload the AI embedding storage file.
+//	The "AI search" button in the Icons tool should auto-update.
+//	Also it should auto-run script "Upload AI embeddings", or print a link to run it.
+
 #define DB //undefine when debugging, to skip database code
 
 using System.Collections;

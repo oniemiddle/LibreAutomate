@@ -82,6 +82,11 @@ When you select a function in the completion list, whether/when to append `()`. 
 ### Templates
 Initial code of new scripts and class files. Can be empty.
 
+### AI
+Select AI models for LibreAutomate features that use AI. Set API keys.
+
+More info: [LA and AI](xref:ai).
+
 ### Other
 #### Documentation
 Which version of documentation to use and where to display.

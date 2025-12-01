@@ -739,8 +739,8 @@ internal static unsafe class SLApi {
 	//[DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
 	//internal static extern SLError sqlite3_shutdown();
 	
-	//[DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
-	//internal static extern SLError sqlite3_busy_timeout(IntPtr db, int ms);
+	[DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
+	internal static extern SLError sqlite3_busy_timeout(IntPtr db, int ms);
 	
 	[DllImport(SQLITE_DLL, CallingConvention = CallingConvention.Cdecl)]
 	internal static extern SLError sqlite3_clear_bindings(IntPtr stmt);

@@ -45,6 +45,9 @@ static class CommandLine {
 			case "/tool":
 				ToolLand.ToolProcess.Run(args[1..]);
 				return true;
+			case "/mcp":
+				McpServer.Run(args[1..]);
+				return true;
 			}
 			
 			string argN = null; if (args is ["/n" or "-n", ..]) { argN = args[0]; args = args[1..]; }

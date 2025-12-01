@@ -30,7 +30,7 @@ static partial class App {
 #endif
 		
 #if DEBUG && !IDE_LA //note: not static ctor. Eg Settings used in scripts while creating some new parts of the app. The ctor would run there.
-		if (!(args is ["/tool" or "/pip" or "/dd", ..])) {
+		if (!(args is ["/tool" or "/pip" or "/dd" or "/mcp", ..])) {
 			print.qm2.use = true;
 			//print.clear(); 
 			//print.redirectConsoleOutput = true; //cannot be before the CommandLine.ProgramStarted1 call.

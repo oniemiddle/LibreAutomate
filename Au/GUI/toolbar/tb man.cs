@@ -1,5 +1,3 @@
-//TODO: bug: if parent window switches from topmost to normal, toolbar remains topmost.
-
 namespace Au;
 
 public partial class toolbar {
@@ -472,6 +470,8 @@ public partial class toolbar {
 						print.warning($"Failed to Z-order toolbar '{_name}' above owner window. {es}");
 					}
 				}
+			} else if (wt.IsTopmost && !wo.IsTopmost) {
+				wt.ZorderAbove(wo);
 			}
 			
 			if (_zordered) _zorderRetry = 0; else if (_zorderRetry == 0) _zorderRetry = 5; else _zorderRetry--;

@@ -169,8 +169,9 @@ record AppSettings : JSettings {
 	
 	//AI
 	public readonly DictionaryI_<string> ai_ak = new();
-	public string ai_modelEmbed, ai_modelRerank, ai_modelChat;
+	public string ai_modelEmbed, ai_modelRerank/*, ai_modelChat*/;
 	//public string ai_modelIconSearch;
+	public bool ai_mcp_print;
 	
 	//panel Files
 	public bool files_multiSelect;

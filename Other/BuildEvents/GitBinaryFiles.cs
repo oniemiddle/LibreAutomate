@@ -16,6 +16,10 @@ static class GitBinaryFiles {
 
 		(string dir, string files, bool subdirs)[] enumFiles = [
 				(null, "*.db", false),
+				(null, "*MSTSCLib.dll", false),
+				(null, "toc.json", false),
+				(null, "toc-ai.yml", false),
+				(null, "xrefmap.yml", false),
 				("Roslyn", "*.dll", false),
 				("Debugger", "**m *.dll||*.exe", true),
 				(@"..\Other\BuildEvents\.tools", "ResourceHacker.exe", false),
