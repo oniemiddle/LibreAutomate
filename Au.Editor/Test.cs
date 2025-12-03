@@ -31,16 +31,19 @@ static class Test {
 	public static void FromMenubar() {
 		print.clear();
 		
+						print.warning("Failed to initialize WebView2. Can't show LA documentation in the Read panel. Select another option in <+options Other>Options > Other<>.");
+
+		
 		//var query = Panels.Editor.ActiveDoc.aaaText.Lines()[0];
-		var query = Panels.Editor.ActiveDoc.aaaText;
-		Task.Run(() => {
-			try {
-				McpTools _tools = new();
-				var s = _tools.find_la_docs(query, "");
-				print.scrollToTop();
-			}
-			catch (Exception ex) { print.it(ex); }
-		});
+		//var query = Panels.Editor.ActiveDoc.aaaText;
+		//Task.Run(() => {
+		//	try {
+		//		McpTools _tools = new();
+		//		var s = _tools.find_la_docs(query, "");
+		//		print.scrollToTop();
+		//	}
+		//	catch (Exception ex) { print.it(ex); }
+		//});
 		//print.it(s);
 		
 		//timer2.every(500, _=> { GC.Collect(); });

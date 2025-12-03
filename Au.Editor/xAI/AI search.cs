@@ -131,9 +131,11 @@ class Embeddings(AiEmbeddingModel model) {
 	/// <exception cref="Exception"></exception>
 	public float[] CreateEmbedding(EmInput input, CancellationToken cancel = default) => CreateEmbeddings([input], forDatabase: false, cancel: cancel)[0] as float[];
 	
+	public static string VectorDir { get; } = folders2.LaDataRoaming + @"AI\Embedding"; //note: don't use the common app data folder
+	
 	List<EmVector> _GetEmbeddings(string dbPath, bool compact, Func<(List<string> names, List<EmInput> datas)> getData, CancellationToken cancel) {
 		_EmHash newHash = _Hash(dbPath), oldHash = default;
-		string emPath = folders2.LaDataCommon + $@"AI\Embedding\{model.GetType()}-{pathname.getNameNoExt(dbPath)}.bin";
+		string emPath = VectorDir + $@"\{model.GetType()}-{pathname.getNameNoExt(dbPath)}.bin";
 		var emFile = new _EmStorageFile(emPath);
 		List<EmVector> ems = null;
 		bool retried = false; gRetry:

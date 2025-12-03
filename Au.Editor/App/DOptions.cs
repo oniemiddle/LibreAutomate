@@ -776,8 +776,8 @@ Example:
 			m["Print all model configurations"] = o => { print.it(AI.AiModel.Models); };
 			//m["How to add new model"] = o => { _AddCustomModel(); };
 			
-			var emFolder = folders.ThisAppDataCommon + $@"AI\Embedding";
-			if (filesystem.exists(emFolder).Directory) m["Open embedding vectors folder"] = o => { var s = run.itSafe(emFolder); };
+			var emDir = AI.Embeddings.VectorDir;
+			if (filesystem.exists(emDir).Directory) m["Open embedding vectors folder"] = o => { var s = run.itSafe(emDir); };
 			
 			m.Separator();
 			m["Help"] = o => { HelpUtil.AuHelp("editor/LA and AI"); };

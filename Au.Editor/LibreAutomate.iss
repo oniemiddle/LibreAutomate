@@ -49,6 +49,10 @@ Source: "Au.Controls.xml"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Au.Net4.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "AxMSTSCLib.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "MSTSCLib.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Microsoft.Web.WebView2.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Microsoft.Web.WebView2.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "runtimes\win-x64\native\WebView2Loader.dll"; DestDir: "{app}\runtimes\win-x64\native"; Flags: ignoreversion
+Source: "runtimes\win-arm64\native\WebView2Loader.dll"; DestDir: "{app}\runtimes\win-arm64\native"; Flags: ignoreversion
 Source: "NuGet.*.dll"; DestDir: "{app}"; Flags: ignoreversion
 
 Source: "64\Au.AppHost.exe"; DestDir: "{app}\64"; Flags: ignoreversion

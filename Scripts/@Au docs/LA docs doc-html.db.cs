@@ -3,6 +3,8 @@
 
 /*/ testInternal Au; nuget html\HtmlAgilityPack; /*/
 
+//#define IEWB
+
 using HtmlAgilityPack; //tested: AngleSharp slower
 
 if (script.testing) print.clear();
@@ -69,11 +71,13 @@ void _AddOtherFiles() {
 		var path = f.FullPath;
 		object data = pathname.getExtension(f.Name) switch { ".css" => filesystem.loadText(path), ".eot" => filesystem.loadBytes(path), _ => null };
 		
+#if IEWB
 		if (f.Name == "docfx.vendor.min.css") { //fix the hidden scrollbar issue
 			var s1 = (string)data;
 			if (0 == s1.RxReplace("""@-ms-viewport\s*\{\s*width:\s*device-width\s*}""", "", out s1, 1)) throw null;
 			data = s1;
 		}
+#endif
 		
 		if (data != null) _AddRow($"styles/{f.Name}", data);
 		//if (data == null) print.it(f.Name);
@@ -88,6 +92,7 @@ td, th { white-space: normal !important; word-wrap: break-word; }
 pre { word-wrap: normal !important; }
 """);
 	
+#if IEWB
 	_AddRow("styles/la.js", """
 function ancestorOrThis(el, tag) {
     while (el && el.nodeName !== tag) el = el.parentElement;
@@ -124,6 +129,7 @@ document.addEventListener('click', function(e) {
 	}
 });
 """);
+#endif
 	
 	foreach (var f in filesystem.enumFiles(c_rootDir + "images", "*.png")) {
 		_AddRow($"images/{f.Name}", filesystem.loadBytes(f.FullPath));
@@ -162,7 +168,9 @@ string _ProcessHtml(string path, string uri) {
 	if (h.SelectNodes("//script") is { } scripts)
 		foreach (var v in scripts) _Remove(v);
 	
+#if IEWB
 	body.AppendChild(HtmlNode.CreateNode($"""<script type="text/javascript" src="{relPath}styles/la.js"></script>"""));
+#endif
 	body.AppendChild(doc.CreateTextNode("\n"));
 	
 	foreach (var vn in body.Descendants("div")) {
@@ -191,6 +199,7 @@ string _ProcessHtml(string path, string uri) {
 	
 	foreach (var v in ara) v.Remove();
 	
+#if IEWB
 	//IE displays too wide tabs in pre code, and does not support CSS tab-size. Workaround: replace tabs with spaces.
 	if (body.SelectNodes(".//pre[not(parent::div[@class='codewrapper'])]//code") is { } preCodes) {
 		foreach (var v in preCodes) {
@@ -201,13 +210,18 @@ string _ProcessHtml(string path, string uri) {
 			}
 		}
 	}
+#endif
 	
 	//links that LA handles
 	if (uri.Starts("cookbook") && body.SelectNodes(".//span[@title='Paste the underlined text in menu > Tools > NuGet']") is { } nugetLinks) {
 		foreach (var v in nugetLinks) {
 			v.Attributes.RemoveAll();
-			v.AddClass("nuget");
 			v.Name = "a";
+#if IEWB
+			v.AddClass("nuget");
+#else
+			v.SetAttributeValue("href", "nuget:" + v.InnerText);
+#endif
 		}
 	}
 	

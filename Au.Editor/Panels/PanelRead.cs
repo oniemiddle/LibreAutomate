@@ -6,18 +6,19 @@ using System.Windows.Media;
 using Microsoft.Win32;
 using System.Runtime.Loader;
 using Au.Controls;
+using Microsoft.Web.WebView2.Wpf;
+using Microsoft.Web.WebView2.Core;
+using System.Text.Json.Nodes;
 
 namespace LA;
 
 class PanelRead {
-	WebBrowser _wb;
+	WebView2 _wv;
+	string _localBaseUri;
 	
-	public PanelRead() {
-		//P.UiaSetName("Read panel"); //no UIA element for Panel
-#if DEBUG
-		_PreviewCurrentRecipeScript();
-#endif
-	}
+	//public PanelRead() {
+	//	//P.UiaSetName("Read panel"); //no UIA element for Panel
+	//}
 	
 	public Grid P { get; } = new();
 	
@@ -34,13 +35,181 @@ class PanelRead {
 		}
 	}
 	
+	/// <summary>
+	/// Opens a LA documentation page in this panel.
+	/// Opens the local version of the page.
+	/// If cannot open (eg WebView2 unavailable on current computer), opens the specified URL in default web browser app.
+	/// </summary>
+	/// <param name="url">Like <c>"https://www.libreautomate.com/articles/name.html"</c>.</param>
+	public void OpenDocUrl(string url) {
+		var baseUri = DocsHttpServer.LocalBaseUri;
+		if (baseUri == null || !_IsDocsUrl(url, c_laWebsiteBaseUri) || !_IsWebViewAvailable) {
+			run.itSafe(url);
+			return;
+		}
+		_localBaseUri = baseUri; //save because DocsHttpServer.LocalBaseUri may become null
+		url = string.Concat(baseUri, url.AsSpan(30));
+		
+		_BeforeOpeningArticle();
+		if (_wv == null) _CreateWebView();
+		_wv.Source = new(url);
+	}
+	
+	const string c_laWebsiteBaseUri = "https://www.libreautomate.com/";
+	
+	static bool _IsDocsUrl(string url, string baseUri)
+		=> url.Starts(baseUri) && url.Eq(baseUri.Length, false, "api", "editor", "articles", "cookbook") > 0;
+	
+	static bool _IsWebViewAvailable {
+		get {
+			if (s_wvAvailable == null) {
+				try {
+					CoreWebView2Environment.SetLoaderDllFolderPath(folders.ThisAppBS + $@"runtimes\win-{(osVersion.isArm64Process ? "arm64" : "x64")}\native"); //else would fail or use PATH etc
+					
+					string ver = CoreWebView2Environment.GetAvailableBrowserVersionString();
+					s_wvAvailable = !ver.NE();
+				}
+				catch { s_wvAvailable = false; }
+				if (s_wvAvailable == false) print.it("<>Info: To show documentation in <b>Read<> panel, download/install <google WebView2 site:microsoft.com>WebView2<>. Then restart this app. Or, to disable this warning, change the setting in <b>Options > Other<>.");
+			}
+			return s_wvAvailable == true;
+		}
+	}
+	static bool? s_wvAvailable;
+	
+	void _CreateWebView() {
+		var tb = Panels.Help.buttons_.toolbar.ToolBars[0];
+		Panels.Help.buttons_.back = tb.AddButton("*EvaIcons.ArrowBack" + EdIcons.black, _ => { try { _wv.GoBack(); } catch { } }, "Back", enabled: false);
+		Panels.Help.buttons_.forward = tb.AddButton("*EvaIcons.ArrowForward" + EdIcons.black, _ => { try { _wv.GoForward(); } catch { } }, "Forward", enabled: false);
+		Panels.Help.buttons_.openInBrowser = tb.AddButton("*Modern.Browser" + EdIcons.black, _ => { _OpenInWebBrowser(); }, "Open in web browser", enabled: false);
+		tb.Items.Add(new Separator());
+		Panels.Help.buttons_.toggleReadPanel = tb.AddButton("*PixelartIcons.Article" + EdIcons.black, _ => { Panels.PanelManager[P].Visible ^= true; }, "Show/hide the Read panel");
+		
+		string udf = folders.ThisAppTemp + "wv";
+		filesystem.delete(udf, FDFlags.CanFail); //would fail to init if it's corrupt. And it grows.
+		_wv = new() {
+			CreationProperties = new() { UserDataFolder = udf }
+		};
+		P.Children.Add(_wv);
+		
+		_wv.CoreWebView2InitializationCompleted += (_, e) => {
+			if (!e.IsSuccess) {
+				print.warning("Failed to initialize WebView2. Can't show LA documentation in the Read panel. Try to restart this app. Or change the setting in <+options Other>Options > Other<>. " + e.InitializationException);
+				return;
+			}
+			
+			Panels.Help.buttons_.toolbar.Visibility = Visibility.Visible;
+			
+			var core = _wv.CoreWebView2;
+			
+			Debug.Assert(!core.Environment.UserDataFolder.Starts(folders.ThisApp)); //ignores CreationProperties if it was set too early
+			
+			core.HistoryChanged += (_, _) => {
+				Panels.Help.buttons_.back.IsEnabled = _wv.CanGoBack;
+				Panels.Help.buttons_.forward.IsEnabled = _wv.CanGoForward;
+				Panels.Help.buttons_.openInBrowser.IsEnabled = true;
+			};
+			
+			core.NavigationStarting += (_, e) => {
+				var url = e.Uri;
+				if (url.Starts("nuget:")) {
+					e.Cancel = true;
+					DNuget.ShowSingle(Uri.UnescapeDataString(url[6..]));
+				} else if (!_IsDocsUrl(url, _localBaseUri)) {
+					e.Cancel = true;
+					run.itSafe(url);
+				}
+			};
+			
+			core.ContextMenuRequested += _ContextMenuRequested;
+			
 #if DEBUG
-	unsafe void _PreviewCurrentRecipeScript() {
+			_PreviewCurrentRecipeScript();
+#endif
+		};
+	}
+	
+	/// <summary>
+	/// Opens the currently displayed page in the default web browser app.
+	/// </summary>
+	void _OpenInWebBrowser() {
+		if (_wv.Source is { } uri) {
+			var url = uri.ToString();
+			if (_IsDocsUrl(url, _localBaseUri)) url = c_laWebsiteBaseUri + url[_localBaseUri.Length..];
+			run.itSafe(url);
+		}
+	}
+	
+	async void _ContextMenuRequested(object sender, CoreWebView2ContextMenuRequestedEventArgs e) {
+		var defer = e.GetDeferral();
+		try {
+			var items = e.MenuItems;
+			
+			for (int i = items.Count; --i >= 0;) {
+				if (items[i].Kind == CoreWebView2ContextMenuItemKind.Command && items[i].Name is "inspectElement" or "webCapture" or "webSelect" or "createQrCode")
+					items.RemoveAt(i);
+				//if need Inspect, Ctrl+Shit+I still works
+			}
+			
+			var core = _wv.CoreWebView2;
+			
+			//detect <pre> and get its text
+			string preText = null;
+			var cmt = e.ContextMenuTarget;
+			if (cmt.Kind == CoreWebView2ContextMenuTargetKind.Page && !(cmt.HasLinkUri || cmt.IsEditable)) {
+				string js = $$"""
+(function() {
+    var el = document.elementFromPoint({{e.Location.X}}, {{e.Location.Y}});
+    while(el && el.nodeType === 1) {
+        if(el.tagName === 'PRE') return el.textContent;
+        el = el.parentElement;
+    }
+    return null;
+})();
+""";
+				try {
+					preText = await core.ExecuteScriptAsync(js);
+					if (preText != null) preText = (string)JsonValue.Parse(preText);
+				}
+				catch (Exception ex) { print.it(ex); }
+			}
+			
+			var mCC = core.Environment.CreateContextMenuItem("Copy code", null, CoreWebView2ContextMenuItemKind.Command);
+			var mNS = core.Environment.CreateContextMenuItem("New script", null, CoreWebView2ContextMenuItemKind.Command);
+			if (preText != null) {
+				mCC.CustomItemSelected += (_, __) => { clipboard.text = preText; };
+				mNS.CustomItemSelected += (_, __) => {
+					var name = pathname.getNameNoExt(Uri.UnescapeDataString(_wv.Source.AbsolutePath));
+					App.Model.NewItem("Script.cs", null, name + ".cs", true, new(true, preText));
+				};
+			} else {
+				mCC.IsEnabled = mNS.IsEnabled = false;
+			}
+			items.Insert(0, mCC);
+			items.Insert(1, mNS);
+			try { items.Insert(2, core.Environment.CreateContextMenuItem(null, null, CoreWebView2ContextMenuItemKind.Separator)); } catch { } //throws on Win7
+			
+			var mOB = core.Environment.CreateContextMenuItem("Open in browser", null, CoreWebView2ContextMenuItemKind.Command);
+			mOB.CustomItemSelected += (_, __) => { _OpenInWebBrowser(); };
+			try { items.Add(core.Environment.CreateContextMenuItem(null, null, CoreWebView2ContextMenuItemKind.Separator)); } catch { }
+			items.Add(mOB);
+		}
+		finally {
+			defer.Complete();
+		}
+	}
+	
+#if DEBUG
+	/// <summary>
+	/// Starts a timer that displays HTML (preview) of the current C# script, if it's a cookbook recipe source script.
+	/// It makes editing cookbook recipes easy.
+	/// </summary>
+	void _PreviewCurrentRecipeScript() {
 		string prevText = null;
 		SciCode prevDoc = null;
 		
 		App.Timer1sWhenVisible += () => {
-			if (!P.IsVisible) return;
+			if (!P.IsVisible || DocsHttpServer.LocalBaseUri == null) return;
 			if (App.Model.WorkspaceName != "Cookbook") {
 				if (!(App.Model.WorkspaceName == "ok" && App.Model.CurrentFile is { IsExternal: true, IsScript: true } cf && cf.Ancestors().Any(o => o.Name is "cookbook_files"))) return;
 			}
@@ -50,15 +219,20 @@ class PanelRead {
 			string text = doc.aaaText;
 			if (text == prevText) return;
 			if (_IsCaretInPossiblyUnfinishedTag(doc, text)) return; //avoid printing debug info for invalid links etc
-			prevText = text;
 			
-			string refresh = null;
-			if (doc == prevDoc) {
-				refresh = "?refresh=true";
-			} else {
+			if (_wv.Source.AbsolutePath != "/cookbook/preview.html") {
+				prevText = null;
 				prevDoc = doc;
+				_wv.Source = new(DocsHttpServer.LocalBaseUri + "cookbook/preview.html");
+				//DocsHttpServer will call GetPreviewHtmlTemplate_() and the control will display it (empty page).
+				//In next timer call (the `else` code) its <article>'s inner HTML will be replaced with the HTML returned by _GetPreviewHtml.
+			} else {
+				var html = _GetPreviewHtml();
+				var json = JsonValue.Create(html).ToJsonString();
+				_wv.CoreWebView2.ExecuteScriptAsync($"window.updatePreview({json});{(doc != prevDoc ? "scrollToTop()" : null)}");
+				prevDoc = doc;
+				prevText = text;
 			}
-			OpenDocUrl(DocsHttpServer.LocalBaseUri + "cookbook/preview.html" + refresh);
 		};
 		
 		bool _IsCaretInPossiblyUnfinishedTag(SciCode doc, string text) {
@@ -71,270 +245,74 @@ class PanelRead {
 			return false;
 		}
 	}
-#endif
 	
-	public void OpenDocUrl(string uri) {
-		if (_wb == null) _CreateWebBrowser();
-		_BeforeOpeningArticle();
-		_wb.Navigate(uri);
-	}
-	
-	void _CreateWebBrowser() {
-		//_WebBrowserRegistrySettingsForThisProcess.EnsureValid();
-		
-		//P.ColumnDefinitions.Add(new() { Width = new(1, GridUnitType.Star) });
-		_wb = new() { ObjectForScripting = new _WebBrowserBridge() };
-		P.Children.Add(_wb);
-		
-		_wb.Navigating += (sender, e) => {
-			//bad: WebBrowser on every navigation briefly displays "wait" cursor. Even on link click.
-			//	Unsuccessfully tried to prevent it. Can temporarily hide (API ShowCursor), but it's worse.
-			
-			var uri = e.Uri.ToString();
-			//print.it("Navigating", uri);
-			
-			var baseUri = DocsHttpServer.LocalBaseUri;
-			if (baseUri == null) {
-				e.Cancel = true;
-				run.itSafe(uri);
-				return;
-			}
-			
-			if (uri.Starts(baseUri)) {
-#if DEBUG
-				if (e.Uri.Query == "?refresh=true" && e.Uri.AbsolutePath.Ends("/preview.html") && true == _wb.Source?.AbsolutePath.Ends("/preview.html")) {
-					_scrollPos = _GetScrollPos();
-					if (_scrollPos > 0) {
-						if (_ies.Is0) _ies = ((wnd)_wb.Handle).Child(cn: "Internet Explorer_Server");
-						_ies.Send(Api.WM_SETREDRAW);
-					}
-					//note: don't use _wb.Refresh. It's several times slower, and there is no LoadCompleted event.
-					//rejected: autoscroll. Even if works perfectly, often it is more annoying than useful.
-				}
-#endif
-				return;
-			}
-			
-			e.Cancel = true;
-			
-			if (!uri.Starts("https://www.libreautomate.com/") || 0 == uri.Eq(30, false, "api", "editor", "articles", "cookbook")) {
-				run.itSafe(uri);
-				return;
-			}
-			
-			try {
-				_wb.Navigate(baseUri + uri[30..]);
-			}
-			catch (Exception ex) { print.warning(ex); }
-		};
-		
-		_wb.Navigated += (sender, e) => {
-			//print.it("Navigated", _wb.CanGoBack, _wb.CanGoForward);
-			P.Dispatcher.InvokeAsync(_LoadCompleted2); //in some cases this event is after LoadCompleted
-		};
-		
-		_wb.LoadCompleted += (_, e) => {
-			if (e.Uri == null) return;
-			//print.it("LoadCompleted", _wb.CanGoBack, _wb.CanGoForward, e.Uri);
-			_Zoom(VisualTreeHelper.GetDpi(_wb).PixelsPerDip);
-#if DEBUG
-			if (_scrollPos > 0 && e.Uri.ToString().Ends("/preview.html?refresh=true")) {
-				_SetScrollPos(_scrollPos);
-				_ies.Send(Api.WM_SETREDRAW, 1);
-				unsafe { Api.RedrawWindow(_ies, flags: Api.RDW_ERASE | Api.RDW_FRAME | Api.RDW_INVALIDATE | Api.RDW_ALLCHILDREN); }
-			}
-#endif
-			P.Dispatcher.InvokeAsync(_LoadCompleted2);
-		};
-		
-		var tb = Panels.Help.buttons_.toolbar.ToolBars[0];
-		Panels.Help.buttons_.back = tb.AddButton("*EvaIcons.ArrowBack" + EdIcons.black, null, "Back", enabled: false);
-		Panels.Help.buttons_.forward = tb.AddButton("*EvaIcons.ArrowForward" + EdIcons.black, null, "Forward", enabled: false);
-		Panels.Help.buttons_.openInBrowser = tb.AddButton("*Modern.Browser" + EdIcons.black, null, "Open in web browser", enabled: false);
-		Panels.Help.buttons_.back.Click += (_, _) => { try { _wb.GoBack(); } catch { } };
-		Panels.Help.buttons_.forward.Click += (_, _) => { try { _wb.GoForward(); } catch { } };
-		Panels.Help.buttons_.openInBrowser.Click += (_, _) => { _OpenInWebBrowser(); };
-		Panels.Help.buttons_.toolbar.Visibility = Visibility.Visible;
-		
-		void _LoadCompleted2() {
-			Panels.Help.buttons_.back.IsEnabled = _wb.CanGoBack;
-			Panels.Help.buttons_.forward.IsEnabled = _wb.CanGoForward;
-			Panels.Help.buttons_.openInBrowser.IsEnabled = true;
-		}
-		
-		_wb.DpiChanged += (_, e) => { _Zoom(e.NewDpi.PixelsPerDip); };
-		
-		void _Zoom(double zoom) {
-			try {
-				//if (_wb.Document != null) _wb.InvokeScript("eval", $"document.body.style.zoom = {zoom};"); //does not work well
-				
-				dynamic iwb = _wb.GetType().InvokeMember("AxIWebBrowser2", BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.NonPublic, null, _wb, null);
-				object o = (zoom * 100).ToInt();
-				iwb.ExecWB(63, 2, o, (nint)0); //OLECMDID_OPTICAL_ZOOM, OLECMDEXECOPT_DONTPROMPTUSER
-			}
-			catch (Exception ex) { Debug_.Print(ex); }
-		}
-	}
-	
-#if DEBUG
-	wnd _ies;
-	int _scrollPos;
-	
-	int _GetScrollPos() {
+	/// <summary>
+	/// Converts text of the current C# script to HTML. It must be a cookbook recipe source script.
+	/// Uses the same converter as the "Au docs" script (it creates HTML etc files for the website).
+	/// </summary>
+	static string _GetPreviewHtml() {
 		try {
-			if (_wb.Document is api.IHTMLDocument3 d && d.documentElement is api.IHTMLElement2 e) {
-				return e.scrollTop;
+			var doc = Panels.Editor.ActiveDoc;
+			string name = doc.EFile.DisplayName, code = doc.Dispatcher.Invoke(() => doc.aaaText);
+			
+			if (_RecipeCodeToHtml == null) {
+				AssemblyLoadContext.Default.LoadFromAssemblyPath(@"C:\code\ok\.nuget\-\Markdig.dll");
+				var asm = AssemblyLoadContext.Default.LoadFromAssemblyPath(@"C:\code\ok\dll\AuDocsLib.dll");
+				_RecipeCodeToHtml = asm.GetType("ADL.AuDocsShared").GetMethod("RecipeCodeToHtml").CreateDelegate<Func<string, string, string>>();
 			}
+			return _RecipeCodeToHtml(name, code);
 		}
-		catch { }
-		return 0;
+		catch (Exception ex) { print.it(ex); throw; }
 	}
 	
-	void _SetScrollPos(int pos) {
-		try {
-			if (_wb.Document is api.IHTMLDocument3 d && d.documentElement is api.IHTMLElement2 e) {
-				e.scrollTop = pos;
-			}
-		}
-		catch { }
-	}
+	static Func<string, string, string> _RecipeCodeToHtml;
 	
-	unsafe class api : NativeApi {
-		[ComImport, Guid("3050f485-98b5-11cf-bb82-00aa00bdce0b")]
-		internal interface IHTMLDocument3 {
-			void releaseCapture();
-			void recalc(short fForce);
-			nint createTextNode(string text);
-			object documentElement { [return: MarshalAs(UnmanagedType.IDispatch)] get; }
-			//others deleted
-		}
-		
-		[ComImport, Guid("3050f434-98b5-11cf-bb82-00aa00bdce0b")]
-		internal interface IHTMLElement2 {
-			string scopeName { get; }
-			void setCapture(short containerCapture);
-			void releaseCapture();
-			object onlosecapture { set; get; }
-			string componentFromPoint(int x, int y);
-			void doScroll(object component);
-			object onscroll { set; get; }
-			object ondrag { set; get; }
-			object ondragend { set; get; }
-			object ondragenter { set; get; }
-			object ondragover { set; get; }
-			object ondragleave { set; get; }
-			object ondrop { set; get; }
-			object onbeforecut { set; get; }
-			object oncut { set; get; }
-			object onbeforecopy { set; get; }
-			object oncopy { set; get; }
-			object onbeforepaste { set; get; }
-			object onpaste { set; get; }
-			nint currentStyle { get; }
-			object onpropertychange { set; get; }
-			nint getClientRects();
-			nint getBoundingClientRect();
-			void setExpression(string propname, string expression, string language);
-			object getExpression(string propname);
-			short removeExpression(string propname);
-			short tabIndex { set; get; }
-			void focus();
-			string accessKey { set; get; }
-			object onblur { set; get; }
-			object onfocus { set; get; }
-			object onresize { set; get; }
-			void blur();
-			void addFilter([MarshalAs(UnmanagedType.IUnknown)] object pUnk);
-			void removeFilter([MarshalAs(UnmanagedType.IUnknown)] object pUnk);
-			int clientHeight { get; }
-			int clientWidth { get; }
-			int clientTop { get; }
-			int clientLeft { get; }
-			short attachEvent(string @event, [MarshalAs(UnmanagedType.IDispatch)] object pDisp);
-			void detachEvent(string @event, [MarshalAs(UnmanagedType.IDispatch)] object pDisp);
-			object readyState { get; }
-			object onreadystatechange { set; get; }
-			object onrowsdelete { set; get; }
-			object onrowsinserted { set; get; }
-			object oncellchange { set; get; }
-			string dir { set; get; }
-			[return: MarshalAs(UnmanagedType.IDispatch)] object createControlRange();
-			int scrollHeight { get; }
-			int scrollWidth { get; }
-			int scrollTop { set; get; }
-			int scrollLeft { set; get; }
-			void clearAttributes();
-			void mergeAttributes(nint mergeThis);
-			object oncontextmenu { set; get; }
-			nint insertAdjacentElement(string where, nint insertedElement);
-			nint applyElement(nint apply, string where);
-			string getAdjacentText(string where);
-			string replaceAdjacentText(string where, string newText);
-			short canHaveChildren { get; }
-			int addBehavior(string bstrUrl, in object pvarFactory);
-			short removeBehavior(int cookie);
-			nint runtimeStyle { get; }
-			[return: MarshalAs(UnmanagedType.IDispatch)] object get_behaviorUrns();
-			string tagUrn { set; get; }
-			object onbeforeeditfocus { set; get; }
-			int readyStateValue { get; }
-			nint getElementsByTagName(string v);
-		}
-		
+	/// <summary>
+	/// Called by the HTTP server. The code is here because it's better to keep most of the preview code in one place.
+	/// </summary>
+	internal static string GetPreviewHtmlTemplate_() {
+		return """
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Constants, enum | LibreAutomate </title>
+      <meta name="viewport" content="width=device-width">
+      <link rel="stylesheet" href="../styles/docfx.vendor.min.css">
+      <link rel="stylesheet" href="../styles/docfx.css">
+      <link rel="stylesheet" href="../styles/main.css">
+      <link rel="stylesheet" href="../styles/code.css">
+  <link rel="stylesheet" href="../styles/la.css">
+</head>
+  <body>
+    <a name="top"></a>
+    <div id="wrapper">
+      <div role="main" class="container-fluid body-content hide-when-search">
+          <div class="col-md-12">
+            <article class="content wrap" id="_content"/>
+          </div>
+      </div>
+    </div>
+<script>
+window.updatePreview = function(html) {
+    document.getElementById('_content').innerHTML = html;
+};
+window.scrollToTop = function() {
+    window.scrollTo(0, 0);
+};
+</script>
+</body>
+</html>
+""";
 	}
 #endif
-	
-	void _OpenInWebBrowser() {
-		if (_wb.Source is { } uri) run.itSafe(HelpUtil.AuHelpUrl(uri.AbsolutePath[1..]));
-	}
-	
-	#region called by JavaScript
-	
-	//contextFlag: 0: no selection, 1: selection, 2: inside <pre> (and no selection)
-	internal void ShowContextMenu_(int x, int y, int contextFlag, string selectedText) {
-		//print.it(contextFlag, selectedText, _wb.Source.AbsolutePath);
-		
-		var m = new popupMenu();
-		
-		m["Back\tAlt+Left", disable: !_wb.CanGoBack] = o => { try { _wb.GoBack(); } catch { } };
-		m["Forward\tAlt+Right", disable: !_wb.CanGoForward] = o => { try { _wb.GoForward(); } catch { } };
-		m["Open in web browser"] = o => { _OpenInWebBrowser(); };
-		m.Separator();
-		m[contextFlag == 2 ? "Copy code" : "Copy\tCtrl+C", disable: contextFlag is 0] = o => { try { clipboard.text = _SelectedText(); } catch { } };
-		m["New script", disable: contextFlag != 2] = o => {
-			var name = pathname.getNameNoExt(Uri.UnescapeDataString(_wb.Source.AbsolutePath));
-			App.Model.NewItem("Script.cs", null, name + ".cs", true, new(true, _SelectedText()));
-		};
-		
-		m.Show(owner: P);
-		
-		string _SelectedText() {
-			//restore code indentation tabs. The script replaced tabs with spaces, because IE does not support CSS tab-size.
-			var s = selectedText;
-			if (App.Settings.ci_formatTabIndent) s = s.RxReplace(@"(?m)^(    )+", m => new string('\t', m.Length / 4));
-			return s;
-		}
-	}
-	
-	#endregion
 }
 
-#pragma warning disable CS1591 //Missing XML comment for publicly visible type or member
-[ComVisible(true)]
-public class _WebBrowserBridge { //note: must be public
-	#region called by JavaScript
-	
-	public void ShowContextMenu(int x, int y, int contextFlag, string selectedText) {
-		Panels.Read.ShowContextMenu_(x, y, contextFlag, selectedText);
-	}
-	
-	public void NugetLinkClicked(string package) {
-		DNuget.ShowSingle(package);
-	}
-	
-	#endregion
-}
-
+/// <summary>
+/// Used by the Read panel. Retrieves local LA documentation files.
+/// Probably it's the best way to display local HTML files. Other ways have problems.
+/// </summary>
 class DocsHttpServer : HttpServerSession {
 	static bool s_running;
 	static int s_port;
@@ -366,17 +344,16 @@ class DocsHttpServer : HttpServerSession {
 	static void _Switch() {
 		if (App.Settings.doc_web) {
 			LocalBaseUri = null;
-			HelpUtil.AuHelpEvent_ -= AuHelpEvent;
+			HelpUtil.AuHelpEvent_ -= _AuHelpEvent;
 		} else {
 			LocalBaseUri = $"http://127.0.0.1:{s_port}/";
-			HelpUtil.AuHelpEvent_ += AuHelpEvent;
+			HelpUtil.AuHelpEvent_ += _AuHelpEvent;
 		}
-	}
-	
-	static void AuHelpEvent(HelpUtil.AuHelpEventArgs_ e) {
-		//print.it("OnAuHelp", e.Url);
-		e.Cancel = true;
-		Panels.Read.OpenDocUrl(e.Url);
+		
+		static void _AuHelpEvent(HelpUtil.AuHelpEventArgs_ e) {
+			e.Cancel = true;
+			Panels.Read.OpenDocUrl(e.Url);
+		}
 	}
 	
 	protected override void MessageReceived(HSMessage m, HSResponse r) {
@@ -388,9 +365,10 @@ class DocsHttpServer : HttpServerSession {
 		
 #if DEBUG
 		if (path == "cookbook/preview.html") {
-			r.SetContentText(_GetPreviewHtml(), "text/html; charset=utf-8");
+			r.SetContentText(PanelRead.GetPreviewHtmlTemplate_(), "text/html; charset=utf-8");
 			return;
 		}
+		//this can be used when editing/testing a CSS file
 		//if (path == "styles/docfx.vendor.min.css") {
 		//	r.SetContentText(filesystem.loadText(@"C:\Temp\Au\DocFX\site\styles\docfx.vendor.min.css"), "text/css");
 		//	r.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
@@ -398,7 +376,9 @@ class DocsHttpServer : HttpServerSession {
 		//}
 #endif
 		
-		lock (typeof(DocsHttpServer)) { //lock sqlite. WebBrowser uses 2 HTTP connections when retrieving a html file + its css etc files the first time. Then we have 2 DocsHttpServer instances running simultaneously in 2 threads.
+		if (path == "favicon.ico" || path.Ends("/com.chrome.devtools.json")) { r.Status = System.Net.HttpStatusCode.NotFound; return; }
+		
+		lock (typeof(DocsHttpServer)) { //faster than the SQLite's busy timeout implementation
 			using var db = new sqlite(folders.ThisAppBS + "doc-html.db", SLFlags.SQLITE_OPEN_READONLY); //fast, don't keep open
 			if (db.Get(out byte[] content, "SELECT text FROM doc WHERE name=?", path)) {
 				r.Content = content;
@@ -410,58 +390,14 @@ class DocsHttpServer : HttpServerSession {
 					".png" => "image/png",
 					_ => null
 				};
-				if (ct != null) r.Headers["Content-Type"] = ct; else if (!(ext is ".eot")) Debug_.Print(path);
+				if (ct != null) r.Headers["Content-Type"] = ct; else Debug_.PrintIf(!(ext is ".eot"), path);
+				if (ext != ".html") r.Headers["Cache-Control"] = "max-age=86400"; //1 day or until process exit
 			} else {
-				Debug_.Print("NOT FOUND: " + path);
+				Debug_.PrintIf(
+					!(path is "styles/docfx.vendor.min.css.map" /*size ~500kb, requested when showing devtools, works well without*/),
+					"NOT FOUND: " + path);
 				r.Status = System.Net.HttpStatusCode.NotFound;
 			}
 		}
 	}
-	
-#if DEBUG
-	static string _GetPreviewHtml() {
-		//print.clear();
-		try {
-			var doc = Panels.Editor.ActiveDoc;
-			string name = doc.EFile.DisplayName, code = doc.Dispatcher.Invoke(() => doc.aaaText);
-			
-			if (_RecipeCodeToHtml == null) {
-				AssemblyLoadContext.Default.LoadFromAssemblyPath(@"C:\code\ok\.nuget\-\Markdig.dll");
-				var asm = AssemblyLoadContext.Default.LoadFromAssemblyPath(@"C:\code\ok\dll\AuDocsLib.dll");
-				_RecipeCodeToHtml = asm.GetType("ADL.AuDocsShared").GetMethod("RecipeCodeToHtml").CreateDelegate<Func<string, string, string>>();
-			}
-			//perf.first();
-			var html = _RecipeCodeToHtml(name, code);
-			//perf.nw();
-			//print.it(html);
-			return html;
-		}
-		catch (Exception ex) { print.it(ex); throw; }
-	}
-	
-	static Func<string, string, string> _RecipeCodeToHtml;
-#endif
 }
-
-//static file class _WebBrowserRegistrySettingsForThisProcess {
-//	public static void EnsureValid() {
-//		var ieVer = _GetIEVersion()?.Major ?? 0; if (ieVer < 8) return;
-//		ieVer *= 1000;
-//		var e = process.thisExeName;
-
-//		_Set("FEATURE_BROWSER_EMULATION", ieVer);
-//		//_Set("FEATURE_96DPI_PIXEL", 1); //documented as obsolete. Does not support per-monitor DPI.
-
-//		void _Set(string key, int value) {
-//			var rk = @"HKEY_CURRENT_USER\SOFTWARE\Microsoft\Internet Explorer\Main\FeatureControl\" + key;
-//			if (Registry.GetValue(rk, e, null) is int t && t == value) return;
-//			Registry.SetValue(rk, e, value);
-//		}
-//	}
-
-//	static Version _GetIEVersion() {
-//		var s = Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer", "svcVersion", null) as string; //IE10+
-//		s ??= Registry.GetValue(@"HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer", "Version", null) as string;
-//		return s == null ? null : new(s);
-//	}
-//}

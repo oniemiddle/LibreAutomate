@@ -24,7 +24,7 @@ class CiWinapi {
 		
 		//At first read from database and write to a temp binary file. Reading from it is ~2 times faster than from database.
 		if (s_tempFile == null || !filesystem.GetTime_(s_tempFile, out var t1) || !filesystem.GetTime_(EdDatabases.WinapiFile, out var t2) || t2 > t1) {
-			s_tempFile = folders.ThisAppDataLocal + "winapi.bin";
+			s_tempFile = folders.ThisAppTemp + "winapi.bin";
 			using var w = new BinaryWriter(File.Create(s_tempFile));
 			using var db = EdDatabases.OpenWinapi();
 			using var stat = db.Statement("SELECT name, kind FROM api");

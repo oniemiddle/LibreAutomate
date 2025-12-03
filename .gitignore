@@ -246,3 +246,4 @@ ModelManifest.xml
 /Au/global.json
 .tools/
 /Other/DocFX/_doc/cookbook
+/Au.Editor/Panels/PanelRead-WB.cs

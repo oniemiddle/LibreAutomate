@@ -63,39 +63,7 @@ public static class AuDocsShared {
 		var s = Markdig.Markdown.ToHtml(md, _pipeline);
 		//print.it(s);
 		s = PostprocessHtmlNonApi(name, s);
-		
-		//wrap in the same HTML as all doc articles
-		s = $$"""
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-      <title>Constants, enum | LibreAutomate </title>
-      <meta name="viewport" content="width=device-width">
-      <link rel="stylesheet" href="../styles/docfx.vendor.min.css">
-      <link rel="stylesheet" href="../styles/docfx.css">
-      <link rel="stylesheet" href="../styles/main.css">
-      <link rel="stylesheet" href="../styles/code.css">
-  <link rel="stylesheet" href="../styles/la.css">
-</head>
-  <body>
-    <a name="top"></a>
-    <div id="wrapper">
-      <div role="main" class="container-fluid body-content hide-when-search">
-          <div class="col-md-12">
-            <article class="content wrap" id="_content" data-uid="">
-{{s}}
-            </article>
-          </div>
-      </div>
-    </div>
-  <script type="text/javascript" src="../styles/la.js"></script>
-</body>
-</html>
-""";
-		
-		return s;
+		return PostprocessHtmlCommon(name, s, isApi: false);
 	}
 	
 	public static string RecipeCodeToMd(string name, string code, bool test = false) {
@@ -328,10 +296,10 @@ public static class AuDocsShared {
 		if (s.Contains("<google>")) print.warning("<google> in .md files not supported. Use [text](google:) or [text](google:urlencoded+google+query)");
 		if (s.Contains("<ms>")) print.warning("<ms> in .md files not supported. Use [text](ms:) or [text](ms:urlencoded+google+query)");
 		
-		return PostprocessHtmlCommon(s, isApi: false);
+		return s;
 	}
 	
-	public static string PostprocessHtmlCommon(string s, bool isApi) {
+	public static string PostprocessHtmlCommon(string name, string s, bool isApi) {
 		int nr;
 		//javascript renderTables() replacement, to avoid it at run time. Also remove class table-striped.
 		nr = s.RxReplace(@"(?s)<table(>.+?</table>)", @"<div class=""table-responsive""><table class=""table table-bordered table-condensed""$1</div>", out s);

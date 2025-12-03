@@ -197,7 +197,7 @@ partial class AuDocs {
 			s = ADL.AuDocsShared.PostprocessHtmlNonApi(name, s);
 		}
 		
-		s = ADL.AuDocsShared.PostprocessHtmlCommon(s, isApi);
+		s = ADL.AuDocsShared.PostprocessHtmlCommon(f.Name, s, isApi);
 		
 #if DISQUS
 		//TODO3: Now shows Disqus content when page loaded (if small) or scrolled to the bottom. Should show only when clicked <h2>User comments</h2>.

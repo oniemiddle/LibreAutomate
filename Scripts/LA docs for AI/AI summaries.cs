@@ -103,7 +103,7 @@ var model = new ModelGeminiChat("gemini-2.5-flash-lite");
 using var dbDoc = new sqlite(folders.ThisApp + "doc-ai.db");
 using var staDocSelect = dbDoc.Statement("SELECT name,text FROM doc");
 
-string tempDbPath = @"C:\ProgramData\LibreAutomate\_dev\doc-ai-summary.db";
+string tempDbPath = folders.LocalAppData + @"LibreAutomate\_dev\doc-ai-summary.db";
 using var dbTemp = new sqlite(tempDbPath);
 dbTemp.Execute("CREATE TABLE IF NOT EXISTS doc (name TEXT PRIMARY KEY, summary TEXT, hash BLOB)");
 using var staTempInsert = dbTemp.Statement("INSERT OR REPLACE INTO doc VALUES (?, ?, ?)");

@@ -22,7 +22,7 @@ class PanelHelp {
 	List<_Item> _aiResults;
 	bool _showingResults;
 	bool _openingItem;
-	internal (Button aiSearch, Button copyResults, ToolBarTray toolbar, Button back, Button forward, Button openInBrowser) buttons_;
+	internal (Button aiSearch, Button copyResults, ToolBarTray toolbar, Button back, Button forward, Button openInBrowser, Button toggleReadPanel) buttons_;
 	
 	public PanelHelp() {
 		P = new();

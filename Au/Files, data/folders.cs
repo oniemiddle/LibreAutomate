@@ -391,6 +391,7 @@ namespace Au {
 		static string __thisAppDataRoaming;
 		
 		[EditorBrowsable(EditorBrowsableState.Never)] //renamed
+		[Obsolete("This is an alias for ThisAppDataRoaming.")]
 		public static FolderPath ThisAppData {
 			get => ThisAppDataRoaming;
 			set => ThisAppDataRoaming = value;

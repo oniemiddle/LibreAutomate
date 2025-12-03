@@ -21,12 +21,12 @@ static partial class App {
 	//[STAThread] //no, makes command line etc slower. Will set STA later.
 	static int Main(string[] args) {
 #if IDE_LA //test tools
-//		print.clear();
+		//		print.clear();
 		
-//		args = ["/tool", "0", "Dwnd", "0", "0"];
+		//		args = ["/tool", "0", "Dwnd", "0", "0"];
 		//args = ["/tool", "0", "Delm"];
-//		//args = ["/tool", "0", "Duiimage", "0"];
-//		//args = ["/tool", "0", "Docr"];
+		//		//args = ["/tool", "0", "Duiimage", "0"];
+		//		//args = ["/tool", "0", "Docr"];
 #endif
 		
 #if DEBUG && !IDE_LA //note: not static ctor. Eg Settings used in scripts while creating some new parts of the app. The ctor would run there.
@@ -40,7 +40,7 @@ static partial class App {
 		script.role = SRole.EditorExtension; //used by the folders class
 		script.name = AppName;
 		Thread.CurrentThread.Name = "@Au.Main";
-
+		
 		if (CommandLine.ProgramStarted1(args, out int exitCode)) return exitCode;
 		
 		//restart as admin if started as non-admin on admin user account
@@ -50,7 +50,7 @@ static partial class App {
 		} else if (uacInfo.ofThisProcess.Elevation == UacElevation.Limited) {
 			if (_RestartAsAdmin(args)) return 0;
 		}
-
+		
 		process.IsLaProcess_ = true;
 		process.IsLaMainThread_ = true; //[ThreadStatic]
 		InitThisAppFoldersEtc_(args);
@@ -59,7 +59,7 @@ static partial class App {
 		//	Unfortunately can't use it. It tries to optimize editorExtension asseblies too. Then exception because can't load.
 		//	Never mind: possible workaround: load it in _Assembly_Resolving().
 		//try {
-		//	var poDir = folders.ThisAppDataCommon + "optimization";
+		//	var poDir = folders.ThisAppDataLocal + "optimization";
 		//	if (!Directory.Exists(poDir)) Directory.CreateDirectory(poDir);
 		//	AssemblyLoadContext.Default.SetProfileOptimizationRoot(poDir);
 		//	AssemblyLoadContext.Default.StartProfileOptimization("main");
@@ -183,7 +183,7 @@ static partial class App {
 	/// <b>Dispatcher</b> of main thread.
 	/// </summary>
 	public static Dispatcher Dispatcher => _app?.Dispatcher;
-
+	
 	/// <summary>
 	/// true if called in the main thread.
 	/// NOTE: don't use <c>Environment.CurrentManagedThreadId == 1</c>, it's not always 1 in the main thread.
@@ -225,7 +225,7 @@ static partial class App {
 	}
 	
 	private static Assembly _Assembly_Resolving(AssemblyLoadContext alc, AssemblyName an) {
-		if (!(an.Name.Starts("NuGet."))) {
+		if (0 == an.Name.Starts(false, "NuGet.", "Microsoft.Web.WebView2.")) {
 			var dlls = _arDlls ??= filesystem.enumFiles(folders.ThisAppBS + "Roslyn", "*.dll", FEFlags.UseRawPath)
 				.ToDictionary(o => o.Name[..^4], o => o.FullPath);
 			if (dlls.TryGetValue(an.Name, out var path)) return alc.LoadFromAssemblyPath(path);
@@ -239,11 +239,13 @@ static partial class App {
 	}
 	static Dictionary<string, string> _arDlls;
 	
-	//resolve native dlls used by meta pr libraries that are used by editorExtension scripts.
-	//	These libraries are loaded in default context.
-	//	editorExtension assemblies are loaded in other contexts.
-	//	Dlls directly used by editorExtension assemblies are resolved in RunAssembly.Run.
 	private static IntPtr _UnmanagedDll_Resolving(Assembly _, string name) {
+		//print.it("_UnmanagedDll_Resolving", name);
+		
+		//resolve native dlls used by meta pr libraries that are used by editorExtension scripts.
+		//	These libraries are loaded in default context.
+		//	editorExtension assemblies are loaded in other contexts.
+		//	Dlls directly used by editorExtension assemblies are resolved in RunAssembly.Run.
 		if (_FindEditorExtensionInStack(out var asm)) return MiniProgram_.ResolveUnmanagedDllFromNativePathsAttribute_(name, asm);
 		return default;
 	}
@@ -281,11 +283,15 @@ static partial class App {
 				//create now if does not exist
 				_ = folders.ThisAppDocuments;
 				_ = folders.ThisAppDataLocal;
-				_ = folders.ThisAppTemp;
-				//these are currently not used in editor and library, but may be used in role editorExtension scripts. Just prevent changing.
-				folders.noAutoCreate = true;
 				_ = folders.ThisAppDataRoaming;
-				_ = folders.ThisAppDataCommon;
+#if IDE_LA
+				folders.ThisAppTemp = new(folders.Temp + "LibreAutomate_2");
+#else
+				folders.ThisAppTemp = new(folders.Temp + (miscInfo.isChildSession ? @"LibreAutomate\PiP" : "LibreAutomate"));
+#endif
+				//these are currently not used in editor and library, but may be used in scripts. Just prevent changing.
+				folders.noAutoCreate = true;
+				_ = folders.ThisAppDataCommon; //Created by the installer (it requires admin rights). Should be used only for data installed by the installer.
 				_ = folders.ThisAppImages;
 				folders.noAutoCreate = false;
 			}

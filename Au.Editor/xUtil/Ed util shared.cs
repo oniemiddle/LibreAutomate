@@ -20,13 +20,23 @@ static class folders2 {
 #endif
 	
 	/// <summary>
-	/// ThisAppDataCommon
+	/// ThisAppDataLocal
 	/// </summary>
-	public static FolderPath LaDataCommon
+	public static FolderPath LaDataLocal
 #if SCRIPT
-		=> new(@"C:\ProgramData\LibreAutomate");
+		=> new(folders.LocalAppData + @"LibreAutomate");
 #else
-		=> folders.ThisAppDataCommon;
+		=> folders.ThisAppDataLocal;
+#endif
+	
+	/// <summary>
+	/// ThisAppDataRoaming
+	/// </summary>
+	public static FolderPath LaDataRoaming
+#if SCRIPT
+		=> new(folders.RoamingAppData + @"LibreAutomate");
+#else
+		=> folders.ThisAppDataRoaming;
 #endif
 }
 
