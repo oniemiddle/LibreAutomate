@@ -181,7 +181,7 @@ static class InsertCode {
 		}
 		
 		d.aaaSelect(true, pos, replTo);
-		using (new CodeInfo.Pasting(d, silent: true)) {
+		using (new CodeInfo.PastingEtc(d, silent: true)) {
 			d.aaaReplaceSel(s);
 			
 			if (go >= 0) d.aaaGoToPos(true, pos + go);
@@ -216,7 +216,7 @@ static class InsertCode {
 		Debug.Assert(App.IsMainThread);
 		if (!CodeInfo.GetContextAndDocument(out var k, 0, metaToo: true)) return false;
 		var namespaces = ns.Split(';', StringSplitOptions.TrimEntries);
-		int i = _FindUsingsInsertPos(k, missing ? null : namespaces);
+		int i = FindUsingsInsertPos(k, missing ? null : namespaces);
 		if (i < 0) return false;
 		
 		var b = new StringBuilder();
@@ -244,7 +244,7 @@ static class InsertCode {
 	/// <br/>• or after 1 comments line.
 	/// If namespaces!=null, clears existing namespaces in it (sets =null); if all cleared, returns -1.
 	/// </summary>
-	static int _FindUsingsInsertPos(CodeInfo.Context k, string[] namespaces = null) {
+	public static int FindUsingsInsertPos(CodeInfo.Context k, string[] namespaces = null) {
 		//In namespaces clears elements that exist in e. If all cleared, sets namespaces=null and returns true.
 		bool _ClearExistingUsings(IEnumerable<UsingDirectiveSyntax> e) {
 			int n = namespaces.Count(o => o != null); //if (n == 0) return;

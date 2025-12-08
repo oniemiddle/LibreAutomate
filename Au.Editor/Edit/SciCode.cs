@@ -53,7 +53,6 @@ partial class SciCode : KScintilla {
 		Call(SCI_SETEXTRADESCENT, 1); //eg to avoid drawing fold separator lines on text
 		Call(SCI_SETMOUSEDWELLTIME, 500);
 		Call(SCI_SETUNDOSELECTIONHISTORY, 1); //BAD: uses too much memory. Documented: >=150 / action. Tested: 270 (same when 1-char and when coalesced 10 char). Without this somehow the heap does not grow. It seems there is no easy workaround; temporarily turning off this feature clears the selection undo history.
-		//TODO: scintilla bug: sometimes after Undo displays one or more selections although caret is elsewhere.
 		
 		Call(SCI_SETLAYOUTTHREADS, Environment.ProcessorCount);
 //#if IDE_LA //works if don't need to draw images, else crashes because there is no HDC. Need to reimplement the drawing functions, to use ID2D1RenderTarget instead of HDC. Much work. The benefit would be antialiased drawing of Scintilla's markers etc, but we don't use them. Text looks differently. Uses + 25 MB of memory.
@@ -498,12 +497,12 @@ partial class SciCode : KScintilla {
 				aaaSetText(text);
 				break;
 			case 3: //Paste
-				using (new CodeInfo.Pasting(this))
+				using (new CodeInfo.PastingEtc(this))
 					aaaReplaceSel(text);
 				break;
 			} //rejected: option to rename this file
 		} else {
-			using (new CodeInfo.Pasting(this))
+			using (new CodeInfo.PastingEtc(this))
 				Call(SCI_PASTE); //not aaaReplaceSel, because can be SCI_SETMULTIPASTE etc
 		}
 	}

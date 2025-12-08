@@ -1,3 +1,6 @@
+- name: Library
+  href: Library.md
+
 - name: Key names and operators
   href: Key names and operators.md
 

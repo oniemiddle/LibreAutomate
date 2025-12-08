@@ -160,17 +160,12 @@ public class Code : ConverterBase {
 }
 
 public class Div : ConverterBase {
-	List<string> blockTags = new List<string>
-	{
-				"pre",
-				"p",
-				"ol",
-				"ul",
-				"table"
-			};
+	List<string> blockTags = new List<string>{"pre","p","ol","ul","table"};
 	
 	public Div(Converter converter) : base(converter) {
 		Converter.Register("div", this);
+		Converter.Register("details", this);
+		Converter.Register("summary", this);
 	}
 	
 	public override string Convert(HtmlNode node) {

@@ -83,6 +83,11 @@ public class ExplorerFolder {
 	/// Calls <see cref="GetFolderPath"/>.
 	/// </summary>
 	public override string ToString() => GetFolderPath();
+
+	/// <summary>
+	/// Gets <c>IWebBrowser2</c> interface pointer.
+	/// </summary>
+	public object ComObject => _b;
 	
 	/// <summary>
 	/// Gets window handle.
@@ -124,7 +129,7 @@ public class ExplorerFolder {
 	/// For non-file-system items gets <c>":: ITEMIDLIST"</c>; see <see cref="Pidl"/>.
 	/// </remarks>
 	public string[] GetSelectedItems() {
-		var d = _b.Document as api.IShellFolderView;
+		var d = _b.Document as api.ShellFolderView;
 		var items = d?.SelectedItems();
 		if (items == null) return [];
 		int n = items.Count;
@@ -234,7 +239,7 @@ public class ExplorerFolder {
 		}
 		
 		[ComImport, Guid("29EC8E6C-46D3-411f-BAAA-611A6C9CAC66"), InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
-		internal interface IShellFolderView {
+		internal interface ShellFolderView {
 			FolderItems SelectedItems();
 		}
 		

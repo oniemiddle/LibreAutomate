@@ -100,61 +100,65 @@ void _Test() {
 
 var model = new ModelGeminiChat("gemini-2.5-flash-lite");
 
-using var dbDoc = new sqlite(folders.ThisApp + "doc-ai.db");
-using var staDocSelect = dbDoc.Statement("SELECT name,text FROM doc");
-
-string tempDbPath = folders.LocalAppData + @"LibreAutomate\_dev\doc-ai-summary.db";
-using var dbTemp = new sqlite(tempDbPath);
-dbTemp.Execute("CREATE TABLE IF NOT EXISTS doc (name TEXT PRIMARY KEY, summary TEXT, hash BLOB)");
-using var staTempInsert = dbTemp.Statement("INSERT OR REPLACE INTO doc VALUES (?, ?, ?)");
-using var transTemp = dbTemp.Transaction(sqlOfDispose: "COMMIT");
-
-Dictionary<string, byte[]> dHash = [];
-using (var staTempSelectHash = dbTemp.Statement("SELECT name,hash FROM doc")) {
-	while (staTempSelectHash.Step()) {
-		dHash.Add(staTempSelectHash.GetText(0), staTempSelectHash.GetArray<byte>(1));
-	}
-}
-
-while (staDocSelect.Step()) {
-	string name = staDocSelect.GetText(0), text = staDocSelect.GetText(1);
+var dbFile = folders.ThisAppBS + "doc-ai.db";
+using (var dbDoc = new sqlite(folders.ThisApp + "doc-ai.db")) {
+	using var staDocSelect = dbDoc.Statement("SELECT name,text FROM doc");
 	
-	_ProcessText(ref text);
-	if (text.Length < 400) {
-		//print.it("SKIPPED", text.Length, text);
-		continue;
+	string tempDbPath = folders.LocalAppData + @"LibreAutomate\_dev\doc-ai-summary.db";
+	using var dbTemp = new sqlite(tempDbPath);
+	dbTemp.Execute("CREATE TABLE IF NOT EXISTS doc (name TEXT PRIMARY KEY, summary TEXT, hash BLOB)");
+	using var staTempInsert = dbTemp.Statement("INSERT OR REPLACE INTO doc VALUES (?, ?, ?)");
+	using var transTemp = dbTemp.Transaction(sqlOfDispose: "COMMIT");
+	
+	Dictionary<string, byte[]> dHash = [];
+	using (var staTempSelectHash = dbTemp.Statement("SELECT name,hash FROM doc")) {
+		while (staTempSelectHash.Step()) {
+			dHash.Add(staTempSelectHash.GetText(0), staTempSelectHash.GetArray<byte>(1));
+		}
 	}
 	
-	//summary exists and is up to date?
-	var hash = SHA256.HashData(text.ToUTF8());
-	if (dHash.TryGetValue(name, out var hash2) && hash2.SequenceEqual(hash)) continue;
+	while (staDocSelect.Step()) {
+		string name = staDocSelect.GetText(0), text = staDocSelect.GetText(1);
+		
+		_ProcessText(ref text);
+		if (text.Length < 400) {
+			//print.it("SKIPPED", text.Length, text);
+			continue;
+		}
+		
+		//summary exists and is up to date?
+		var hash = SHA256.HashData(text.ToUTF8());
+		if (dHash.TryGetValue(name, out var hash2) && hash2.SequenceEqual(hash)) continue;
+		
+		print.it(name);
+		perf.first();
+		var sum = _GenerateSummary(name, text, model, false);
+		perf.nw();
+		//print.it(sum);
+		
+		staTempInsert.BindAll(name, sum, hash);
+		staTempInsert.Step();
+		staTempInsert.Reset();
+		
+		//if (!dialog.showYesNo("Continue?")) return;
+		if (keys.isCapsLock) return;
+	}
 	
-	print.it(name);
-	perf.first();
-	var sum = _GenerateSummary(name, text, model, false);
-	perf.nw();
-	//print.it(sum);
-	
-	staTempInsert.BindAll(name, sum, hash);
-	staTempInsert.Step();
-	staTempInsert.Reset();
-	
-	//if (!dialog.showYesNo("Continue?")) return;
-	if (keys.isCapsLock) return;
+	//if (!dialog.showOkCancel("Finished", $"Copy temp summaries to doc-ai.db?")) return;
+	using var staDocUpdate = dbDoc.Statement("UPDATE doc SET summary = ? WHERE name = ?");
+	using var transDoc = dbDoc.Transaction();
+	using var staTempSelect = dbTemp.Statement("SELECT name,summary FROM doc");
+	while (staTempSelect.Step()) {
+		string name = staTempSelect.GetText(0), sum = staTempSelect.GetText(1);
+		staDocUpdate.BindAll(sum, name);
+		staDocUpdate.Step();
+		staDocUpdate.Reset();
+	}
+	transDoc.Commit();
+	dbDoc.Execute("VACUUM");
 }
+filesystem.copyTo(dbFile, @"C:\code\Au.Editor", FIfExists.Delete);
 
-//if (!dialog.showOkCancel("Finished", $"Copy temp summaries to doc-ai.db?")) return;
-using var staDocUpdate = dbDoc.Statement("UPDATE doc SET summary = ? WHERE name = ?");
-using var transDoc = dbDoc.Transaction();
-using var staTempSelect = dbTemp.Statement("SELECT name,summary FROM doc");
-while (staTempSelect.Step()) {
-	string name = staTempSelect.GetText(0), sum = staTempSelect.GetText(1);
-	staDocUpdate.BindAll(sum, name);
-	staDocUpdate.Step();
-	staDocUpdate.Reset();
-}
-transDoc.Commit();
-dbDoc.Execute("VACUUM");
 print.it("DONE. Added summaries to doc-ai.db.");
 
 #endif

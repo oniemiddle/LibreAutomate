@@ -40,9 +40,10 @@ active - tab.
 					<panel name="Outline" headerAt="Top" />
 				</tab>
 				<panel name="Open" z="80" />
-				<tab z="150" headerAt="Top">
+				<tab z="140" headerAt="Top">
 					<panel name="Find" headerAt="Top" />
 					<panel name="Bookmarks" headerAt="Top" />
+					<panel name="Breakpoints" headerAt="Top" />
 				</tab>
 			</stack>
 			<stack o="v" z="600*">
@@ -55,7 +56,7 @@ active - tab.
 					<document name="documents" z="300*" headerAt="Right" />
 					<panel name="Read" z="300*" state="1" />
 				</stack>
-				<tab z="150">
+				<tab z="140">
 					<panel name="Output" />
 					<panel name="Found" />
 					<panel name="Mouse" />
@@ -68,9 +69,6 @@ active - tab.
 			<panel name="Help" headerAt="Top" />
 			<panel name="Debug" headerAt="Top" />
 		</tab>
-		<tab z="100" headerAt="Top">
-			<panel name="Tasks" headerAt="Top" />
-			<panel name="Breakpoints" headerAt="Top" />
-		</tab>
+		<panel name="Tasks" z="80" headerAt="Right" />
 	</stack>
 </stack>

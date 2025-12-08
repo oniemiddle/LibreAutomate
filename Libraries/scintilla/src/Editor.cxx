@@ -2453,6 +2453,7 @@ void Editor::RestoreSelection(Sci::Position newPos, UndoRedo history) {
 				}
 			}
 			newPos = -1; // Used selection from stack so don't use position returned from undo/redo.
+			Redraw();
 		}
 	}
 	if (newPos >= 0)

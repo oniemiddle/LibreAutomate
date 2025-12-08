@@ -31,11 +31,17 @@
 - name: Snippets
   href: Snippets.md
 
+- name: Icons
+  href: Icons.md
+
 - name: Debugger
   href: Debugger.md
 
 - name: PiP session
   href: PiP session.md
+
+- name: LA and AI
+  href: LA and AI.md
 
 - name: Portable app
   href: Portable app.md

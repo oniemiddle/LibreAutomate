@@ -831,6 +831,8 @@ HRESULT AccUiaFocused(out IAccessible** iacc) {
 	return uia::AccFocused(iacc);
 }
 
+IUIAutomation* UIA() { return uia::UIA(); }
+
 //HRESULT AccUiaFromMSAA(IAccessible* msaa, int elem, out IAccessible** iacc)
 //{
 //	return uia::AccFromMSAA(msaa, elem, iacc);

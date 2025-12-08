@@ -396,12 +396,12 @@ static class CodeInfo {
 	/// <summary>
 	/// Use with `using` before pasting, dropping or inserting text when may need special processing, eg auto-inserting 'using' directives.
 	/// </summary>
-	public class Pasting : IDisposable {
+	public class PastingEtc : IDisposable {
 		SciCode _doc;
 		CiAutocorrect.Pasting _ac;
 		
 		/// <param name="silent">Insert missing usings without showing dialog.</param>
-		public Pasting(SciCode doc, bool silent = false) {
+		public PastingEtc(SciCode doc, bool silent = false) {
 			if (!_CanWork(doc)) return;
 			_doc = doc;
 			_diag.Pasting(_doc, silent);

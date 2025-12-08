@@ -931,7 +931,10 @@ public static class script {
 	/// <summary>
 	/// Ends all task processes of a script.
 	/// </summary>
-	/// <param name="name">Script file name (like <c>"Script43.cs"</c>) or path in workspace (like <c>@"\Folder\Script43.cs"</c>), or full file path.</param>
+	/// <param name="name">
+	/// Script file name (like <c>"Script43.cs"</c>) or path in workspace (like <c>@"\Folder\Script43.cs"</c>), or full file path.
+	/// If <c>""</c>, ends all other processes of this script.
+	/// </param>
 	/// <returns><c>true</c> if ended, <c>false</c> if failed (probably file not found), <c>null</c> if wasn't running.</returns>
 	/// <exception cref="AuException">Editor process not found.</exception>
 	/// <remarks>
@@ -941,10 +944,10 @@ public static class script {
 	/// </remarks>
 	public static bool? end([ParamString(PSFormat.CodeFile)] string name) {
 		var w = ScriptEditor.WndMsg_; if (w.Is0) throw new AuException("Editor process not found.");
-		int r = (int)WndCopyData.Send<char>(w, 5, name);
+		int exceptPid = 0; if (name == "") (name, exceptPid) = ($":{s_idMainFile}", Api.GetCurrentProcessId());
+		int r = (int)WndCopyData.Send<char>(w, 5, name, exceptPid);
 		return r == 1 ? true : r == 2 ? null : false;
 	}
-	//TODO: option to end all other processes of current script. Maybe if name is "".
 	
 	/// <summary>
 	/// Returns <c>true</c> if the specified script task is running.

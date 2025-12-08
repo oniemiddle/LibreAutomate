@@ -157,7 +157,7 @@ partial class SciCode {
 							z.text = p8;
 							z.len = s8.Length;
 							if (0 == ((DragDropEffects)effect & DragDropEffects.Move)) z.copy = 1;
-							using (new CodeInfo.Pasting(_sci))
+							using (new CodeInfo.PastingEtc(_sci))
 								_sci.Call(SCI_DRAGDROP, 2, &z);
 						}
 					}

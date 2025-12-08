@@ -312,7 +312,7 @@ public static partial class filesystem {
 		
 		return null;
 	}
-	//TODO: add overload with flags to ignore current directory etc.
+	//TODO2: add overload with flags to ignore current directory etc.
 	
 	/// <summary>
 	/// Gets names and other info of files and subdirectories in the specified directory.

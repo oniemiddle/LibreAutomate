@@ -29,10 +29,9 @@ static class Test {
 	/// 
 	/// </summary>
 	public static void FromMenubar() {
-		print.clear();
+		//print.clear();
 		
-						print.warning("Failed to initialize WebView2. Can't show LA documentation in the Read panel. Select another option in <+options Other>Options > Other<>.");
-
+		print.it(Panels.Editor.ActiveDoc.aaaCurrentPos16);
 		
 		//var query = Panels.Editor.ActiveDoc.aaaText.Lines()[0];
 		//var query = Panels.Editor.ActiveDoc.aaaText;

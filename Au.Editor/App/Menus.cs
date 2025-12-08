@@ -670,6 +670,9 @@ More info in app help topic "Code editor".
 		[Command(image = "*Material.Forum" + darkYellow)]
 		public static void Forum() { run.itSafe("https://www.libreautomate.com/forum/"); }
 		
+		[Command("What's new")]
+		public static void Whats_new() { run.itSafe($"https://github.com/qgindi/LibreAutomate/blob/master/Other/DocFX/_doc/changes/v{new Version(Au_.Version).ToString(2)}.md"); }
+		
 		[Command]
 		public static void Email() { run.itSafe($"mailto:info@libreautomate.com?subject={App.AppName} {Au_.Version}"); }
 		

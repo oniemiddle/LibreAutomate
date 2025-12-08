@@ -39,10 +39,7 @@ partial class AuDocs {
 		
 		//print.it(sbToc.ToString());
 		filesystem.saveText(dirTo + @"\toc.md", sbToc.ToString());
-		filesystem.saveText(dirTo + @"\index.md", """
-# Cookbook
-This is an online copy of the LibreAutomate cookbook.
-""");
+		filesystem.saveText(dirTo + @"\index.md", "");
 		
 		foreach (var (name, path) in aFiles) {
 			var code = filesystem.loadText(path);

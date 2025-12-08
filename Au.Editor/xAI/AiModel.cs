@@ -94,7 +94,7 @@ abstract record class AiModel(string api, string url, string model, AMLimits lim
 	
 	public static void RerankerModelWarning() {
 		if (!s_onceWarning1) s_onceWarning1 = true; else return;
-		print.warning("Not using an AI reranker model for LA documentation search. The results will be not as good. Please go to Options > AI and select a reranker model.", -1);
+		print.it("<>Note: Select an AI reranker model in <+options AI>Options > AI<>. It improves AI search results.");
 	}
 	static bool s_onceWarning1;
 	
@@ -486,7 +486,7 @@ record class ModelClaudeChat : AiChatModel {
 //no embedding API
 
 record class ModelDeepseekChat : AiChatModel {
-	public ModelDeepseekChat(string model = "deepseek-chat") : base("DeepSeek", "https://api.deepseek.com/chat/completions", model, new(200000, 100000)) { }//TODO: limits
+	public ModelDeepseekChat(string model = "deepseek-chat") : base("DeepSeek", "https://api.deepseek.com/chat/completions", model, new(200000, 100000)) { }//TODO2: limits
 	
 	public override object GetPostData(string systemInstruction, List<AiChatMessage> messages, double? temperature = null)
 		=> new {

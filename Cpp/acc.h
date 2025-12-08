@@ -656,4 +656,5 @@ IAccessible* AccJavaFromPoint(POINT p, HWND w);
 HRESULT AccUiaFromWindow(HWND w, out IAccessible** iacc);
 HRESULT AccUiaFromPoint(POINT p, out IAccessible** iacc);
 HRESULT AccUiaFocused(out IAccessible** iacc);
+IUIAutomation* UIA();
 //HRESULT AccUiaFromMSAA(IAccessible* msaa, int elem, out IAccessible** iacc);

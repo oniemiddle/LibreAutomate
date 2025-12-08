@@ -131,7 +131,7 @@ public class Config {
 	/// <summary>
 	/// Option to pass a list of tags to pass through as is without any processing
 	/// </summary>
-	public string[] PassThroughTags { get; set; } = { };
+	public string[] PassThroughTags { get; set; } = {  };
 	
 	public enum UnknownTagsOption {
 		/// <summary>

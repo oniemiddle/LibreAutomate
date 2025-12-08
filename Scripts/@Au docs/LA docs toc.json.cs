@@ -6,13 +6,13 @@ using System.Xml.Linq;
 
 if (script.testing) print.clear();
 
-HashSet<string> hsDbNames = [];
-using (var db = new sqlite(folders.ThisAppBS + "doc-ai.db", SLFlags.SQLITE_OPEN_READONLY)) {
-	using var sta = db.Statement("SELECT name FROM doc");
-	while (sta.Step()) {
-		hsDbNames.Add(sta.GetText(0));
-	}
-}
+//HashSet<string> hsDbNames = [];
+//using (var db = new sqlite(folders.ThisAppBS + "doc-ai.db", SLFlags.SQLITE_OPEN_READONLY)) {
+//	using var sta = db.Statement("SELECT name FROM doc");
+//	while (sta.Step()) {
+//		hsDbNames.Add(sta.GetText(0));
+//	}
+//}
 
 var root = new JsonArray();
 _Cookbook();

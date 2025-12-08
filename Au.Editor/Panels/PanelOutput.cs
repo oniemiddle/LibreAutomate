@@ -165,7 +165,7 @@ class PanelOutput {
 				if (h.Count > 50) h.Dequeue();
 			}
 			
-			_p._leaf.Visible = true;
+			if (!_p.P.IsVisible) _p._leaf.Visible = true;
 		}
 		static regexp s_rxCompError;
 		

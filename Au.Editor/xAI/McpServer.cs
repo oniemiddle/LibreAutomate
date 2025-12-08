@@ -53,8 +53,6 @@ class McpServer {
 						//prompts = new { },
 						//completions = new { },
 						//logging = new { },
-						
-						//TODO: maybe there is something to improve tool call results
 					}
 				});
 			} else if (method == "ping") {
@@ -62,7 +60,7 @@ class McpServer {
 			} else if (method == "tools/list") {
 				return _Send(new { tools = _GenerateToolList() });
 			} else if (method == "tools/call") {
-		print.it($"MCP: process={process.thisProcessId}, thread={Environment.CurrentManagedThreadId}");//TODO
+				//print.it($"MCP: process={process.thisProcessId}");
 				//print.it(json);
 				var p = msg.GetProperty("params");
 				var text = _CallTool(p.GetProperty("name").GetString(), p.GetProperty("arguments"));

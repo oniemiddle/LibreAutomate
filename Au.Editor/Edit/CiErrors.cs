@@ -15,17 +15,23 @@ using Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery;
 namespace LA;
 
 class CiErrors {
+	record struct _Diagnostic(Diagnostic d, int start, int end) {
+		public ErrorCode Code => (ErrorCode)d.Code;
+	}
+	
 	SemanticModel _semo;
-	List<(Diagnostic d, int start, int end)> _codeDiag;
+	List<_Diagnostic> _codeDiag;
 	readonly List<StartEndText> _stringErrors = new();
 	readonly List<StartEndText> _metaErrors = new();
 	StartEnd _metaRange;
 	
+	/// <param name="start16"></param>
+	/// <param name="end16"></param>
+	/// <param name="pasting">true on paste, drop or `InsertCode.Statements`</param>
+	/// <param name="pastingSilent">true if `InsertCode.Statements`</param>
 	public void Indicators(int start16, int end16, bool pasting = false, bool pastingSilent = false) {
-		//TODO: when pasting:
-		//- remove pasted usings that are in global.cs.
-		//- move pasted usings to the top if need.
-		
+		bool pastedWithUsings = false;
+		gStart:
 		_semo = null;
 		
 		if (!CodeInfo.GetContextAndDocument(out var cd, 0, metaToo: true)) return;
@@ -36,11 +42,16 @@ class CiErrors {
 		bool has = false;
 		var semo = cd.semanticModel;
 		
-		var a = semo.GetDiagnostics(TextSpan.FromBounds(start16, end16));
+		var aDiag = semo.GetDiagnostics(TextSpan.FromBounds(start16, end16));
 		
-		if (!a.IsDefaultOrEmpty) {
-			_codeDiag = new(a.Length);
-			foreach (var d_ in a) {
+		if (!aDiag.IsDefaultOrEmpty) {
+			if (pasting && !pastingSilent && !pastedWithUsings && _PastedWithUsings(cd, aDiag, ref start16, ref end16)) {
+				pastedWithUsings = true;
+				goto gStart;
+			}
+			
+			_codeDiag = new(aDiag.Length);
+			foreach (var d_ in aDiag) {
 				var d = d_;
 				if (d.IsSuppressed) continue;
 				var loc = d.Location; if (!loc.IsInSource) continue;
@@ -76,7 +87,7 @@ class CiErrors {
 				if (!has) doc.EInicatorsDiag_(has = true);
 				var indic = d.Severity switch { DiagnosticSeverity.Error => SciTheme.Indic.Error, DiagnosticSeverity.Warning => SciTheme.Indic.Warning, DiagnosticSeverity.Info => SciTheme.Indic.Info, _ => SciTheme.Indic.DiagHidden };
 				doc.aaaIndicatorAdd(indic, true, start..end);
-				_codeDiag.Add((d, start, end));
+				_codeDiag.Add(new(d, start, end));
 				
 				if (d.Severity == DiagnosticSeverity.Error) {
 					switch (ec) {
@@ -116,16 +127,17 @@ class CiErrors {
 			_codeDiag = null;
 		} else if (pasting && _semo != null) {
 			//insert missing using directives
-			List<_MissingUsingError> amu = null;
+			List<_MissingUsingError> aMissingUsing = null;
 			foreach (var v in _codeDiag) {
-				if (!_MissingUsingError.IsMissingUsingError((ErrorCode)v.d.Code, out bool extMethod)) continue;
-				var mu = new _MissingUsingError(code, v.start, v.end, extMethod, _semo);
-				_MissingUsingError.AddToList(ref amu, mu);
+				if (_MissingUsingError.IsMissingUsingError(v.Code, out bool extMethod)) {
+					var mu = new _MissingUsingError(code, v.start, v.end, extMethod, _semo);
+					_MissingUsingError.AddToList(ref aMissingUsing, mu);
+				}
 			}
 			//var e1 = _codeDiag.Where(o => o.d.Severity == DiagnosticSeverity.Error); print.it(e1.Count(), e1);
 			//print.it(amu.Lenn_(), amu);
 			
-			List<string> usings = _GetMissingUsings(amu);
+			List<string> usings = _GetMissingUsings(aMissingUsing);
 			if (usings != null) {
 				//uncheck some usings that are rarely used and cause errors
 				bool uncheckForms = usings.Count > 1 && usings.Any(o => o is "System.Windows" or "System.Windows.Controls" or "System.Windows.Controls.Primitives" or "System.Windows.Input");
@@ -133,21 +145,19 @@ class CiErrors {
 				if (pastingSilent && uncheckForms) usings.Remove("System.Windows.Forms");
 				if (pastingSilent && uncheckDrawing) usings.Remove("System.Drawing");
 				
-				doc.Dispatcher.InvokeAsync(() => { //this func is called from scintilla notification
-					if (!pastingSilent) {
-						var d = new CheckListDialog("Add missing using directives?");
-						foreach (var u in usings) {
-							bool check = true;
-							if (uncheckForms && u is "System.Windows.Forms") check = false;
-							if (uncheckDrawing && u is "System.Drawing") check = false;
-							d.Add(u, check);
-						}
-						if (!d.ShowDialog(doc) || !d.ResultItems.Any()) return;
-						usings = d.ResultItems.ToList();
+				if (!pastingSilent) {
+					var d = new CheckListDialog("Add missing using directives?");
+					foreach (var u in usings) {
+						bool check = true;
+						if (uncheckForms && u is "System.Windows.Forms") check = false;
+						if (uncheckDrawing && u is "System.Drawing") check = false;
+						d.Add(u, check);
 					}
-					if (usings.Count > 0) InsertCode.UsingDirective(string.Join(';', usings), true);
-					if (!pastingSilent && usings.Count > 1) print.it("Info: multiple using directives have been added. If it causes 'ambiguous reference' errors, remove one of usings displayed in the error tooltip. If that does not work, undo and remove other using.");
-				});
+					if (!d.ShowDialog(doc) || !d.ResultItems.Any()) return;
+					usings = d.ResultItems.ToList();
+				}
+				if (usings.Count > 0) InsertCode.UsingDirective(string.Join(';', usings), true);
+				if (!pastingSilent && usings.Count > 1) print.it("Info: multiple using directives have been added. If it causes 'ambiguous reference' errors, remove one of usings displayed in the error tooltip. If that does not work, undo and remove other using.");
 			}
 		}
 	}
@@ -264,7 +274,14 @@ class CiErrors {
 			var p = _pasting; _pasting = default;
 			if (doc == p.doc && n.length > 3) {
 				int start = doc.aaaPos16(n.position), end = doc.aaaPos16(n.position + n.length);
-				Indicators(start, end, pasting: true, pastingSilent: p.silent);
+				string text = doc.aaaText;
+				doc.Dispatcher.InvokeAsync(() => { //may need to modify code (can't do it in a scintilla modified notification)
+					if (Panels.Editor.ActiveDoc != doc || doc.aaaText != text) return;
+					try {
+						Indicators(start, end, pasting: true, pastingSilent: p.silent);
+					}
+					catch (Exception ex) { Debug_.Print(ex); }
+				});
 			}
 		}
 	}
@@ -451,7 +468,7 @@ class CiErrors {
 		return usings;
 	}
 	
-	void _UsingsEtc(CiText x, in (Diagnostic d, int start, int end) v, SciCode doc, bool extMethod) {
+	void _UsingsEtc(CiText x, in _Diagnostic v, SciCode doc, bool extMethod) {
 		var d = v.d;
 		var ec = (ErrorCode)d.Code;
 		var mu = new _MissingUsingError(doc.aaaText, v.start, v.end, extMethod, _semo);
@@ -523,5 +540,57 @@ class CiErrors {
 			t = semo.GetTypeInfo(ma.Expression).Type;
 		Debug_.PrintIf(t == null, "failed to get extension method receiver type");
 		return t;
+	}
+	
+	bool _PastedWithUsings(CodeInfo.Context cd, ImmutableArray<Diagnostic> aDiag, ref int start16, ref int end16) {
+		int firstStart = int.MaxValue, lastEnd = 0;
+		foreach (var d in aDiag) {
+			if ((ErrorCode)d.Code != ErrorCode.ERR_UsingAfterElements) continue;
+			firstStart = Math.Min(firstStart, d.Location.SourceSpan.Start);
+			lastEnd = Math.Max(lastEnd, d.Location.SourceSpan.End);
+		}
+		if (firstStart < lastEnd) {
+			if (cd.syntaxRoot.FindTokenOnLeftOfPosition(lastEnd) is { RawKind: (int)SyntaxKind.SemicolonToken } t1) lastEnd = t1.FullSpan.End;
+			int i = InsertCode.FindUsingsInsertPos(cd);
+			if (i >= 0 && i <= firstStart) {
+				var sUsings = cd.code[firstStart..lastEnd];
+				if (!sUsings.Ends('\n')) sUsings += "\r\n";
+				
+				//don't add duplicate usings
+				var text2 = cd.code.Remove(firstStart..lastEnd).Insert(i, sUsings);
+				var document2 = cd.document.WithText(SourceText.From(text2));
+				var semo = document2.GetSemanticModelAsync().Result_();
+				if (semo.GetDiagnostics(new(i, sUsings.Length)) is { IsDefaultOrEmpty: false } ad2) {
+					StringBuilder b = null; int appended = i;
+					foreach (var d in ad2) {
+						if ((ErrorCode)d.Code is ErrorCode.WRN_DuplicateUsing or ErrorCode.HDN_DuplicateWithGlobalUsing) {
+							b ??= new();
+							int start = d.Location.SourceSpan.Start, end = d.Location.SourceSpan.End;
+							if (semo.SyntaxTree.GetRoot().FindToken(start).Parent.GetAncestorOrThis<UsingDirectiveSyntax>() is { } nUsing) {
+								start = nUsing.SpanStart;
+								end = nUsing.FullSpan.End;
+								b.Append(text2, appended, start - appended);
+								appended = end;
+							}
+						}
+					}
+					if (b != null) {
+						b.Append(text2, appended, i + sUsings.Length - appended);
+						sUsings = b.ToString();
+					}
+				}
+				
+				var doc = cd.sci;
+				using var undo = doc.ENewUndoAction();
+				doc.aaaDeleteRange(true, firstStart, lastEnd);
+				doc.aaaInsertText(true, i, sUsings);
+				
+				start16 = firstStart + sUsings.Length;
+				end16 += firstStart - lastEnd+ sUsings.Length;
+				
+				return true;
+			}
+		}
+		return false;
 	}
 }

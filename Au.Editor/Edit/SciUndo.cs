@@ -281,7 +281,7 @@ partial class SciCode {
 	//#endif
 	
 	/// <summary>
-	/// <c>=> new aaaUndoAction(this);</c>
+	/// <c>=> new EUndoAction(this, onUndoDontChangeCaretPos);</c>
 	/// </summary>
 	public EUndoAction ENewUndoAction(bool onUndoDontChangeCaretPos = false) => new EUndoAction(this, onUndoDontChangeCaretPos);
 	

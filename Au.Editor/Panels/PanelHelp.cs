@@ -52,7 +52,7 @@ class PanelHelp {
 		Panels.PanelManager["Help"].DontActivateFloating = e => e == _tv;
 		
 		P.IsVisibleChanged += (_, e) => {
-			if (e.NewValue is bool y && y) {
+			if ((bool)e.NewValue && _root == null) {
 				_Load();
 				_tv.ItemActivated += e => _OpenItem(e.Item as _Item, false);
 			}
@@ -348,7 +348,11 @@ class PanelHelp {
 						if (i > 0) (section, name) = (name[(i + 3)..], name[..i]);
 						if (section == "other") section = null;
 						
-						r = r.Children().First(o => o.name == name);
+						r = r.Children().FirstOrDefault(o => o.name == name);
+						if (r == null) {
+							Debug_.Print(name);
+							return;
+						}
 						
 						string href = r.href;
 						if (section != null) {

@@ -233,6 +233,7 @@ uid: menu_commands
   - Context help
   - Website
   - Forum
+  - What's new
   - Email
   - Donate
   - About

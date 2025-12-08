@@ -318,7 +318,7 @@ public static class AuDocsShared {
 		//if(!_rxCss.IsMatch(s)) print.it(f.Name);
 		s = _rxCss.Replace(s, "$1$2\n$1<link rel=\"stylesheet\" href=\"../styles/code.css\">", 1);
 		
-		_rxCode2 ??= new("""(?s)<code class="lang(?:uage)?-[^"]*">(.+?)</code>""");
+		_rxCode2 ??= new("""(?s)<code class="lang-(?: hljs|csharp)">(.+?)</code>""");
 		s = _rxCode2.Replace(s, m => _Code(m[1].Value, isApi ? 1 : 2)); //syntax in api, and ```code``` in conceptual
 		
 		if (isApi) {
@@ -358,6 +358,12 @@ public static class AuDocsShared {
 			if (k.bold) b.Append("font-weight: bold;");
 			b.AppendLine("}");
 		}
+		
+		b.AppendLine("""
+
+summary { display: list-item; }
+details { margin-bottom: 10px; }
+""");
 		
 		return b.ToString();
 	}

@@ -9,7 +9,7 @@ using System.Net;
 using YamlDotNet.RepresentationModel;
 using System.Text.Json.Nodes;
 
-//print.clear();
+if (script.testing) print.clear();
 
 string startFrom = null;
 //startFrom = "Au.clipboard";
@@ -53,6 +53,7 @@ string startFrom = null;
 //startFrom = "Au.elm.Invoke";
 //startFrom = "Au.keys.send";
 //startFrom = "Au.Types.IFImage";
+//startFrom = "Au.dialog.Controls";
 
 HtmlToMarkdown h2m = new(step: !true || startFrom != null, startFrom);
 h2m.Convert();
@@ -66,7 +67,6 @@ class HtmlToMarkdown(bool step, string startFrom) {
 	bool _isApiDir, _isApi;
 	string _name;
 	Dictionary<string, string> _dName;
-	const string c_aboutLibrary = "About the automation library (files, namespaces)";
 	
 	public void Convert() {
 		if (step || startFrom != null) {
@@ -89,7 +89,7 @@ class HtmlToMarkdown(bool step, string startFrom) {
 			filesystem.copyTo(dbFile, @"C:\code\Au.Editor", FIfExists.Delete);
 			
 			print.it("<>DONE. Created doc-ai.db. Now <script AI summaries.cs>add summaries<>.");
-			print.scrollToTop();
+			//print.scrollToTop();
 		}
 	}
 	
@@ -100,11 +100,9 @@ class HtmlToMarkdown(bool step, string startFrom) {
 			_isApiDir = _subDir is "api";
 			foreach (var f in filesystem.enumFiles(c_rootDir + subDir, "*.html")) {
 				_name = f.Name[..^5];
-				if (_name is "toc") continue;
+				if (_name is "toc" or "index") continue;
 				if (_isApiDir) {
 					if (_name is "Au" or "Au.Types" or "Au.More" or "Au.Triggers") continue;
-				} else {
-					if (_name is "index") continue;
 				}
 				
 				if (startFrom != null) { if (_name == startFrom) startFrom = null; else continue; }
@@ -168,10 +166,7 @@ class HtmlToMarkdown(bool step, string startFrom) {
 					//filesystem.saveText($@"C:\Temp\Au\markdown\{subDir}\{_name}.md", markdown); //makes slower: 3 -> 9 s; (30-60 s if the folder not excluded in WD)
 					
 					if (_isApiDir) {
-						var name = _name;
-						if (name == "index") name = "[articles] " + c_aboutLibrary;
-						else name = _dName[f.Name];
-						dbInsert.BindAll($"{name}", null, markdown).Step();
+						dbInsert.BindAll($"{_dName[f.Name]}", null, markdown).Step();
 						dbInsert.Reset();
 					} else {
 						//split some long articles
@@ -227,7 +222,7 @@ class HtmlToMarkdown(bool step, string startFrom) {
 			throw new _Exception(file, v);
 		}
 		
-		static bool _IsBlockElement(HtmlNode n) => n != null && n.Name is "blockquote" or "dd" or "div" or "dl" or "dt" or "footer" or "form" or "h1" or "h2" or "h3" or "h4" or "h5" or "h6" or "header" or "hr" or "li" or "nav" or "noscript" or "ol" or "p" or "pre" or "section" or "table" or "tbody" or "td" or "tfoot" or "th" or "thead" or "tr" or "ul" or "video";
+		static bool _IsBlockElement(HtmlNode n) => n != null && n.Name is "blockquote" or "dd" or "details" or "div" or "dl" or "dt" or "footer" or "form" or "h1" or "h2" or "h3" or "h4" or "h5" or "h6" or "header" or "hr" or "li" or "nav" or "noscript" or "ol" or "p" or "pre" or "section" or "summary" or "table" or "tbody" or "td" or "tfoot" or "th" or "thead" or "tr" or "ul" or "video";
 		
 		static bool _IsInlineElement(HtmlNode n) => n != null && n.Name is "a" or "abbr" or "acronym" or "b" or "bdo" or "big" or "br" or "button" or "cite" or "code" or "dfn" or "em" or "i" or "img" or "input" or "kbd" or "label" or "map" or "object" or "output" or "q" or "samp" or "script" or "select" or "small" or "span" or "strong" or "sub" or "sup" or "textarea" or "time" or "tt" or "u" or "var";
 		
@@ -263,7 +258,7 @@ class HtmlToMarkdown(bool step, string startFrom) {
 						if (s.Contains("\n")) {
 							var lines = s.Lines(noEmpty: true);
 							for (int ii = lines.Length; --ii >= 0;) {
-								node.InsertAfter(hdoc.CreateTextNode(lines[ii]), t);
+								node.InsertAfter(hdoc.CreateTextNode(lines[ii].Trim()), t);
 								if (ii > 0) node.InsertAfter(hdoc.CreateElement("br"), t);
 							}
 							t.Remove();
@@ -368,8 +363,8 @@ class HtmlToMarkdown(bool step, string startFrom) {
 								b.Append("<code>").Append(v.InnerText).Append("</code>");
 								//the list contains inheritance classes and classes derived from this. Split it into 2 lists.
 								if (bDerived != null) throw new _Exception(file);
-								if (i > 0 && v.Name != "a") {
-									if (!h1Text.Eq(h1Text.IndexOf(' ') + 1, v.InnerHtml)) throw new _Exception(file, $"uid={uid}, inh={v.InnerHtml}");
+								if (i > 0 && v.Name != "a" && v.InnerHtml is var s1 && s1 != "Attribute") {
+									if (!h1Text.Eq(h1Text.IndexOf(' ') + 1, s1)) throw new _Exception(file, $"uid={uid}, inh={s1}");
 									if (i < a.Length - 1) b = bDerived = new();
 								}
 							}
@@ -858,7 +853,6 @@ class HtmlToMarkdown(bool step, string startFrom) {
 		stream.Add(new YamlDocument(yConcept));
 		foreach (var subDir in _subDirs.Skip(1)) {
 			var yList = new YamlSequenceNode();
-			if (subDir is "articles") yList.Add(c_aboutLibrary);
 			foreach (var f in filesystem.enumFiles(c_rootDir + subDir, "*.html")) {
 				var name = f.Name[..^5];
 				if (name is "index" or "toc") continue;

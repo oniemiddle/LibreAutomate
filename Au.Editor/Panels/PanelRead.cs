@@ -70,7 +70,7 @@ class PanelRead {
 					s_wvAvailable = !ver.NE();
 				}
 				catch { s_wvAvailable = false; }
-				if (s_wvAvailable == false) print.it("<>Info: To show documentation in <b>Read<> panel, download/install <google WebView2 site:microsoft.com>WebView2<>. Then restart this app. Or, to disable this warning, change the setting in <b>Options > Other<>.");
+				if (s_wvAvailable == false) print.it("<>Info: To show documentation in <b>Read<> panel, download/install <google WebView2 site:microsoft.com>WebView2<>. Then restart this app. See <b>Options > Other<>.");
 			}
 			return s_wvAvailable == true;
 		}
@@ -94,7 +94,8 @@ class PanelRead {
 		
 		_wv.CoreWebView2InitializationCompleted += (_, e) => {
 			if (!e.IsSuccess) {
-				print.warning("Failed to initialize WebView2. Can't show LA documentation in the Read panel. Try to restart this app. Or change the setting in <+options Other>Options > Other<>. " + e.InitializationException);
+				print.warning("Failed to initialize WebView2. Can't show LA documentation in the Read panel. See <+options Other>Options > Other<>. " + e.InitializationException);
+				s_wvAvailable = false;
 				return;
 			}
 			

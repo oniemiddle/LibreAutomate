@@ -389,11 +389,13 @@ class RunningTasks {
 	/// Returns true if was running.
 	/// </summary>
 	/// <param name="f">Can be null.</param>
-	public bool EndTasksOf(FileNode f) {
+	/// <param name="exceptProcessId"></param>
+	public bool EndTasksOf(FileNode f, int exceptProcessId = 0) {
 		bool wasRunning = false;
 		for (int i = _a.Count; --i >= 0;) {
 			var r = _a[i];
 			if (r.f != f || !r.IsRunning) continue;
+			if (exceptProcessId != 0 && r.processId == exceptProcessId) continue;
 			_EndTask(r);
 			wasRunning = true;
 		}
@@ -623,76 +625,92 @@ class RunningTasks {
 	
 	/// <summary>
 	/// Starts task process.
-	/// Returns (processId, processHandle). Throws if failed.
+	/// Returns (processId, processHandle). Throws if failed. Returns 0 if failed to attach debugger.
 	/// </summary>
 	static unsafe (int pid, WaitHandle hProcess) _StartProcess(_SpUac uac, string exeFile, string args, string wrPipeName, bool exeProgram, bool runFromEditor, uint idMain, Func<int, bool> debugAttach, bool redirectConsoleInExe) {
-		(int pid, WaitHandle hProcess) r;
-		string cwd;
-		
-		if (exeProgram) {
-			if (s_cwdExe == null) {
-				//Pass this working directory to let the exe know it was launched from editor.
-				//	Then its AppModuleInit_ will read from shared memory and set the event.
-				//	Also AppHost uses this to find portable .NET runtime.
-				//There are no other ways to pass data when using shellexecute(runas) when cannot use command line args.
-				//This empty hidden directory is created by the setup program. This code creates it if missing.
-				cwd = folders.ThisApp.Path + "\\Roslyn\\.exeProgram";
-				if (!filesystem.exists(cwd).Directory) {
-					filesystem.createDirectory(cwd);
-					File.SetAttributes(cwd, FileAttributes.Directory | FileAttributes.Hidden);
+		if (s_inSP) throw new AuException("_StartProcess: can't reenter"); //starting the debugger. See wait.forHandle below. Very rare, never mind.
+		s_inSP = true;
+		try {
+			(int pid, WaitHandle hProcess) r;
+			string cwd;
+			
+			if (exeProgram) {
+				if (s_cwdExe == null) {
+					//Pass this working directory to let the exe know it was launched from editor.
+					//	Then its AppModuleInit_ will read from shared memory and set the event.
+					//	Also AppHost uses this to find portable .NET runtime.
+					//There are no other ways to pass data when using shellexecute(runas) when cannot use command line args.
+					//This empty hidden directory is created by the setup program. This code creates it if missing.
+					cwd = folders.ThisApp.Path + "\\Roslyn\\.exeProgram";
+					if (!filesystem.exists(cwd).Directory) {
+						filesystem.createDirectory(cwd);
+						File.SetAttributes(cwd, FileAttributes.Directory | FileAttributes.Hidden);
+					}
+					s_cwdExe = cwd;
+					s_event1 = Api.CreateEvent2(default, true, false, "Au.event.exeProgram.1");
+				} else {
+					cwd = s_cwdExe;
+					Api.ResetEvent(s_event1);
 				}
-				s_cwdExe = cwd;
-				s_event1 = Api.CreateEvent2(default, true, false, "Au.event.exeProgram.1");
-			} else cwd = s_cwdExe;
+				
+				var p = &SharedMemory_.Ptr->script;
+				p->pidEditor = process.thisProcessId;
+				p->hwndMsg = (int)CommandLine.MsgWnd;
+				p->idMainFile = idMain;
+				int flags = 0;
+				if (runFromEditor) flags |= 2;
+				if (App.IsPortable) flags |= 4;
+				if (wrPipeName != null) { flags |= 8; p->pipe = wrPipeName; }
+				if (redirectConsoleInExe) flags |= 16;
+				p->flags = flags;
+				p->workspace = folders.Workspace;
+			} else cwd = folders.ThisApp;
 			
-			var p = &SharedMemory_.Ptr->script;
-			p->pidEditor = process.thisProcessId;
-			p->hwndMsg = (int)CommandLine.MsgWnd;
-			p->idMainFile = idMain;
-			int flags = 0;
-			if (runFromEditor) flags |= 2;
-			if (App.IsPortable) flags |= 4;
-			if (wrPipeName != null) { flags |= 8; p->pipe = wrPipeName; }
-			if (redirectConsoleInExe) flags |= 16;
-			p->flags = flags;
-			p->workspace = folders.Workspace;
-		} else cwd = folders.ThisApp;
-		
-		if (uac == _SpUac.elevate) {
-			var k = run.it(exeFile, args, RFlags.Admin | RFlags.NeedProcessHandle, cwd);
-			r = (k.ProcessId, k.ProcessHandle);
-			//note: don't try to start task without UAC consent. It is not secure.
-			//	Normally editor runs as admin in admin user account, and don't need to go through this.
-		} else {
-			var ps = new ProcessStarter_(exeFile, args, cwd, rawExe: true);
-			
-			if (debugAttach != null) ps.si.dwXCountChars = 1703529821; //let the process wait for "debugger attached" event
-			
-			var need = ProcessStarter_.Result.Need.WaitHandle;
-			var psr = uac == _SpUac.userFromAdmin
-				? ps.StartUserIL(need)
-				: ps.Start(need, inheritUiaccess: uac == _SpUac.uiAccess);
-			r = (psr.pid, psr.waitHandle);
-			
-			if (debugAttach != null) {
-				if (!debugAttach(psr.pid)) {
-					Api.TerminateProcess(psr.waitHandle.SafeWaitHandle.DangerousGetHandle(), 0);
-					psr.waitHandle.Dispose();
-					return default;
+			if (uac == _SpUac.elevate) {
+				var k = run.it(exeFile, args, RFlags.Admin | RFlags.NeedProcessHandle, cwd);
+				r = (k.ProcessId, k.ProcessHandle);
+				//note: don't try to start task without UAC consent. It is not secure.
+				//	Normally editor runs as admin in admin user account, and don't need to go through this.
+			} else {
+				var ps = new ProcessStarter_(exeFile, args, cwd, rawExe: true);
+				
+				if (debugAttach != null) ps.si.dwXCountChars = 1703529821; //let the process wait for "debugger attached" event
+				
+				var need = ProcessStarter_.Result.Need.WaitHandle;
+				var psr = uac == _SpUac.userFromAdmin
+					? ps.StartUserIL(need)
+					: ps.Start(need, inheritUiaccess: uac == _SpUac.uiAccess);
+				r = (psr.pid, psr.waitHandle);
+				
+				if (debugAttach != null) {
+					if (!debugAttach(psr.pid)) {
+						Api.TerminateProcess(psr.waitHandle.SafeWaitHandle.DangerousGetHandle(), 0);
+						psr.waitHandle.Dispose();
+						return default;
+					}
 				}
 			}
+			
+			if (exeProgram) {
+				nint hProc = r.hProcess.SafeWaitHandle.DangerousGetHandle();
+				if (debugAttach != null) {
+					//can't block, because need to communicate with netcoredbg.exe
+					wait.forHandle(0, WHFlags.DoEvents, s_event1, hProc);
+				} else { //better low-level than wait.forHandle with flags 0
+					nint* ha = stackalloc nint[2] { s_event1, hProc };
+					Api.WaitForMultipleObjectsEx(2, ha, false, -1, false);
+				}
+				
+				Api.ResetEvent(s_event1);
+			}
+			
+			return r;
 		}
-		
-		if (exeProgram) {
-			IntPtr* ha = stackalloc IntPtr[2] { s_event1, r.hProcess.SafeWaitHandle.DangerousGetHandle() };
-			Api.WaitForMultipleObjectsEx(2, ha, false, -1, false);
-			Api.ResetEvent(s_event1);
-		}
-		
-		return r;
+		finally { s_inSP = false; }
 	}
 	static IntPtr s_event1;
 	static string s_cwdExe;
+	static bool s_inSP;
 	
 	int _Find(int taskId) {
 		for (int i = 0; i < _a.Count; i++) {

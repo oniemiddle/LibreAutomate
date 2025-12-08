@@ -99,11 +99,12 @@ Example of a BAD query: "activate Chrome window send keys Ctrl+L LibreAutomate".
 		[Mcp("The `description` text of the `query` parameter of this tool, as specified in the MCP tool definition. This is to ensure you know how to use this parameter.")]
 		string passPhrase
 		) {
-		print.it("---");
+#if DEBUG
+		print.it("--- passPhrase:");
 		print.it(passPhrase);
 		print.it("---");
+#endif
 		
-		//if (App.Settings.ai_mcp_print) print.it($"<><lc yellowgreen><\a>MCP {nameof(find_la_docs)}: {query}</\a><>");
 		if (App.Settings.ai_mcp_print) print.it($"<><lc yellowgreen>MCP {nameof(find_la_docs)}:\r\n<><lc LemonChiffon><\a>{query}</\a><>");
 		
 		var lines = query.Lines(noEmpty: true);

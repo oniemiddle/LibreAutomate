@@ -402,7 +402,7 @@ static class CommandLine {
 		nint _ScriptAction(int action) {
 			if (App.Model.Find(s) is FileNode f) {
 				return action switch {
-					5 => App.Tasks.EndTasksOf(f) ? 1 : 2,
+					5 => App.Tasks.EndTasksOf(f, (int)wparam) ? 1 : 2,
 					6 => App.Tasks.IsRunning(f) ? 1 : 0,
 					_ => 0
 				};

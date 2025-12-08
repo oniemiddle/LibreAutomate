@@ -89,7 +89,7 @@ void _Build() {
 		d.Postprocess(siteDirTemp, siteDir);
 		print.it("DONE postprocessing");
 		
-		if (!testSmall) {
+		if (!testSmall && build) {
 			script.runWait("LA docs toc.json.cs");
 			script.runWait("LA docs doc-html.db.cs");
 			print.it("DONE LA docs scripts");

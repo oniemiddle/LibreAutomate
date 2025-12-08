@@ -1,5 +1,7 @@
 /// Uploads an AI embeddings storage file to the LA website.
 /// Currently used only for icons embeddings.
+/// To run, click link printed by Embeddings._GetEmbeddings. Can't run directly because need a hash etc.
+/// It prints the link when created new embeddings. To print always when UI-searching, temporarily enable the `//emFile.PrintUploadIfAtHome`.
 
 /*/ c Sftp.cs; c Ed util shared.cs; /*/
 

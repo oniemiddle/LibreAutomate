@@ -766,15 +766,24 @@ HRESULT AccEnableChrome2(HWND w, int i, HWND c) {
 		IAccessible2* aw2 = null;
 		if (QueryService(aw, &aw2, &IID_IAccessible)) aw2->Release();
 		//tested: the IAccessible2 does not have relations or something that would give the document
+
+		Smart<IUIAutomationElement> e1, e2;
+		Smart<IUIAutomationCondition> cond1;
+		if (c) {
+			if (0 != UIA()->ElementFromHandle(c, &e1)) return (HRESULT)eError::NotFound;
+			UIA()->get_RawViewCondition(&cond1);
+			e1->FindFirst(TreeScope::TreeScope_Children, cond1, &e2);
+		} else {
+			if (0 != UIA()->ElementFromHandle(w, &e1)) return (HRESULT)eError::NotFound;
+			UIA()->CreateFalseCondition(&cond1);
+			e1->FindFirst(TreeScope::TreeScope_Descendants, cond1, &e2);
+		}
 	}
 
 	if (c) {
 		hr = AccessibleObjectFromWindow(c, OBJID_CLIENT, IID_IAccessible, (void**)&aDoc);
 		if (hr != 0) return (HRESULT)eError::NotFound;
-	} else {
-		//workaround for: current Chrome (2024-11-16) does not enable if the window is not visible to the user, eg completely covered by other windows.
-		// Then the legacy child control is detached.
-		// But enabling takes 2-3 times longer than normally.
+	} else { //the child control is detached if the window is not visible to the user, eg completely covered by other windows
 		RECT r;
 		if (GetClientRect(w, &r)) { //note: aDoc.accLocation fails
 			MapWindowPoints(w, 0, (LPPOINT)&r, 2);
@@ -829,7 +838,7 @@ HRESULT AccEnableChrome2(HWND w, int i, HWND c) {
 
 	return isEnabled ? 0 : (HRESULT)eError::WaitChromeDisabled;
 
-	//note: probably some of these are obsolete.
+	//note: some of these are obsolete. Eg in current Chrome need to get UIA element of the control and get its children.
 	//I know these ways to auto-enable Chrome web page AOs:
 	//1. Call get_accName of any AO, eg of main window or document.
 	//	Need to wait. Also need to call some other functions to enable HTML and all acc properties.

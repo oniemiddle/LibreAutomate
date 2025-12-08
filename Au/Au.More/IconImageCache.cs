@@ -1,4 +1,4 @@
-//TODO: recently often the main floating toolbar expands slowly.
+//TODO2: 2025-11: often the main floating toolbar expands slowly. 2025-12: fast again.
 
 using System.Drawing;
 using Microsoft.Win32;

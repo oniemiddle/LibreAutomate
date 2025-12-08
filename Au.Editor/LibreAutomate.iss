@@ -1,6 +1,6 @@
 #define MyAppName "LibreAutomate"
 #define MyAppNameShort "LibreAutomate"
-#define MyAppVersion "1.14.0"
+#define MyAppVersion "1.15.0"
 #define MyAppPublisher "Gintaras Didžgalvis"
 #define MyAppURL "https://www.libreautomate.com/"
 #define MyAppExeName "Au.Editor.exe"
@@ -277,7 +277,7 @@ begin
 	try
 		page.Download;
 		
-		page.Msg1Label.Caption := 'Executing the .NET installer.';
+		page.Msg1Label.Caption := 'Running the .NET installer.';
 		page.Msg2Label.Caption := setupFileName;
 		page.ProgressBar.Style := npbstMarquee;
 		page.AbortButton.Hide;

@@ -1,5 +1,3 @@
-//TODO: doc.
-
 using System.Security.Authentication;
 using System.Windows;
 using System.Windows.Controls;
@@ -163,7 +161,7 @@ Can be Pack.Icon, like Material.Folder.");
 		b.End();
 		
 		b.Row(-1);
-		b.R.Add<TextBlock>().Align("R").FormatText($"Thanks to <a href='https://github.com/MahApps/MahApps.Metro.IconPacks'>MahApps.Metro.IconPacks</a>");
+		b.R.xAddDialogHelpButtonAndF1("editor/Icons").Align("R");
 		b.End();
 		
 		b.End();
