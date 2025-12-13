@@ -33,7 +33,7 @@ static class DotnetUtil {
 		
 		TextBlock t = new() { Height = 18, Margin = new(5) };
 		if (App.Settings.minimalSDK == false) wpfBuilder.formatTextOf(t, $"Missing .NET SDK. See <b>Options > Other > Use minimal .NET SDK</b>.");
-		else wpfBuilder.formatTextOf(t, $"<b><a {_InstallMinimalSdk}>Download required components</a></b> to use this feature (~26 MB)");
+		else wpfBuilder.formatTextOf(t, $"<b><a {_InstallMinimalSdk}>Download required components</a></b> to use this feature (~30 MB)");
 		
 		UIElement[] a = [t, new Separator(), content];
 		foreach (var e in a) {
@@ -170,7 +170,7 @@ static class DotnetUtil {
 	}
 	static string s_minimalDotnetExe, s_fullDotnetExe, s_minimalSdkDir, s_fullSdkDir;
 	static bool s_fullSdkDirOnce;
-	const string c_errorInstallMinimalSDK = "<>Failed to install required component (minimal .NET SDK). You can retry, or manually install the full .NET 9.0 SDK (~200 MB download). See also Options > Other > Use minimal SDK. Issues: https://github.com/qgindi/LibreAutomate/issues.";
+	const string c_errorInstallMinimalSDK = "<>Failed to install required component (minimal .NET SDK). You can retry, or manually install the full .NET 10 SDK (~200 MB download). See also Options > Other > Use minimal SDK. Issues: https://github.com/qgindi/LibreAutomate/issues.";
 	
 	/// <summary>
 	/// Path of "dotnet.exe" set by <see cref="EnsureSdkAsync"/>. Full or minimal SDK.

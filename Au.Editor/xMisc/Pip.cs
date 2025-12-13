@@ -185,11 +185,11 @@ file class PipWindow : Form {
 			return p;
 		}
 	}
-	
-	protected override void OnClosing(CancelEventArgs e) {
+
+	protected override void OnFormClosing(FormClosingEventArgs e) {
 		_fullScreen?.SetFullScreen(false);
 		Pip.SetConnected_(0);
-		base.OnClosing(e);
+		base.OnFormClosing(e);
 	}
 	
 	void _Events() {

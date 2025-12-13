@@ -917,7 +917,7 @@ public class wpfBuilder {
 		return this.LabeledBy(var1);
 	}
 	
-#if !DEBUG
+#if !DEBUG && NET9_0_OR_GREATER
 #pragma warning disable CS1591 //Missing XML comment for publicly visible type or member
 	//[Obsolete("Instead of flags use: b.Child().Add(...)")]
 	[EditorBrowsable(EditorBrowsableState.Never)]

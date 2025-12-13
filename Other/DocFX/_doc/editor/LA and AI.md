@@ -64,7 +64,7 @@ Applies to: `**/*.cs`
 
 You help LibreAutomate users write C# code and use the app.
 
-Environment: Windows 11, C# 14, .NET 9.
+Environment: Windows 11, C# 14, .NET 10.
 
 C# code that uses LibreAutomate usually is a script.
 

@@ -80,10 +80,6 @@ class CiErrors {
 					ec = ErrorCode.ERR_NameNotInContext;
 				}
 				
-				if (ec == ErrorCode.WRN_MissingXMLComment) { //FUTURE: delete this code if Roslyn will fix it
-					if (d.Location.FindNode(default) is ExtensionDeclarationSyntax) continue;
-				}
-				
 				if (!has) doc.EInicatorsDiag_(has = true);
 				var indic = d.Severity switch { DiagnosticSeverity.Error => SciTheme.Indic.Error, DiagnosticSeverity.Warning => SciTheme.Indic.Warning, DiagnosticSeverity.Info => SciTheme.Indic.Info, _ => SciTheme.Indic.DiagHidden };
 				doc.aaaIndicatorAdd(indic, true, start..end);

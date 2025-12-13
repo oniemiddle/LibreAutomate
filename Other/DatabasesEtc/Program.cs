@@ -7,8 +7,8 @@ static class Program {
 		print.qm2.use = true;
 		print.clear();
 
-		//RefTxt.Create();
+		RefTxt.Create();
 		//RefAndDoc.Create();
-		Icons.CreateDB();
+		//Icons.CreateDB();
 	}
 }

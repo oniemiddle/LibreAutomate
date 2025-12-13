@@ -40,6 +40,6 @@ Some NuGet packages don't install all required files, for example native dlls. T
 - Else you may have to download the missing files. In some cases they are in the `.nupkg` file (it is a zip file) in the packages cache folder. Click the **Folder** button and copy these files there. Set read-only attribute to prevent deleting them when managing packages. If the missing files are managed assemblies, in scripts that use them will need `/*/ r Dll; /*/` (use **Properties > Library**). If used in scripts with role `exeProgram`, copy these files to the output folder.
 
 ## Used software
-Installing packages requires the .NET SDK. By default, LibreAutomate uses it if installed; else downloads (~26 MB) and uses a private minimal SDK. See also **Options > Other > Use minimal SDK**. Portable LibreAutomate requires the full .NET SDK.
+Installing packages requires the .NET SDK. By default, LibreAutomate uses it if installed; else downloads (~30 MB) and uses a private minimal SDK. See also **Options > Other > Use minimal SDK**. Portable LibreAutomate requires the full .NET SDK.
 
 To ensure compatibility with all .NET Runtime versions, the minimal SDK uses the oldest build of the current major .NET SDK. Because of this, the Publish feature may fail to build code that uses the latest C# preview features. Solution: install the latest full SDK and ucheck **Options > Other > Use minimal SDK**. Note: the Publish feature is not used to install NuGet packages; it just uses the same minimal SDK.

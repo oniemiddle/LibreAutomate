@@ -1,4 +1,4 @@
-#define MyAppName "LibreAutomate"
+﻿#define MyAppName "LibreAutomate"
 #define MyAppNameShort "LibreAutomate"
 #define MyAppVersion "1.15.0"
 #define MyAppPublisher "Gintaras Didžgalvis"
@@ -215,7 +215,7 @@ begin
   args := '/C dotnet --list-runtimes > "' + fileName + '" 2>&1';
   if Exec(ExpandConstant('{cmd}'), args, '', SW_HIDE, ewWaitUntilTerminated, resultCode) and (resultCode = 0) then
   begin
-    if LoadStringFromFile(fileName, output) then Result := Pos('Microsoft.WindowsDesktop.App 9.', output) > 0;
+    if LoadStringFromFile(fileName, output) then Result := Pos('Microsoft.WindowsDesktop.App 10.', output) > 0;
   end;
   DeleteFile(fileName);
 	
@@ -243,10 +243,10 @@ var
 begin
   Result := true;
   
-  page := CreateDownloadPage('Installing .NET 9 Desktop Runtime', 'If stopped or failed now, download/install it manually. Size ~60 MB.', nil);
+  page := CreateDownloadPage('Installing .NET 10 Desktop Runtime', 'If stopped or failed now, download/install it manually. Size ~60 MB.', nil);
   page.Clear;
   page.Msg1Label.Caption := 'Getting the download URL of the current version.';
-	txtFileName := 'net-9-url.txt';
+	txtFileName := 'net-10-url.txt';
   page.Add('https://www.libreautomate.com/download/' + txtFileName, txtFileName, '');
   page.Show;
 	try
@@ -264,8 +264,8 @@ begin
   if (Length(urls) < 2) then
   begin
     SetLength(urls, 2);
-    urls[0] := 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/9.0.11/windowsdesktop-runtime-9.0.11-win-x64.exe';
-    urls[1] := 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/9.0.11/windowsdesktop-runtime-9.0.11-win-arm64.exe';
+    urls[0] := 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/10.0.1/windowsdesktop-runtime-10.0.1-win-x64.exe';
+    urls[1] := 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/10.0.1/windowsdesktop-runtime-10.0.1-win-arm64.exe';
   end;
 	
 	if IsArm64 then url := urls[1] else url := urls[0];
@@ -369,7 +369,7 @@ begin
     begin
       WizardForm.ReadyMemo.Lines.Add('');
       WizardForm.ReadyMemo.Lines.Add('Additional tasks:');
-      WizardForm.ReadyMemo.Lines.Add('      Install .NET 9 Desktop Runtime (~60 MB download)');
+      WizardForm.ReadyMemo.Lines.Add('      Install .NET 10 Desktop Runtime (~60 MB download)');
     end;
   end;
 end;

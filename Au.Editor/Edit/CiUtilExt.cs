@@ -468,6 +468,11 @@ static class CiUtilExt {
 			Glyph.MethodPrivate => ("resources/ci/method.xaml", "resources/ci/overlayprivate.xaml"),
 			Glyph.MethodProtected => ("resources/ci/method.xaml", "resources/ci/overlayprotected.xaml"),
 			
+			Glyph.OperatorPublic => ("resources/ci/operator.xaml", null),
+			Glyph.OperatorInternal => ("resources/ci/operator.xaml", "resources/ci/overlayinternal.xaml"),
+			Glyph.OperatorPrivate => ("resources/ci/operator.xaml", "resources/ci/overlayprivate.xaml"),
+			Glyph.OperatorProtected => ("resources/ci/operator.xaml", "resources/ci/overlayprotected.xaml"),
+
 			Glyph.PropertyPublic => ("resources/ci/property.xaml", null),
 			Glyph.PropertyInternal => ("resources/ci/property.xaml", "resources/ci/overlayinternal.xaml"),
 			Glyph.PropertyPrivate => ("resources/ci/property.xaml", "resources/ci/overlayprivate.xaml"),
@@ -482,7 +487,6 @@ static class CiUtilExt {
 			Glyph.Label => ("resources/ci/label.xaml", null),
 			Glyph.Local or Glyph.Parameter or Glyph.RangeVariable => ("resources/ci/localvariable.xaml", null),
 			Glyph.Namespace => ("resources/ci/namespace.xaml", null),
-			Glyph.Operator => ("resources/ci/operator.xaml", null),
 			Glyph.TypeParameter => ("resources/ci/typeparameter.xaml", null),
 			_ => default
 		};

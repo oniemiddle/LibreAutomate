@@ -45,6 +45,8 @@ class DIcons : KDialogWindow {
 Part of icon name, or wildcard expression.
 Examples: part, Part (match case), start*, *end, **rc regex case-sensitive.
 Can be Pack.Icon, like Material.Folder.");
+		_tName.PreviewKeyDown += (_, e) => { if (e.Key == Key.Enter) _AiSearch(); };
+		
 		b.xAddButtonIcon(EdIcons.AiSearch, _ => _AiSearch(), "Use AI to find icons.\nCan search by name or/and image.\nType what you want in the text box or/and copy an icon image (for example in web browser, PNG format). Then click this button.");
 		b.Row(-1).xAddInBorder(out _tv);
 		_tv.ImageBrush = System.Drawing.Brushes.White;

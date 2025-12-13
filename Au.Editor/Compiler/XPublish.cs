@@ -127,10 +127,7 @@ Indeterminate - use <IncludeNativeLibrariesForSelfExtract>. Adds all dlls to exe
 		var xpg = new XElement("PropertyGroup");
 		xroot.Add(xpg);
 		
-		_Add(xpg, "TargetFramework", "net9.0-windows");
-#if !NET9_0
-#error please update TargetFramework string
-#endif
+		_Add(xpg, "TargetFramework", $"net{Environment.Version.ToString(2)}-windows");
 		_Add(xpg, "LangVersion", "preview");
 		_Add(xpg, "AllowUnsafeBlocks", "true");
 		_Add(xpg, "UseWindowsForms", "true");
@@ -143,6 +140,7 @@ Indeterminate - use <IncludeNativeLibrariesForSelfExtract>. Adds all dlls to exe
 		_Add(xpg, "CopyDebugSymbolFilesFromPackages", "false");
 		_Add(xpg, "AppendTargetFrameworkToOutputPath", "false");
 		_Add(xpg, "NuGetAudit", "false"); //don't connect to nuget.org unless using nuget references. If no internet connection, waits several s and prints: warning NU1900: Error occurred while getting package vulnerability data: No such host is known. (api.nuget.org:443). But sometimes hangs. Error if command line contains --no-restore. 
+		_Add(xpg, "AllowMissingPrunePackageData", "true");
 		
 		_Add(xpg, "AssemblyName", _meta.Name);
 		_Add(xpg, "OutputType", _meta.Console ? "Exe" : "WinExe");

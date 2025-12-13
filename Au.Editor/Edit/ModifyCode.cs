@@ -408,7 +408,7 @@ static class ModifyCode {
 						LineFormatting = new() { UseTabs = true },
 						Indentation = IndentationPlacement.BlockContents | IndentationPlacement.SwitchCaseContents | IndentationPlacement.SwitchCaseContentsWhenBlock,
 						NewLines = NewLinePlacement.BeforeCatch | NewLinePlacement.BeforeFinally | NewLinePlacement.BetweenQueryExpressionClauses,
-						LabelPositioning = LabelPositionOptions.NoIndent,
+						LabelPositioning = LabelPositionOptionsInternal.NoIndent,
 					};
 					break;
 				case (false, true):
@@ -420,7 +420,7 @@ static class ModifyCode {
 					_formattingOptions = new() {
 						Indentation = IndentationPlacement.BlockContents | IndentationPlacement.SwitchCaseContents | IndentationPlacement.SwitchCaseContentsWhenBlock,
 						NewLines = NewLinePlacement.BeforeCatch | NewLinePlacement.BeforeFinally | NewLinePlacement.BetweenQueryExpressionClauses,
-						LabelPositioning = LabelPositionOptions.NoIndent,
+						LabelPositioning = LabelPositionOptionsInternal.NoIndent,
 					};
 					break;
 				default:

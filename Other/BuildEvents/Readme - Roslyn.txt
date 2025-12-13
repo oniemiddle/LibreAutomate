@@ -4,12 +4,13 @@ How to install, update and modify:
 Once: Build this project. Don't run; it will run automatically when building Roslyn project Microsoft.CodeAnalysis.CSharp.Features.
 
 Fork and clone Roslyn:
-    1. Delete the old fork repo.
-    2. Fork https://github.com/dotnet/roslyn.
-    3. Git-clone to C:\code-lib\roslyn. Do shallow clone (full >2 GB). I clone with TortoiseGit.
+    1. Delete the old fork repo `https://github.com/qgindi/roslyn`.
+    2. Fork `https://github.com/dotnet/roslyn`. In repo settings set default branch = the latest release, like `release/dev18.3`.
+    3. Git-clone `https://github.com/qgindi/roslyn.git` to `C:\code-lib\roslyn`. Do shallow clone of default branch (full >2 GB). I clone with TortoiseGit.
     Another way to update, not tested: in the GitHub fork repo page click `Sync fork`. It discards modifications. Then git-sync eg in VS. Bad: bloats .git.
-Open Roslyn.sln.
-To make VS not so slow, select all folders and unload projects. Then load Microsoft.CodeAnalysis.CSharp.Features with entire dependency tree.
+Open `global.json`. May need to edit SDK version. Usually no. May need to install a newer SDK.
+Open `Roslyn.sln`.
+To make VS not so slow, select all folders and unload projects. Then load Microsoft.CodeAnalysis.CSharp.Features with entire dependency tree. Make it the startup project.
   It loads projects we need:
     In folder Compilers: Core\Microsoft.CodeAnalysis, CSharp\Microsoft.CodeAnalysis.CSharp.
     In folder Features: Microsoft.CodeAnalysis.CSharp.Features, Microsoft.CodeAnalysis.Features.
@@ -30,10 +31,10 @@ _________________________________________________________________
 //Edit these manually. Often Roslyn source in new version is changed in some of these places.
 //Add only internal members (where possible). If public, need to declare it in PublicApi.Shipped.txt. Roslyn's internals are visible to the editor project.
 
-// - In all 6 projects + Scripting.csproj (but not CSharpSyntaxGenerator.csproj): from <TargetFrameworks> remove netstandard2.0 etc (replace with eg net9.0). Later will compile faster.
+// - In all 6 projects + Scripting.csproj (but not CSharpSyntaxGenerator.csproj):
+//   From <TargetFrameworks> remove netstandard2.0 etc (replace with eg net10.0). Later will compile faster.
 
 // - Set Release config. Try to build Microsoft.CodeAnalysis.CSharp.Features (it builds all).
-//	If error "SDK not found", install the latest .NET SDK or edit .NET version in global.json.
 
 // - In all 6 projects add:
     <InternalsVisibleTo Include="Au.Editor" Key="0024000004800000940000000602000000240000525341310004000001000100095c6b7a0fe60fbe4a77e52dd10a09331ee3c3a7399aa9cc17db8a015647469a19784d5e33a2450a0a49c37bf17c0c3223674f64104eae649ba27c51a90c24989faec87d59217d7850efc8151109bbf9b027b7714fc01788317d2b991b2c2669836a7725e942f76607efde5cdacd8c497a45c5f9673fcf102fdbf92237a524a4" />
@@ -50,7 +51,6 @@ _________________________________________________________________
     <AccelerateBuildsInVisualStudio>false</AccelerateBuildsInVisualStudio>
 
 // -- In project references add <Private>True</Private>. Also add the Scripting project (just to copy the dll).
-  <ItemGroup Label="Project References">
     <ProjectReference Include="..\..\Core\Portable\Microsoft.CodeAnalysis.Features.csproj">
       <Private>True</Private>
     </ProjectReference>
@@ -69,7 +69,6 @@ _________________________________________________________________
     <ProjectReference Include="..\..\..\Scripting\Core\Microsoft.CodeAnalysis.Scripting.csproj">
       <Private>True</Private>
     </ProjectReference>
-  </ItemGroup>
 
 // -- Add postbuild:
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
@@ -78,6 +77,8 @@ _________________________________________________________________
 
 // - In .gitignore add:
 au/
+
+// Run menu Build > Clean solution.
 
 
 // - Add Symbols property to the CompletionItem class:

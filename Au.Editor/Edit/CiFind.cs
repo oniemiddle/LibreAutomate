@@ -501,7 +501,7 @@ static class CiFind {
 			//	- Skips #if-disabled code.
 			//	- Joins some changes, eg in doc comments. Then a change can span many lines. How to display it?
 			try {
-				var res = await rlocs.ResolveConflictsAsync(sym, _newName, default, default);
+				var res = await rlocs.ResolveConflictsAsync(sym, _newName, default);
 				if (res.IsSuccessful && res.RelatedLocations.Any(o => o.Type.HasAny(RelatedLocationType.UnresolvedConflict))) {
 					if (!dialog.showOkCancel("Unresolved conflict", "Rename anyway?", owner: App.Hmain)) return;
 					//But does not find eg variable name conflicts in top-level statements.

@@ -8,7 +8,6 @@
 using System.Text.Json.Nodes;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Xml.Linq;
 using System.Xml.XPath;
@@ -138,15 +137,17 @@ class DNuget : KDialogWindow {
 	
 	/// <param name="packageString">Package name, possibly with --version and other options.</param>
 	async Task<bool> _InstallWhenInstallingUpdatingOrMoving(string packageString, string folder, _TreeItem updating = null, bool moving = false) {
-		var proj = _ProjPath(folder);
-		
-		if (!_CreateProjectFileIfNeed(proj)) return false;
-		
-		var sAdd = $@"add ""{proj}"" package {packageString}";
-		//var sAdd = $@"package add {package} --project ""{proj}"""; //new syntax in .NET SDK 10
-		
-		//now need only package name
+		var projPath = _ProjPath(folder);
 		var package = packageString.RxReplace(@"^\s*(\S+).*", "$1");
+		
+		using var um = new _UndoManager(_FolderPath(folder));
+		if (!um.Init()) return false;
+		um.printError = $"Failed to {(updating != null ? "update" : "install")} {package}.";
+		
+		if (!_CreateProjectFileIfNeed(projPath)) return false;
+		
+		var sAdd = $@"add ""{projPath}"" package {packageString}";
+		//var sAdd = $@"package add {packageString} --project ""{proj}"""; //new syntax in .NET SDK 10
 		
 		bool _CanAddPrereleaseOption() => !sAdd.Contains(" --prerelease") && !sAdd.Contains(" --version");
 		
@@ -174,55 +175,60 @@ class DNuget : KDialogWindow {
 			goto gRetry1;
 		}
 		if (cancel) {
-			if (await _RunDotnet(_Operation.Other, $@"remove ""{proj}"" package {package}")) {
-				filesystem.delete(_FolderPath(folder) + @"\obj", FDFlags.CanFail);
-				print.it("========== Canceled ==========");
-			}
+			print.it("========== Canceled ==========");
 			return false;
 		}
 		
-		if (updating != null) {
-			_DeleteInstalledFiles(updating, true);
-		}
+		if (!await _Build(folder, package)) return false;
+		um.success = true;
 		
-		bool ok = await _Build(folder, package);
-		_AddToTreeOrUpdate(folder, package, updating);
-		return ok;
+		_AddToTreeOrUpdate(folder, package, updating);//TODO: review and test how when failed
+		
+		return true;
 		
 		bool _CreateProjectFileIfNeed(string path) {
 			try {
 				string writeProjText = null;
 				string c_targetFramework = $"<TargetFramework>net{Environment.Version.ToString(2)}-windows</TargetFramework>";
+				const string c_assemblyName = "<AssemblyName>___</AssemblyName>"; //without this, usually error if the folder name == a dll name, because the main dll name was the same.
+				const string c_allowMissingPacksDir = "<AllowMissingPrunePackageData>true</AllowMissingPrunePackageData>"; //.NET 10 SDK requires the `packs` dir by default. The error description says add this if the dir is missing.
 				if (!filesystem.exists(path, true)) {
 					writeProjText = $"""
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		{c_targetFramework}
-		<UseWPF>true</UseWPF>
-		<UseWindowsForms>true</UseWindowsForms>
-		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-		<DebugType>none</DebugType>
-		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<NuGetAudit>False</NuGetAudit>
-		<AssemblyName>___</AssemblyName>
-	</PropertyGroup>
+  <PropertyGroup>
+    {c_targetFramework}
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <DebugType>none</DebugType>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <NuGetAudit>False</NuGetAudit>
+    {c_assemblyName}
+    {c_allowMissingPacksDir}
+  </PropertyGroup>
 
-	<!-- Copy XML files -->
-	<Target Name="_ResolveCopyLocalNuGetPkgXmls" AfterTargets="ResolveReferences">
-		<ItemGroup>
-			<ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)'!='' and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
-		</ItemGroup>
-	</Target>
+  <!-- Copy XML files -->
+  <Target Name="_ResolveCopyLocalNuGetPkgXmls" AfterTargets="ResolveReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)'!='' and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
+    </ItemGroup>
+  </Target>
 
 </Project>
 """;
 					if (!_folders.Any(o => o.Eqi(folder))) _folders.Add(folder);
 				} else { //may need to update something
 					string s = filesystem.loadText(path), s0 = s;
+					
+					if (!s.Contains(c_targetFramework)) s = s.RxReplace(@"<TargetFramework>.+?</TargetFramework>", c_targetFramework, 1);
 					if (!s.Contains(c_targetFramework)) s = s.RxReplace(@"<TargetFramework>.+?</TargetFramework>", c_targetFramework, 1);
 					
-					//previously was no <AssemblyName>___</AssemblyName>. Then usually error if the folder name == a dll name, because the main dll name was the same.
-					if (!s.Contains("<AssemblyName>___</AssemblyName>") && s.RxMatch(@"\R\h*</PropertyGroup>", 0, out RXGroup g1)) s = s.Insert(g1.Start, "\r\n		<AssemblyName>___</AssemblyName>");
+					_AppendPropIfMissing(c_assemblyName);
+					_AppendPropIfMissing(c_allowMissingPacksDir);
+					
+					void _AppendPropIfMissing(string prop) {
+						if (!s.Contains(prop) && s.RxMatch(@"\R\h*</PropertyGroup>", 0, out RXGroup g)) s = s.Insert(g.Start, $"\r\n    {prop}");
+					}
 					
 					if (s != s0) writeProjText = s;
 				}
@@ -236,198 +242,244 @@ class DNuget : KDialogWindow {
 		}
 	}
 	
+	/// <summary>
+	/// Creates temporary backup of current packages folder.
+	/// Also it allows to update files in use, eg dlls used by script processes.
+	/// </summary>
+	class _UndoManager : IDisposable {
+		string _folderPath, _undoPath;
+		bool _dirExists, _failedMove;
+		
+		public _UndoManager(string folderPath) {
+			_folderPath = folderPath;
+			_dirExists = filesystem.exists(_folderPath);
+			_undoPath = _dirExists ? pathname.makeUnique(_folderPath + "~old", true) : null;
+		}
+		
+		public bool Init() {
+			if (_dirExists) {
+				try {
+					filesystem.move(_folderPath, _undoPath);
+				}
+				catch (Exception ex) { //note: succeeds when a dll file is used, but may fail for other reasons, eg the dir itself is locked
+					//TODO2: then try to copy/delete folder contents; OK if deletes all files but not all empty folders.
+					
+					_failedMove = true;
+					print.warning("Failed to create a temporary backup of the NuGet folder. " + ex);
+					return false;
+				}
+			}
+			filesystem.createDirectory(_folderPath);
+			if (_dirExists) {
+				foreach (var v in filesystem.enumerate(_undoPath)) {
+					if (v.Attributes.Has(FileAttributes.ReadOnly) /*user-added files*/ || (!v.IsDirectory && v.Name.Ends(".csproj", true))) {
+						filesystem.copyTo(v.FullPath, _folderPath);
+					}
+				}
+			}
+			return true;
+		}
+		
+		public bool success;
+		
+		public string printError;
+		
+		public void Dispose() {
+			if (_failedMove) return;
+			if (success) {
+				if (_dirExists) {
+					if (false == filesystem.delete(_undoPath, FDFlags.CanFail)) {
+						var dir3 = App.Model.TempDirectory + @"\delete"; //will be deleted when loading the workspace next time
+						filesystem.moveTo(_undoPath, dir3, FIfExists.RenameNew);
+						
+						//If failed, probably some dlls are used by script processes.
+						//good: we can update (or delete) locked dlls.
+						//bad: these dlls later may try to load updated dlls as dependencies, and may fail if different version. Never mind, it's rare.
+					}
+				}
+			} else {
+				filesystem.delete(_folderPath);
+				if (_dirExists) filesystem.move(_undoPath, _folderPath);
+				
+				if (printError != null) print.it(printError + $" No changes have been made in folder {pathname.getName(_folderPath)}.");
+			}
+		}
+	}
+	
 	async Task<bool> _Build(string folder, string package = null) {
 		var folderPath = _FolderPath(folder);
 		var proj = _ProjPath(folder);
 		bool installing = package != null;
-		bool building = true;
+		
+		var noRestore = installing ? "--no-restore " : null; //`package add` restores, `package remove` doesn't
+		var sBuild = $@"build ""{proj}"" {noRestore}--nologo -v m -o ""{folderPath}""";
+		if (!await _RunDotnet(_Operation.Build, sBuild)) return false;
+		
+		if (installing) {
+			//we need a list of installed files (managed dll, unmanaged dll, maybe more).
+			//	When compiling miniProgram or editorExtension, will need dll paths to resolve at run time.
+			//	When compiling exeProgram, will need to copy them to the output directory.
+			
+			//at first create a copy of the csproj file with only this PackageReference (remove others)
+			var dirProj2 = folderPath + @"\single";
+			filesystem.createDirectory(dirProj2);
+			var proj2 = dirProj2 + @"\~.csproj";
+			var dirBin2 = dirProj2 + @"\bin";
+			var xp = XElement.Load(proj);
+			var axp = xp.XPathSelectElements($"/ItemGroup/PackageReference[@Include]").ToArray();
+			foreach (var v in axp) if (!v.Attr("Include").Eqi(package)) v.Remove();
+			xp.Save(proj2);
+			
+			//then build it, using a temp output directory
+			sBuild = $@"build ""{proj2}"" --nologo -v m -o ""{dirBin2}"""; //note: no --no-restore
+			if (!await _RunDotnet(_Operation.Build, sBuild, s => { })) { //try silent, but print errors if fails (unlikely)
+				Debug_.Print("FAILED");
+				if (!await _RunDotnet(_Operation.Build, sBuild)) return false;
+			}
+			//#if DEBUG
+			//run.it(dirBin2);
+			//dialog.show("Debug", "single build done"); //to inspect files before deleting
+			//#endif
+			
+			//delete runtimes of unsupported OS or CPU. It seems cannot specify it in project file.
+			_DeleteOtherRuntimes(folderPath);
+			_DeleteOtherRuntimes(dirBin2);
+			void _DeleteOtherRuntimes(string dir) {
+				dir += @"\runtimes";
+				if (filesystem.exists(dir)) {
+					foreach (var v in filesystem.enumDirectories(dir)) {
+						var n = v.Name;
+						if (!n.Starts("win", true) || (n.Contains('-') && 0 == n.Ends(true, "-x64", "-x86", "-arm64"))) {
+							filesystem.delete(v.FullPath);
+						}
+					}
+				}
+			}
+			
+			//save relative paths etc of output files in file "nuget.xml"
+			//	Don't use ___.deps.json. It contains only used dlls, but may also need other files, eg exe.
+			//	For testing can be used NuGet package Microsoft.PowerShell.SDK. It has dlls for testing almost all cases.
+			
+			var npath = _nugetDir + @"\nuget.xml";
+			var xn = XmlUtil.LoadElemIfExists(npath, "nuget");
+			var packagePath = folder + "\\" + package;
+			xn.Elem("package", "path", packagePath, true)?.Remove();
+			var xx = new XElement("package", new XAttribute("path", packagePath), new XAttribute("format", "1"));
+			xn.AddFirst(xx);
+			
+			var dCompile = _GetCompileAssembliesFromAssetsJson(dirProj2 + @"\obj\project.assets.json", folderPath);
+			
+			//get lists of .NET dlls, native dlls and other files
+			List<(FEFile f, int r)> aDllNet = new(); //r: 0 r (ref and run time), 1 ro (ref only), 2 rt (run time only)
+			List<FEFile> aDllNative = new(), aOther = new();
+			var feFlags = FEFlags.AllDescendants | FEFlags.OnlyFiles | FEFlags.UseRawPath | FEFlags.NeedRelativePaths;
+			foreach (var f in filesystem.enumFiles(dirBin2, flags: feFlags).OrderBy(o => o.Level)) {
+				var s = f.Name; //like @"\file" or @"\dir\file"
+				bool runtimes = false;
+				if (f.Level == 0) {
+					if (s.Starts(@"\___.")) continue;
+				} else {
+					runtimes = s.Starts(@"\runtimes\win", true);
+					Debug_.PrintIf(!(runtimes || s.Ends(".resources.dll") || 0 != s.Starts(false, @"\ref\", @"\.playwright\")), s); //ref is used by Microsoft.PowerShell.SDK as data files
+				}
+				if (s.Ends(".dll", true) && (f.Level == 0 || runtimes)) {
+					if (CompilerUtil.IsNetAssembly(f.FullPath, out bool refOnly)) {
+						aDllNet.Add((f, refOnly ? 1 : runtimes ? 2 : 0));
+					} else {
+						aDllNative.Add(f);
+					}
+				} else {
+					aOther.Add(f);
+				}
+			}
+			
+			//.NET dlls
+			HashSet<string> hsLib = new(StringComparer.OrdinalIgnoreCase);
+			foreach (var group in aDllNet.ToLookup(o => pathname.getName(o.f.Name), StringComparer.OrdinalIgnoreCase)) {
+				//print.it($"<><lc #BBE3FF>{group.Key}<>");
+				var filename = group.Key;
+				int count = group.Count();
+				bool haveRO = dCompile.Remove(filename);
+				if (haveRO) xx.Add(new XElement("ro", @"\_ref\" + filename));
+				XElement xGroup = null;
+				foreach (var (f, r) in group) {
+					var s = f.Name; //like @"\file" or @"\dir\file"
+					hsLib.Add(s);
+					bool refOnly = r == 1 || (r == 0 && f.Level == 0 && count > 1); //if count>1, this is X.dll from [X.dll, sub\X.dll, ...]
+					if (refOnly) {
+						if (haveRO) continue;
+						xx.Add(new XElement("ro", s));
+					} else {
+						if (r == 2 && s[13] != '\\') { //\runtimes\win... but not \runtimes\win\...
+							if (xGroup == null) xx.Add(xGroup = new("group"));
+							xGroup.Add(new XElement("rt", s));
+						} else if (!haveRO && r == 0) {
+							xx.Add(new XElement("r", s));
+						} else {
+							xx.Add(new XElement("rt", s));
+						}
+					}
+					//print.it(s, f.Size, refOnly, haveRO);
+				}
+				
+				//XML tags:
+				//	"r" - .NET dll used at compile time and run time. Not ref-only.
+				//	"ro" - .NET dll used only at compile time. Can be ref-only or not.
+				//	"rt" - .NET dll used only at run time.
+				//	"native" - unmanaged dll
+				//	"other" - all other (including dlls in folders other than root and runtimes)
+				//	"group" - group of "rt" dlls. Same dll for different OS versions/platforms.
+				//	"natives" - group of "native" dlls. Same dll for different OS versions/platforms.
+				//native dlls usually are in \runtimes\win-x64\native\x.dll etc, but also can be in \runtimes\win10-x64\native\x.dll etc.
+			}
+			
+			if (dCompile.Any()) { //ref-only dlls that were not copied to dirBin2
+				foreach (var (k, v) in dCompile) {
+					xx.Add(new XElement("ro", @"\_ref\" + k));
+					hsLib.Add(k);
+				}
+			}
+			
+			//native dlls
+			foreach (var group in aDllNative.ToLookup(o => pathname.getName(o.Name), StringComparer.OrdinalIgnoreCase)) {
+				XElement xGroup = null;
+				foreach (var f in group) {
+					var s = f.Name;
+					if (f.Level > 0 && s[13] != '\\') {
+						if (xGroup == null) xx.Add(xGroup = new("natives"));
+						xGroup.Add(new XElement("native", s));
+					} else {
+						xx.Add(new XElement("native", s));
+					}
+				}
+			}
+			
+			//print.it(xx);
+			
+			//other files
+			foreach (var f in aOther) {
+				var s = f.Name;
+				
+				//skip XML doc. When compiling exeProgram, other xml files will be copied to the output.
+				if (s.Ends(".xml", true) && hsLib.Contains(s.ReplaceAt(^3..^1, "dl"))) continue;
+				
+				xx.Add(new XElement("other", s));
+			}
+			
+			xn.SaveElem(npath, backup: true);
+			
+			//finally delete temp files
+			try { filesystem.delete(dirProj2); }
+			catch (Exception e1) { Debug_.Print(e1); }
+		}
 		
 		try {
-			var noRestore = installing ? "--no-restore " : null; //`package add` restores, `package remove` doesn't
-			var sBuild = $@"build ""{proj}"" {noRestore}--nologo -v m -o ""{folderPath}""";
-			if (!await _RunDotnet(_Operation.Build, sBuild)) return false;
-			//TODO3: if fails, uninstall the package immediately.
-			//	Else in the future will fail to install any package.
-			//	Also may delete dll files and leave garbage.
-			//	But problem: may fail because of ANOTHER package. How to know which package is bad?
-			//	Now just prints info in the finally block.
-			
-			//dialog.show("nuget 2");
-			
-			if (installing) {
-				//we need a list of installed files (managed dll, unmanaged dll, maybe more).
-				//	When compiling miniProgram or editorExtension, will need dll paths to resolve at run time.
-				//	When compiling exeProgram, will need to copy them to the output directory.
-				
-				//at first create a copy of the csproj file with only this PackageReference (remove others)
-				var dirProj2 = folderPath + @"\single";
-				filesystem.createDirectory(dirProj2);
-				var proj2 = dirProj2 + @"\~.csproj";
-				var dirBin2 = dirProj2 + @"\bin";
-				var xp = XElement.Load(proj);
-				var axp = xp.XPathSelectElements($"/ItemGroup/PackageReference[@Include]").ToArray();
-				foreach (var v in axp) if (!v.Attr("Include").Eqi(package)) v.Remove();
-				xp.Save(proj2);
-				
-				//then build it, using a temp output directory
-				sBuild = $@"build ""{proj2}"" --nologo -v m -o ""{dirBin2}"""; //note: no --no-restore
-				if (!await _RunDotnet(_Operation.Build, sBuild, s => { })) { //try silent, but print errors if fails (unlikely)
-					Debug_.Print("FAILED");
-					if (!await _RunDotnet(_Operation.Build, sBuild)) return false;
-				}
-				//#if DEBUG
-				//run.it(dirBin2);
-				//dialog.show("Debug", "single build done"); //to inspect files before deleting
-				//#endif
-				
-				//delete runtimes of unsupported OS or CPU. It seems cannot specify it in project file.
-				_DeleteOtherRuntimes(folderPath);
-				_DeleteOtherRuntimes(dirBin2);
-				void _DeleteOtherRuntimes(string dir) {
-					dir += @"\runtimes";
-					if (filesystem.exists(dir)) {
-						foreach (var v in filesystem.enumDirectories(dir)) {
-							var n = v.Name;
-							if (!n.Starts("win", true) || (n.Contains('-') && 0 == n.Ends(true, "-x64", "-x86", "-arm64"))) {
-								filesystem.delete(v.FullPath);
-							}
-						}
-					}
-				}
-				
-				//save relative paths etc of output files in file "nuget.xml"
-				//	Don't use ___.deps.json. It contains only used dlls, but may also need other files, eg exe.
-				//	For testing can be used NuGet package Microsoft.PowerShell.SDK. It has dlls for testing almost all cases.
-				
-				var npath = _nugetDir + @"\nuget.xml";
-				var xn = XmlUtil.LoadElemIfExists(npath, "nuget");
-				var packagePath = folder + "\\" + package;
-				xn.Elem("package", "path", packagePath, true)?.Remove();
-				var xx = new XElement("package", new XAttribute("path", packagePath), new XAttribute("format", "1"));
-				xn.AddFirst(xx);
-				
-				var dCompile = _GetCompileAssembliesFromAssetsJson(dirProj2 + @"\obj\project.assets.json", folderPath);
-				
-				//get lists of .NET dlls, native dlls and other files
-				List<(FEFile f, int r)> aDllNet = new(); //r: 0 r (ref and run time), 1 ro (ref only), 2 rt (run time only)
-				List<FEFile> aDllNative = new(), aOther = new();
-				var feFlags = FEFlags.AllDescendants | FEFlags.OnlyFiles | FEFlags.UseRawPath | FEFlags.NeedRelativePaths;
-				foreach (var f in filesystem.enumFiles(dirBin2, flags: feFlags).OrderBy(o => o.Level)) {
-					var s = f.Name; //like @"\file" or @"\dir\file"
-					bool runtimes = false;
-					if (f.Level == 0) {
-						if (s.Starts(@"\___.")) continue;
-					} else {
-						runtimes = s.Starts(@"\runtimes\win", true);
-						Debug_.PrintIf(!(runtimes || s.Ends(".resources.dll") || 0 != s.Starts(false, @"\ref\", @"\.playwright\")), s); //ref is used by Microsoft.PowerShell.SDK as data files
-					}
-					if (s.Ends(".dll", true) && (f.Level == 0 || runtimes)) {
-						if (CompilerUtil.IsNetAssembly(f.FullPath, out bool refOnly)) {
-							aDllNet.Add((f, refOnly ? 1 : runtimes ? 2 : 0));
-						} else {
-							aDllNative.Add(f);
-						}
-					} else {
-						aOther.Add(f);
-					}
-				}
-				
-				//.NET dlls
-				HashSet<string> hsLib = new(StringComparer.OrdinalIgnoreCase);
-				foreach (var group in aDllNet.ToLookup(o => pathname.getName(o.f.Name), StringComparer.OrdinalIgnoreCase)) {
-					//print.it($"<><lc #BBE3FF>{group.Key}<>");
-					var filename = group.Key;
-					int count = group.Count();
-					bool haveRO = dCompile.Remove(filename);
-					if (haveRO) xx.Add(new XElement("ro", @"\_ref\" + filename));
-					XElement xGroup = null;
-					foreach (var (f, r) in group) {
-						var s = f.Name; //like @"\file" or @"\dir\file"
-						hsLib.Add(s);
-						bool refOnly = r == 1 || (r == 0 && f.Level == 0 && count > 1); //if count>1, this is X.dll from [X.dll, sub\X.dll, ...]
-						if (refOnly) {
-							if (haveRO) continue;
-							xx.Add(new XElement("ro", s));
-						} else {
-							if (r == 2 && s[13] != '\\') { //\runtimes\win... but not \runtimes\win\...
-								if (xGroup == null) xx.Add(xGroup = new("group"));
-								xGroup.Add(new XElement("rt", s));
-							} else if (!haveRO && r == 0) {
-								xx.Add(new XElement("r", s));
-							} else {
-								xx.Add(new XElement("rt", s));
-							}
-						}
-						//print.it(s, f.Size, refOnly, haveRO);
-					}
-					
-					//XML tags:
-					//	"r" - .NET dll used at compile time and run time. Not ref-only.
-					//	"ro" - .NET dll used only at compile time. Can be ref-only or not.
-					//	"rt" - .NET dll used only at run time.
-					//	"native" - unmanaged dll
-					//	"other" - all other (including dlls in folders other than root and runtimes)
-					//	"group" - group of "rt" dlls. Same dll for different OS versions/platforms.
-					//	"natives" - group of "native" dlls. Same dll for different OS versions/platforms.
-					//native dlls usually are in \runtimes\win-x64\native\x.dll etc, but also can be in \runtimes\win10-x64\native\x.dll etc.
-				}
-				
-				if (dCompile.Any()) { //ref-only dlls that were not copied to dirBin2
-					foreach (var (k, v) in dCompile) {
-						xx.Add(new XElement("ro", @"\_ref\" + k));
-						hsLib.Add(k);
-					}
-				}
-				
-				//native dlls
-				foreach (var group in aDllNative.ToLookup(o => pathname.getName(o.Name), StringComparer.OrdinalIgnoreCase)) {
-					XElement xGroup = null;
-					foreach (var f in group) {
-						var s = f.Name;
-						if (f.Level > 0 && s[13] != '\\') {
-							if (xGroup == null) xx.Add(xGroup = new("natives"));
-							xGroup.Add(new XElement("native", s));
-						} else {
-							xx.Add(new XElement("native", s));
-						}
-					}
-				}
-				
-				//print.it(xx);
-				
-				//other files
-				foreach (var f in aOther) {
-					var s = f.Name;
-					
-					//skip XML doc. When compiling exeProgram, other xml files will be copied to the output.
-					if (s.Ends(".xml", true) && hsLib.Contains(s.ReplaceAt(^3..^1, "dl"))) continue;
-					
-					xx.Add(new XElement("other", s));
-				}
-				
-				xn.SaveElem(npath, backup: true);
-				
-				//finally delete temp files
-				try { filesystem.delete(dirProj2); }
-				catch (Exception e1) { Debug_.Print(e1); }
-			}
-			
-			try {
-				filesystem.delete($@"{folderPath}\___.dll");
-				foreach (var v in Directory.GetFiles(folderPath, "*.json")) filesystem.delete(v);
-				//filesystem.delete($@"{folderPath}\obj\Debug");
-				filesystem.delete($@"{folderPath}\obj");
-			}
-			catch (Exception e1) { Debug_.Print(e1); }
-			
-			building = false;
+			filesystem.delete($@"{folderPath}\___.dll");
+			foreach (var v in Directory.GetFiles(folderPath, "*.json")) filesystem.delete(v);
+			filesystem.delete($@"{folderPath}\obj");
 		}
-		finally {
-			if (building) //failed to build
-				print.it($@"<><c red>IMPORTANT: Please uninstall the package that causes the error.
-	Until then will fail to install or use packages in this folder ({folder}).
-	If two packages can't coexist, try to move it to a new folder (see the combo box).<>");
-		}
+		catch (Exception e1) { Debug_.Print(e1); }
+		
 		return true;
 		
 		static Dictionary<string, string> _GetCompileAssembliesFromAssetsJson(string file, string folderPath) {
@@ -494,11 +546,15 @@ class DNuget : KDialogWindow {
 		var package = t.Name;
 		//if (uninstalling) if (!dialog.showOkCancel("Uninstall package", package, owner: this)) return; //more annoying than useful
 		
+		using var um = new _UndoManager(_FolderPath(folder));
+		if (!um.Init()) return false;
+		um.printError = $"Failed to uninstall {package}.";
+		
 		if (!await _RunDotnet(_Operation.Other, $@"remove ""{_ProjPath(folder)}"" package {package}")) return false;
 		//if (!await _RunDotnet($@"package remove {package} --project ""{_ProjPath()}""")) return false; //new syntax in .NET SDK 10
 		
-		//Which installed files should be deleted? Let's delete all files (except .csproj) from the folder and rebuild.
-		_DeleteInstalledFiles(t, false);
+		if (!await _Build(folder)) return false;
+		um.success = true;
 		
 		var npath = _nugetDir + @"\nuget.xml";
 		if (filesystem.exists(npath)) {
@@ -514,19 +570,7 @@ class DNuget : KDialogWindow {
 		_tv.SetItems(_tvroot.Children(), true);
 		if (_Selected is null) _panelManage.IsEnabled = false;
 		
-		return await _Build(folder);
-	}
-	
-	void _DeleteInstalledFiles(_TreeItem t, bool updating) {
-		foreach (var v in filesystem.enumerate(_FolderPath(t.Parent.Name))) {
-			if (v.Attributes.Has(FileAttributes.ReadOnly)) continue; //don't delete user-added files
-			if (v.IsDirectory) {
-				if (updating && v.Name.Eqi("obj")) continue;
-			} else {
-				if (v.Name.Ends(".csproj", true)) continue;
-			}
-			filesystem.delete(v.FullPath, FDFlags.CanFail);
-		}
+		return true;
 	}
 	
 	async void _Update(bool showVersionsMenu) {

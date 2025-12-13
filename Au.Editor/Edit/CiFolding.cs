@@ -101,7 +101,7 @@ class CiFolding {
 			SyntaxNode prevSibling = null;
 			
 			switch (n) {
-			case ExtensionDeclarationSyntax d:
+			case ExtensionBlockDeclarationSyntax d:
 				foldKind = FoldKind.Type;
 				foldStart = d.Keyword.SpanStart;
 				break;

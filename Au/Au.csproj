@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net9.0-windows</TargetFramework>
+		<TargetFramework>net10.0-windows</TargetFramework>
 		<UseWindowsForms>true</UseWindowsForms>
 		<UseWpf>true</UseWpf>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -27,7 +27,7 @@
 		To create NuGet package is used script "Create NuGet package".
 		Notes if creating manually:
 			Update <Version>.
-			For NuGet package need multiple target frameworks (currently 8 and 9). But it makes compilation slow.
+			For NuGet package need multiple target frameworks. But it makes compilation slow.
 			Workaround - temporarily use different TargetFrameworks when creating NuGet package.
 			Possible problem: error when building after changing TargetFrameworks. Missing target framework in the assets json file.
 				Workaround: delete obj folder.

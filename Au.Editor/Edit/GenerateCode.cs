@@ -39,7 +39,7 @@ static class GenerateCode {
 		if (start < pos) return;
 		
 		node = node.GetAncestorOrThis<MemberDeclarationSyntax>();
-		if (node is null or GlobalStatementSyntax or ExtensionDeclarationSyntax || node.SpanStart != start) return;
+		if (node is null or GlobalStatementSyntax or ExtensionBlockDeclarationSyntax || node.SpanStart != start) return;
 		
 		//already has doc comment?
 		foreach (var v in node.GetLeadingTrivia()) {

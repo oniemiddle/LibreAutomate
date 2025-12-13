@@ -89,6 +89,9 @@ partial class FilesModel {
 			State = new WorkspaceState(this);
 			folders.Workspace = new FolderPath(WorkspaceDirectory);
 			Environment.SetEnvironmentVariable("dll", DllDirectory);
+			
+			var dirDel = TempDirectory + @"\delete";
+			if (filesystem.exists(dirDel, true)) filesystem.delete(dirDel, FDFlags.CanFail);
 		}
 		_initedFully = true;
 	}

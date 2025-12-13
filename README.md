@@ -10,7 +10,7 @@ Some features of the automation library:
 - Custom dialog windows of any complexity can be created easily in code.
 - All classes/functions are documented.
 - The library can be used in other programs too. [More info](https://www.libreautomate.com/api/index.html), [NuGet](https://www.nuget.org/packages/LibreAutomate).
-- Uses .NET 9.
+- Uses .NET 10.
 
 Some features of the script editor app:
 - The scripting language is C#. The app is a good way to learn it.
@@ -26,7 +26,7 @@ Editor window
 ![window](https://www.libreautomate.com/images/window.png#1 "Editor window")
 
 ## How to build
-You need Visual Studio Community 2022. When installing, select these workloads: .NET desktop development; Desktop development with C++. It also installs .NET 9 SDK and Windows 11 SDK; or install them separately.
+You need Visual Studio 2026. When installing, select these workloads: .NET desktop development; Desktop development with C++. It also installs .NET 10 SDK and Windows 11 SDK; or install them separately.
 
 1. Clone or download/extract the source code.
 2. Open `Au.sln` in Visual Studio.

@@ -21,8 +21,10 @@ m.CreateArm64();
 m.Finally();
 
 class MinimalSDK {
-	const string c_version = "9.0.101"; //edit this if need. The SDK must use the first Runtime build, eg 9.0.0 and not 9.0.1 etc. Because the SDK can't be used on computers with older Runtime.
-	
+	const string c_version = "10.0.100"; //edit this if need. The SDK must use the first Runtime build, eg 9.0.0 and not 9.0.1 etc. Because the SDK can't be used on computers with older Runtime.
+#if !NET10_0
+#error please update c_version string
+#endif	
 	bool _arm64;
 	string _dirDotnet1, _dirDotnet2;
 	

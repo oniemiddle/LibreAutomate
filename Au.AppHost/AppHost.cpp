@@ -8,7 +8,7 @@
 #include "coreclrhost.h"
 
 //min supported .NET version. Installed major must be ==, minor >=, patch any (we'll use highest found), preview any (we'll use release or highest preview).
-#define NETVERMAJOR 9
+#define NETVERMAJOR 10
 #define NETVERMINOR 0
 #define NETVERPATCH 0
 //#define NETVERPATCH 2 //see the workaround comment below

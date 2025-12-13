@@ -14,7 +14,7 @@ using Microsoft.CodeAnalysis.Shared.Extensions;
 using CAW::Microsoft.CodeAnalysis.Shared.Extensions;
 using CAW::Microsoft.CodeAnalysis.FindSymbols;
 using CAW::Microsoft.CodeAnalysis.PatternMatching;
-using CAW::Microsoft.CodeAnalysis.Shared.Collections;
+using CAW::Microsoft.CodeAnalysis.Collections;
 
 using Au.Controls;
 using System.Windows.Input;

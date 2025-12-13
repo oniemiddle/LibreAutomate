@@ -1,6 +1,6 @@
 //info: the "x" in filename is for DocFX to correctly resolve links (changes file processing order).
 
-#if !DEBUG
+#if !DEBUG && NET9_0_OR_GREATER
 namespace Au;
 
 public partial class dialog {
