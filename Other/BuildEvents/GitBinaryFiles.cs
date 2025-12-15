@@ -1,6 +1,3 @@
-using System.IO.Compression;
-using System.Runtime.ConstrainedExecution;
-
 static class GitBinaryFiles {
 	/// <summary>
 	/// To call this when pushing LA to GitHub, add file `.git\hooks\pre-push`.

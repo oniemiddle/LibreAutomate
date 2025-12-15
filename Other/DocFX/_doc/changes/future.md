@@ -4,6 +4,8 @@
 
 Using .NET 10.
 
+Updated Roslyn dlls (C# compiler).
+
 New tools:
 - .
 

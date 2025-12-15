@@ -6,6 +6,9 @@
 /// Also installs the minimal SDK in `folders.Editor + "SDK"`. Must be x64 computer.
 
 /*/ nuget -\SSH.NET; c Sftp.cs; c Passwords.cs; /*/
+
+//#define DEV
+
 using Renci.SshNet;
 
 if (args is ["upload"]) { //clicked link 'Upload'
@@ -17,14 +20,21 @@ print.clear();
 
 var m = new MinimalSDK();
 m.CreateX64();
+#if !DEV
 m.CreateArm64();
+#endif
 m.Finally();
+
+#if DEV
+MiscScripts.CreateListOfMinSdkFilesForDiff(@"SDK\sdk\10.0.100");
+MiscScripts.CreateListOfMinSdkFilesForDiff(@"SDK-9\sdk\9.0.101");
+#endif
 
 class MinimalSDK {
 	const string c_version = "10.0.100"; //edit this if need. The SDK must use the first Runtime build, eg 9.0.0 and not 9.0.1 etc. Because the SDK can't be used on computers with older Runtime.
 #if !NET10_0
 #error please update c_version string
-#endif	
+#endif
 	bool _arm64;
 	string _dirDotnet1, _dirDotnet2;
 	
@@ -66,7 +76,9 @@ class MinimalSDK {
 		_DownloadSdk();
 		_CreateFolder();
 		_CopyRootFiles();
+#if !DEV
 		_Create7z();
+#endif
 		if (!_arm64) {
 			filesystem.more.createSymbolicLink(_dirDotnet2 + @"\host", @"C:\Program Files\dotnet\host", CSLink.Junction);
 			filesystem.more.createSymbolicLink(_dirDotnet2 + @"\shared", @"C:\Program Files\dotnet\shared", CSLink.Junction);
@@ -109,8 +121,10 @@ class MinimalSDK {
 			var rel = f.Name;
 			
 			if (rel.Ends(".resources.dll", true)) continue;
-			if (rel.Find("\\net4", true) > 0) continue;
-			//if (rel.Find("FSharp", true) > 0) continue;
+			if (rel.Find(@"\net4", true) > 0) continue;
+			if (rel.Find(@"\netframework", true) > 0) continue;
+			if (rel.Find("FSharp", true) > 0) continue;
+			if (rel.Find("VisualBasic", true) > 0) continue;
 			
 			var a = rel.Lower().Split('\\', StringSplitOptions.RemoveEmptyEntries);
 			if (a.Length > 1) {
@@ -138,6 +152,9 @@ class MinimalSDK {
 					print.it(rel);
 					break;
 				}
+			} else {
+				if (a[0] is "microsoft.codeanalysis.dll" or "microsoft.codeanalysis.csharp.dll") continue; //duplicates of those in `Roslyn\bincore`. Large. Used only by dotnet.dll (see script `.NET SDK dll dependencies`), but not for nuget/build/publish.
+				//print.it(a[0]);
 			}
 			
 			filesystem.copy(path, dirSdk2 + rel);
@@ -148,12 +165,14 @@ class MinimalSDK {
 	}
 	
 	void _CopyRootFiles() {
-		//copy dotnet.exe and license txt files.
-		foreach (var f in filesystem.enumFiles(_dirDotnet1)) {
-			var path = f.FullPath;
-			//print.it(path);
-			filesystem.copyTo(path, _dirDotnet2);
-		}
+		////copy dotnet.exe and license txt files.
+		//foreach (var f in filesystem.enumFiles(_dirDotnet1)) {
+		//	var path = f.FullPath;
+		//	//print.it(path);
+		//	filesystem.copyTo(path, _dirDotnet2);
+		//}
+		
+		filesystem.copyTo(_dirDotnet1 + @"\dotnet.exe", _dirDotnet2);
 	}
 	
 	void _Create7z() {
@@ -165,5 +184,18 @@ class MinimalSDK {
 		
 		var sevenzip = folders.Editor + @"32\7za.exe";
 		if (0 != run.console(out var s, sevenzip, $@"a ""{zipFile}"" ""{_dirDotnet2}\*"" -t7z -mx=7")) throw new AuException(s);
+	}
+}
+
+static class MiscScripts {
+	public static void CreateListOfMinSdkFilesForDiff(string dirName) {
+		var dir = folders.ThisAppBS + dirName;
+		List<string> a = [];
+		foreach (var f in filesystem.enumerate(dir, FEFlags.AllDescendants | FEFlags.NeedRelativePaths)) {
+			a.Add(f.Name);
+		}
+		var s = string.Join('\n', a);
+		dirName = dirName[..dirName.IndexOf('\\')];
+		filesystem.saveText($@"C:\Test\{dirName}.txt", s);
 	}
 }
