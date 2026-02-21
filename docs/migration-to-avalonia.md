@@ -157,3 +157,115 @@
 - **Phase 3（持续）**：高级工具链与跨平台能力矩阵扩展。
 
 > 里程碑验收建议：每阶段必须可演示“真实脚本从编辑到运行”的端到端流程。
+
+---
+
+## 6. 新解决方案结构与工程边界（建议落地版）
+
+为避免“先迁 UI、后补分层”导致返工，建议在 Phase 0 即完成如下解决方案结构：
+
+- `LibreAutomate.App`
+  - 职责：Avalonia 启动入口、DI 组合根、平台生命周期接入。
+  - 只做装配（Composition Root），不承载业务规则。
+- `LibreAutomate.Presentation`
+  - 职责：View / ViewModel、交互状态、页面路由、UI 级校验。
+  - 依赖 `Application` 暴露的用例接口，不直接访问 `Infrastructure`。
+- `LibreAutomate.Application`
+  - 职责：用例编排、命令处理、事务边界、服务接口定义（Ports）。
+  - 只依赖 `Domain` 抽象，不依赖具体 UI 技术。
+- `LibreAutomate.Domain`
+  - 职责：核心模型、领域规则、不可变值对象、领域服务。
+  - 不依赖任何外层项目（纯净内核）。
+- `LibreAutomate.Infrastructure`
+  - 职责：文件系统、进程、系统 API、第三方集成实现。
+  - 通过实现 `Application` 定义的接口接入，不反向依赖 `Presentation`。
+
+推荐同时建立测试项目：
+
+- `LibreAutomate.Application.Tests`
+- `LibreAutomate.Domain.Tests`
+- `LibreAutomate.Infrastructure.Tests`（集成/契约测试为主）
+
+## 7. 依赖方向与引用规则（强约束）
+
+统一依赖方向：`Presentation -> Application -> Domain`。
+
+`Infrastructure` 作为外部实现层，仅依赖 `Application`（接口）与必要的 `Domain` 类型，不允许被 `Presentation` 直接引用。建议在 CI 增加架构测试（例如 NetArchTest）保证以下规则：
+
+1. `Domain` 不引用任何 `Presentation/Application/Infrastructure` 命名空间。
+2. `Application` 不引用 `Presentation/Infrastructure` 实现命名空间。
+3. `Presentation` 不引用 `Infrastructure`。
+4. `App` 允许引用 `Presentation` 与 `Infrastructure`，但仅用于依赖注入装配。
+
+简化示意：
+
+```text
+LibreAutomate.App
+ ├─> LibreAutomate.Presentation ─> LibreAutomate.Application ─> LibreAutomate.Domain
+ └─> LibreAutomate.Infrastructure ───────────────────────────────┘(实现 Application Ports)
+```
+
+## 8. ViewModel、命令与事件通知规范
+
+为降低后续维护成本，建议从第一天统一 MVVM 基础设施。
+
+### 8.1 ViewModel 基类
+
+- 统一 `ViewModelBase : ObservableObject`（可基于 CommunityToolkit.Mvvm）。
+- 所有可绑定状态必须通过受控属性暴露，禁止公共字段。
+- 在 `ViewModelBase` 内置：
+  - `IsBusy` / `BusyMessage`（统一忙碌态）；
+  - `CancellationTokenSource? CurrentCts`（统一取消入口）；
+  - `SetProperty` 与可选的 `OnPropertyChanged(string?)` 扩展钩子。
+
+### 8.2 命令机制
+
+- 同步操作：`RelayCommand`。
+- 异步操作：`AsyncRelayCommand`，必须支持取消（`CancellationToken`）。
+- 长任务命令约定：
+  1. 执行前设置 `IsBusy = true`；
+  2. 使用 `try/finally` 保证结束时恢复 `IsBusy = false`；
+  3. 对用户可见失败统一经 `IUserNotificationService` 输出，而非静默吞错。
+
+### 8.3 事件通知规范
+
+- 属性变更仅通过 `INotifyPropertyChanged`，避免自定义事件泛滥。
+- 跨 ViewModel/模块通信优先使用消息总线（如 `IMessenger`）或应用事件接口，避免直接互相持有引用。
+- 领域事件不直接进入 UI；应先在 `Application` 层转换为展示模型/通知模型。
+
+## 9. 主题、样式与资源字典约定
+
+为防止后期样式碎片化，建议在 `LibreAutomate.Presentation` 固定以下目录结构：
+
+```text
+Presentation/
+  Themes/
+    Tokens/                # 设计 Token（颜色/间距/圆角/字体）
+      ColorTokens.axaml
+      SpacingTokens.axaml
+      TypographyTokens.axaml
+    Variants/              # 主题变体
+      Theme.Light.axaml
+      Theme.Dark.axaml
+    Controls/              # 控件级样式
+      ButtonStyles.axaml
+      TreeViewStyles.axaml
+      EditorStyles.axaml
+    AppTheme.axaml         # 全局合并入口（唯一入口）
+```
+
+命名约定：
+
+- 资源键使用前缀分组：
+  - 颜色：`Color.*`（如 `Color.Surface.Primary`）
+  - 间距：`Space.*`（如 `Space.200`）
+  - 字体：`Font.*`（如 `Font.Size.Body`）
+  - 控件样式：`Style.*`（如 `Style.Button.Primary`）
+- 禁止在页面内写“匿名硬编码色值”；必须引用 Token。
+- 主题切换只在 `AppTheme.axaml` 层执行，页面不直接切换字典。
+
+建议把现有“CSV 配色 + XAML 资源”映射为统一 Token 中间层：
+
+1. 先把 CSV 映射到 `Color.*` Token。
+2. 控件样式仅消费 Token，不直接读 CSV 字段。
+3. 后续替换主题来源时，控制在 Token 层，避免控件样式大面积改动。
