@@ -1,20 +1,7 @@
 extern alias CAW;
-
-using Microsoft.CodeAnalysis;
-using CAW::Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using Microsoft.CodeAnalysis.CSharp.Extensions;
-using Microsoft.CodeAnalysis.Shared.Extensions;
-using CAW::Microsoft.CodeAnalysis.Shared.Extensions;
-using CAW::Microsoft.CodeAnalysis.Rename;
-
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Media;
 using Au.Controls;
 using System.Xml.Linq;
 using System.Windows.Documents;

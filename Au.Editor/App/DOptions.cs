@@ -4,9 +4,6 @@ using Au.Controls;
 using Microsoft.Win32;
 using System.Windows.Controls.Primitives;
 using ToolLand;
-using System.Windows.Media;
-using System.Windows.Documents;
-using System.Windows.Input;
 using EStyle = LA.SciTheme.EStyle;
 
 namespace LA;

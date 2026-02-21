@@ -8,13 +8,8 @@ using Au.Controls;
 
 using Microsoft.CodeAnalysis;
 using CAW::Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.CodeAnalysis.Shared.Extensions;
-using CAW::Microsoft.CodeAnalysis.Shared.Extensions;
-using Microsoft.CodeAnalysis.Classification;
-using CAW::Microsoft.CodeAnalysis.Classification;
 using Microsoft.CodeAnalysis.Completion;
 
 namespace LA;

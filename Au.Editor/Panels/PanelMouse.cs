@@ -1,5 +1,4 @@
 using Au.Controls;
-using System.Windows;
 using System.Windows.Controls;
 
 namespace LA;

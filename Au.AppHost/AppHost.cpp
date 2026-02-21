@@ -1,5 +1,5 @@
 #define WIN32_LEAN_AND_MEAN
-#define _CRT_SECURE_NO_WARNINGS
+#define CRT_SECURE_NO_WARNINGS
 #pragma warning(disable: 6386 6385 6255 6305 6011 28251)
 
 #include <string>

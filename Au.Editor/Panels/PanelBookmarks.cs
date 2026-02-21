@@ -3,7 +3,6 @@ using System.Windows.Input;
 using Au.Controls;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
-using System.Windows;
 
 namespace LA;
 

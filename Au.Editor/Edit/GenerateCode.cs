@@ -1,19 +1,8 @@
 extern alias CAW;
-
-using Au.Controls;
-using System.Windows;
-using System.Windows.Controls;
-using System.Collections.Immutable;
-
 using Microsoft.CodeAnalysis;
-using CAW::Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using Microsoft.CodeAnalysis.CSharp.Extensions;
-using Microsoft.CodeAnalysis.Shared.Extensions;
 using CAW::Microsoft.CodeAnalysis.Shared.Extensions;
-using CAW::Microsoft.CodeAnalysis.Rename;
 using acc = Microsoft.CodeAnalysis.Accessibility;
 
 namespace LA;

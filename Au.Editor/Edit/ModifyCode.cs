@@ -1,17 +1,12 @@
 extern alias CAW;
 
 using Microsoft.CodeAnalysis;
-using CAW::Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.CodeAnalysis.Shared.Extensions;
 using CAW::Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Extensions;
-using Microsoft.CodeAnalysis.Shared.Utilities;
-using CAW::Microsoft.CodeAnalysis.Shared.Utilities;
 using CAW::Microsoft.CodeAnalysis.FindSymbols;
-using Microsoft.CodeAnalysis.Formatting;
 using CAW::Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.CSharp.Formatting;
 

@@ -2,9 +2,7 @@ using Au.Controls;
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Input;
-using System.Xml.Linq;
 using System.Xml.XPath;
-using System.Windows.Media;
 
 namespace LA;
 

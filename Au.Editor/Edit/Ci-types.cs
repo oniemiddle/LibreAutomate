@@ -1,7 +1,6 @@
 using Au.Controls;
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.Completion;
 
 namespace LA;

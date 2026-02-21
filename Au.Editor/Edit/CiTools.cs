@@ -1,9 +1,7 @@
 using ToolLand;
-using Au.Controls;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 using System.Windows.Controls;
 
 //FUTURE: Color tool. Eg to set toolbar colors.

@@ -4,9 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using Au.Controls;
 using Microsoft.Win32;
-using System.Drawing;
 using System.Windows.Documents;
-using ToolLand;
 
 namespace LA;
 

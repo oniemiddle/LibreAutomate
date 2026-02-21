@@ -3,8 +3,6 @@
 //#define TEST_UNLOAD
 
 using System.Runtime.Loader;
-using System.Windows;
-
 using LA;
 
 /// <summary>

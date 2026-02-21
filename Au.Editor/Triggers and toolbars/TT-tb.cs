@@ -8,9 +8,7 @@ using CAW::Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.CodeAnalysis.Shared.Extensions;
 using CAW::Microsoft.CodeAnalysis.Shared.Extensions;
-using Microsoft.CodeAnalysis.CSharp.Extensions;
 using CAW::Microsoft.CodeAnalysis.FindSymbols;
 
 using Au.Triggers;

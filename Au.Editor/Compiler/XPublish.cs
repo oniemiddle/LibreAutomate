@@ -1,8 +1,6 @@
 using Au.Controls;
 using System.Xml.Linq;
 using System.Windows;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using System.Windows.Controls;
 
 namespace LA;

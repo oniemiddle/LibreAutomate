@@ -2,8 +2,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Au.Controls;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis;
 using System.Xml.Linq;
 
 namespace LA;

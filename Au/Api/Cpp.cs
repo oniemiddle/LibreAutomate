@@ -1,5 +1,3 @@
-using static Au.Types.GWL;
-
 namespace Au.Types;
 
 [DebuggerStepThrough]

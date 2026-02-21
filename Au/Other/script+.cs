@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace Au.Types {
 	/// <summary>
 	/// <see cref="script.role"/>.

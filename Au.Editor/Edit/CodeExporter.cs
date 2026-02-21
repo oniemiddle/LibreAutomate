@@ -1,12 +1,5 @@
 extern alias CAW;
-
-using Microsoft.CodeAnalysis;
 using CAW::Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
-using Microsoft.CodeAnalysis.Classification;
-using CAW::Microsoft.CodeAnalysis.Classification;
 using static LA.SciTheme;
 
 namespace LA;

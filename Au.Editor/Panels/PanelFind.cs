@@ -8,7 +8,6 @@ using Au.Controls;
 using ToolLand;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Media;
 using System.Windows.Data;
 

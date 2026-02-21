@@ -2,8 +2,6 @@ extern alias CAW;
 
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using Microsoft.Win32;
 using System.Runtime.Loader;
 using Au.Controls;
 using Microsoft.Web.WebView2.Wpf;

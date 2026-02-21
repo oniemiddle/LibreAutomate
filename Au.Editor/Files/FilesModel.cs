@@ -7,13 +7,9 @@ using System.IO.Compression;
 using System.Windows.Input;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media;
 using Au.Controls;
 
 namespace LA;
-
-using static Menus.File;
 
 partial class FilesModel {
 	public readonly FileNode Root;

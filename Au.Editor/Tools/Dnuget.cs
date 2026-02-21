@@ -6,7 +6,6 @@
 //Rejected: UI to search for packages and display package info. Why to duplicate the NuGet website.
 
 using System.Text.Json.Nodes;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Xml.Linq;

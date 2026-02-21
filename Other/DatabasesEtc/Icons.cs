@@ -8,7 +8,6 @@
 #define DB //undefine when debugging, to skip database code
 
 using System.Collections;
-using System.Collections.Generic;
 using System.Runtime.Loader;
 using System.Windows;
 using System.Windows.Controls;
