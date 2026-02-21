@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:Class="LibreAutomate.AvaloniaShell.Views.MainWindow"
+        Width="1200"
+        Height="760"
+        MinWidth="960"
+        MinHeight="640"
+        mc:Ignorable="d"
+        Title="{Binding Title}">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="56" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="220" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+
+    <Border Grid.Row="0" Grid.ColumnSpan="2" Background="#2D2F36" Padding="16,8">
+      <TextBlock Text="LibreAutomate Avalonia Shell" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center" />
+    </Border>
+
+    <Border Grid.Row="1" Grid.Column="0" Background="#1F2025" Padding="12">
+      <StackPanel Spacing="10">
+        <TextBlock Text="导航" FontSize="14" FontWeight="SemiBold" />
+        <Button Content="首页" Command="{Binding NavigateHomeCommand}" />
+        <Button Content="设置" Command="{Binding NavigateSettingsCommand}" IsEnabled="{Binding IsSettingsEnabled}" />
+      </StackPanel>
+    </Border>
+
+    <Border Grid.Row="1" Grid.Column="1" Padding="16" Background="#17181C">
+      <ContentControl Content="{Binding CurrentPage}" />
+    </Border>
+  </Grid>
+</Window>

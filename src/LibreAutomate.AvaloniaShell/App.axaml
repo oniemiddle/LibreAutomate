@@ -1,0 +1,20 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="using:LibreAutomate.AvaloniaShell.Views"
+             xmlns:viewModels="using:LibreAutomate.AvaloniaShell.ViewModels"
+             x:Class="LibreAutomate.AvaloniaShell.App"
+             RequestedThemeVariant="Default">
+
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+
+  <Application.DataTemplates>
+    <DataTemplate DataType="viewModels:HomePageViewModel">
+      <views:HomePageView />
+    </DataTemplate>
+    <DataTemplate DataType="viewModels:SettingsPageViewModel">
+      <views:SettingsPageView />
+    </DataTemplate>
+  </Application.DataTemplates>
+</Application>
