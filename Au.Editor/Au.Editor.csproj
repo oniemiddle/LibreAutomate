@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
@@ -167,12 +167,12 @@
 	  <PackageReference Include="NuGet.Versioning" Version="6.14.0" />
 	</ItemGroup>
 
-	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-		<Exec Command="$(SolutionDir)Other\BuildEvents\bin\Debug\BuildEvents.exe preBuild $(Configuration)" />
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent" Condition="Exists('$(SolutionDir)Other\BuildEvents\bin\Debug\BuildEvents.exe')">
+		<Exec Command="$(SolutionDir)Other\BuildEvents\bin\Debug\BuildEvents.exe preBuild $(Configuration)" ContinueOnError="WarnAndContinue" />
 	</Target>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="$(SolutionDir)Other\BuildEvents\bin\Debug\BuildEvents.exe postBuild $(Configuration)" />
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="Exists('$(SolutionDir)Other\BuildEvents\bin\Debug\BuildEvents.exe')">
+		<Exec Command="$(SolutionDir)Other\BuildEvents\bin\Debug\BuildEvents.exe postBuild $(Configuration)" ContinueOnError="WarnAndContinue" />
 	</Target>
 
 </Project>

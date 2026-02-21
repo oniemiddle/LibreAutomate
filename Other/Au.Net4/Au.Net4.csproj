@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Au.Net4</RootNamespace>
     <AssemblyName>Au.Net4</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
